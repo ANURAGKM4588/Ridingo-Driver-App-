@@ -10,7 +10,7 @@ on:
 jobs:
   build-ios:
     name: Build iOS IPA File
-    runs-on: macos-latest
+    runs-on: macos-14
 
     steps:
       - name: Checkout Code
@@ -31,9 +31,13 @@ jobs:
       - name: Sync Capacitor iOS
         run: npx cap sync ios
 
+      - name: Fix Package.swift Windows Path Backslashes
+        run: node -e "const fs = require('fs'); const p = 'ios/App/CapApp-SPM/Package.swift'; if (fs.existsSync(p)) { fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace(/\\\\/g, '/')); }"
+
       - name: Build Xcode iOS App
         run: |
-          xcodebuild -workspace ios/App/App.xcworkspace \
+          cd ios/App
+          xcodebuild -project App.xcodeproj \
                      -scheme App \
                      -sdk iphoneos \
                      -configuration Release \
@@ -46,7 +50,7 @@ jobs:
       - name: Package into Standalone .ipa File
         run: |
           cd ios/App/build/Build/Products/Release-iphoneos
-          mkdir Payload
+          mkdir -p Payload
           cp -r App.app Payload/
           zip -r Ridingo-DriverApp.ipa Payload
 
