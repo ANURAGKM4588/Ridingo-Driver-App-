@@ -18,8 +18,8 @@ export const CURRENCIES: Record<RegionCode, CurrencyConfig> = {
   ae: { id: 'ae', name: 'United Arab Emirates', currencySymbol: 'AED ', currencyCode: 'AED', exchangeRate: 3.67, flag: '🇦🇪' },
 };
 
-export function formatPrice(amountInUSD: number, regionCode: RegionCode = 'us', decimals: number = 0): string {
-  const config = CURRENCIES[regionCode] || CURRENCIES.us;
+export function formatPrice(amountInUSD: number, regionCode: RegionCode = 'in', decimals: number = 0): string {
+  const config = CURRENCIES[regionCode] || CURRENCIES.in;
   const converted = amountInUSD * config.exchangeRate;
 
   if (regionCode === 'in') {
@@ -33,4 +33,12 @@ export function formatPrice(amountInUSD: number, regionCode: RegionCode = 'us', 
     ? converted.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
     : Math.round(converted).toLocaleString('en-US');
   return `${config.currencySymbol}${formattedNum}`;
+}
+
+export function formatRupees(amount: number, decimals: number = 2): string {
+  const formatted = amount.toLocaleString('en-IN', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+  return `₹${formatted}`;
 }

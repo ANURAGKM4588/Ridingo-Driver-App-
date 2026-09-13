@@ -64,6 +64,12 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Ridingo requires camera access to take mandatory pre-trip vehicle condition inspection photos.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Ridingo requires location access to navigate driver rides and verify pre-trip inspection location.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Ridingo needs access to save vehicle verification photos.</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 </dict>

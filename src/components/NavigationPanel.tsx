@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NavigationPanel — Turn-by-turn navigation for drivers
  * Powered by OSRM (free, no API key) via routing.ts
  */
@@ -52,23 +52,23 @@ export const NavigationPanel: React.FC<NavigationPanelProps> = ({
 
   if (isLoading) {
     return (
-      <div className="bg-[#121212] rounded-3xl p-4 space-y-3 border border-slate-800 animate-pulse">
+      <div className="bg-[#121824] rounded-3xl p-4 space-y-3 border border-white/10 animate-pulse">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-slate-800" />
+          <div className="w-12 h-12 rounded-2xl bg-white/10" />
           <div className="flex-1 space-y-2">
-            <div className="h-4 bg-slate-800 rounded-lg w-3/4" />
-            <div className="h-3 bg-slate-800 rounded-lg w-1/2" />
+            <div className="h-4 bg-white/10 rounded-lg w-3/4" />
+            <div className="h-3 bg-white/10 rounded-lg w-1/2" />
           </div>
         </div>
-        <p className="text-[11px] text-slate-500 text-center font-medium">Calculating route via OSRM...</p>
+        <p className="text-[11px] text-slate-400 text-center font-medium">Calculating route via OSRM...</p>
       </div>
     );
   }
 
   if (!route) {
     return (
-      <div className="bg-[#121212] rounded-3xl p-4 border border-slate-800 text-center space-y-2">
-        <Navigation className="w-8 h-8 text-slate-600 mx-auto" />
+      <div className="bg-[#121824] rounded-3xl p-4 border border-white/10 text-center space-y-2">
+        <Navigation className="w-8 h-8 text-slate-500 mx-auto" />
         <p className="text-xs text-slate-400 font-medium">
           Route unavailable. Enter pickup &amp; destination to get directions.
         </p>
@@ -81,7 +81,7 @@ export const NavigationPanel: React.FC<NavigationPanelProps> = ({
   const progress = Math.min(100, Math.round((currentStepIndex / Math.max(route.steps.length - 1, 1)) * 100));
 
   return (
-    <div className="bg-[#121212] rounded-3xl border border-slate-800 overflow-hidden shadow-2xl">
+    <div className="bg-[#121824] rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
 
       {/* ── TOP: Current Maneuver ── */}
       <div className="p-4 border-b border-slate-800/60">

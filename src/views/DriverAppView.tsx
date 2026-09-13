@@ -71,9 +71,9 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
   const [showNotificationsModal, setShowNotificationsModal] = useState<boolean>(false);
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(2);
   const [notificationsList, setNotificationsList] = useState([
-    { id: '1', title: 'High Demand Surge Bonus ⚡', desc: 'Earn +$15.00 extra per completed trip in Beverly Hills zone until 6:00 PM.', time: '10m ago', unread: true, type: 'offer', icon: Sparkles },
+    { id: '1', title: 'High Demand Surge Bonus ⚡', desc: 'Earn +₹250 extra per completed trip in Connaught Place zone until 6:00 PM.', time: '10m ago', unread: true, type: 'offer', icon: Sparkles },
     { id: '2', title: 'Vehicle Inspection Verified ✓', desc: 'Your 2024 Mercedes-Maybach commercial permit was approved for 2026.', time: '1h ago', unread: true, type: 'driver', icon: ShieldCheck },
-    { id: '3', title: 'Weekly Payout Ready 💰', desc: 'Direct deposit of $1,420.50 initiated to Chase Checking ****4921.', time: '5h ago', unread: false, type: 'booking', icon: CheckCircle2 },
+    { id: '3', title: 'Weekly Payout Ready 💰', desc: 'Direct deposit of ₹24,850.00 initiated to HDFC Bank ****4921.', time: '5h ago', unread: false, type: 'booking', icon: CheckCircle2 },
   ]);
 
   // Real-Time Cross-Tab Dispatch Listener (Connects User App to Driver App)
@@ -87,15 +87,15 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
         setIncomingRequest({
           id: payload.requestId || payload.bookingNumber || `REQ-${Math.floor(1000 + Math.random() * 9000)}`,
           bookingNumber: payload.bookingNumber || payload.requestId,
-          customerName: payload.customerName || 'Alexander Vance',
+          customerName: payload.customerName || 'Priya Sharma',
           customerRating: payload.customerRating || 4.98,
-          pickup: payload.pickup || '742 Evergreen Terrace, Beverly Hills',
-          destination: payload.destination || 'LAX International Airport',
+          pickup: payload.pickup || 'Marine Drive Walkway, Ernakulam, Kochi',
+          destination: payload.destination || 'Cochin International Airport (COK), Nedumbassery',
           serviceType: payload.serviceType || 'Executive Chauffeur Drive',
-          duration: payload.duration || '4 Hours',
-          totalFare: payload.totalFare || 140.00,
-          driverPayout: payload.driverPayout || Math.round((payload.totalFare || 140) * 0.80 * 100) / 100,
-          distance: '1.4 miles away',
+          duration: payload.duration || '42 mins',
+          totalFare: payload.totalFare || 1450.00,
+          driverPayout: payload.driverPayout || Math.round((payload.totalFare || 1450) * 0.80 * 100) / 100,
+          distance: '2.5 km away (6 min pickup)',
           timeRemaining: 30,
         });
         setActiveDriverTab('rides');
@@ -119,9 +119,9 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
       requestId: incomingRequest.id,
       bookingNumber: incomingRequest.bookingNumber || incomingRequest.id,
       driverName: 'Marcus Vance',
-      driverRating: 4.98,
+      driverRating: 4.96,
       driverPhone: '+1 (555) 382-9102',
-      estimatedArrival: '8 mins',
+      estimatedArrival: '6 mins',
       status: 'accepted'
     }, 'driver-app');
 
@@ -135,7 +135,7 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
         requestId: incomingRequest.id,
         bookingNumber: incomingRequest.bookingNumber || incomingRequest.id,
         driverName: 'Marcus Vance',
-        driverRating: 4.98,
+        driverRating: 4.96,
         driverPhone: '+1 (555) 382-9102',
         status: 'declined'
       }, 'driver-app');
@@ -147,15 +147,15 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
     setRequestTimer(15);
     setIncomingRequest({
       id: `REQ-${Math.floor(1000 + Math.random() * 9000)}`,
-      customerName: 'Sophia Loren',
+      customerName: 'Priya Sharma',
       customerRating: 4.98,
-      pickup: '100 Wilshire Blvd, Santa Monica',
-      destination: 'The Beverly Hills Hotel, Sunset Blvd',
-      serviceType: 'Outstation Luxury Drive',
-      duration: '2 Hours',
-      totalFare: 195.00,
-      driverPayout: 156.00,
-      distance: '1.8 miles away',
+      pickup: 'Marine Drive Walkway, Ernakulam, Kochi',
+      destination: 'Cochin International Airport (COK), Nedumbassery',
+      serviceType: 'Executive Chauffeur Drive',
+      duration: '42 mins',
+      totalFare: 1450.00,
+      driverPayout: 1160.00,
+      distance: '2.5 km away (6 min pickup)',
       timeRemaining: 15,
     });
   };
@@ -313,7 +313,7 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
                 <div className="grid grid-cols-3 gap-2.5 pt-1">
                   <div className="bg-slate-50 border border-slate-200/80 p-3 rounded-2xl text-center space-y-0.5 shadow-2xs">
                     <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Today's Pay</span>
-                    <span className="text-base font-black text-slate-900">${todayEarnings.toFixed(2)}</span>
+                    <span className="text-base font-black text-slate-900">₹{todayEarnings.toFixed(2)}</span>
                     <span className="text-[9px] font-bold text-emerald-600 flex items-center justify-center gap-0.5">
                       <TrendingUp className="w-2.5 h-2.5" /> +14.2%
                     </span>
@@ -387,7 +387,7 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
                     <p className="text-xs text-slate-500 font-medium">★ {incomingRequest.customerRating} • {incomingRequest.serviceType}</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-2xl font-black text-slate-900 block">${incomingRequest.driverPayout.toFixed(2)}</span>
+                    <span className="text-2xl font-black text-slate-900 block">₹{incomingRequest.driverPayout.toFixed(2)}</span>
                     <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 inline-block">Net Payout</span>
                   </div>
                 </div>
@@ -442,7 +442,7 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
                     <h3 className="font-black text-lg text-slate-900">{activeTrip.customerName}</h3>
                   </div>
                   <span className="text-xl font-black text-slate-900 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-2xl border border-emerald-200">
-                    ${activeTrip.driverPayout.toFixed(2)}
+                    ₹{activeTrip.driverPayout.toFixed(2)}
                   </span>
                 </div>
 
@@ -523,7 +523,7 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
                       onClick={handleCompleteTrip}
                       className="w-full py-4 px-5 rounded-2xl bg-[#fcd502] hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider text-center shadow-md cursor-pointer transition-all active:scale-95"
                     >
-                      Complete Ride & Collect ${activeTrip.driverPayout.toFixed(2)}
+                      Complete Ride & Collect ₹{activeTrip.driverPayout.toFixed(2)}
                     </button>
                   )}
 
@@ -532,7 +532,7 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
                       <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
                       <h4 className="font-bold text-sm text-slate-900">Trip Completed Successfully!</h4>
                       <p className="text-xs text-slate-500 font-medium">
-                        ${activeTrip.driverPayout.toFixed(2)} added to your Driver Balance.
+                        ₹{activeTrip.driverPayout.toFixed(2)} added to your Driver Balance.
                       </p>
                       <button
                         type="button"
@@ -560,11 +560,11 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Available Balance</span>
-                  <h3 className="text-3xl font-black text-slate-900">${todayEarnings.toFixed(2)}</h3>
+                  <h3 className="text-3xl font-black text-slate-900">₹{todayEarnings.toFixed(2)}</h3>
                 </div>
                 <button
                   type="button"
-                  onClick={() => alert(`Initiating instant payout of $${todayEarnings.toFixed(2)} to Chase Bank ****4921`)}
+                  onClick={() => alert(`Initiating instant payout of ₹${todayEarnings.toFixed(2)} to HDFC Bank ****4921`)}
                   className="py-2.5 px-4 rounded-xl bg-[#fcd502] hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md cursor-pointer"
                 >
                   Instant Payout
@@ -572,7 +572,7 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
               </div>
 
               <div className="border-t border-slate-100 pt-3 flex items-center justify-between text-xs text-slate-500 font-medium">
-                <span>Weekly Target: $1,200.00</span>
+                <span>Weekly Target: ₹25,000.00</span>
                 <span className="text-emerald-600 font-bold">82% Achieved</span>
               </div>
             </div>
@@ -582,17 +582,17 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
               <div className="space-y-2 text-xs">
                 <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                   <div>
-                    <span className="font-bold text-slate-900 block">Beverly Hills ➔ LAX Airport</span>
+                    <span className="font-bold text-slate-900 block">Connaught Place ➔ Aerocity</span>
                     <span className="text-[10px] text-slate-500">4 Hours • Executive SUV</span>
                   </div>
-                  <span className="font-black text-emerald-600 text-sm">+$112.00</span>
+                  <span className="font-black text-emerald-600 text-sm">+₹1,250.00</span>
                 </div>
                 <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                   <div>
-                    <span className="font-bold text-slate-900 block">Santa Monica ➔ Sunset Blvd</span>
+                    <span className="font-bold text-slate-900 block">Cyber Hub ➔ IGI Airport T3</span>
                     <span className="text-[10px] text-slate-500">2 Hours • Maybach Chauffeur</span>
                   </div>
-                  <span className="font-black text-emerald-600 text-sm">+$136.50</span>
+                  <span className="font-black text-emerald-600 text-sm">+₹950.00</span>
                 </div>
               </div>
             </div>
@@ -604,9 +604,9 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
           <div className="space-y-3 animate-fade-in text-xs text-slate-900">
             <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider px-1">Completed Ride History</h4>
             {[
-              { customer: 'Alexander Vance', date: 'Today, 2:30 PM', fare: '$112.00', status: 'Completed', rating: '5.0 ★' },
-              { customer: 'Lady Eleanor Vance', date: 'Yesterday, 6:15 PM', fare: '$180.00', status: 'Completed', rating: '5.0 ★' },
-              { customer: 'David Miller', date: '08/03/2026', fare: '$95.00', status: 'Completed', rating: '4.9 ★' },
+              { customer: 'Priya Sharma', date: 'Today, 2:30 PM', fare: '₹1,250.00', status: 'Completed', rating: '5.0 ★' },
+              { customer: 'Alexander Vance', date: 'Yesterday, 6:15 PM', fare: '₹1,800.00', status: 'Completed', rating: '5.0 ★' },
+              { customer: 'David Miller', date: '08/03/2026', fare: '₹950.00', status: 'Completed', rating: '4.9 ★' },
             ].map((item, idx) => (
               <div key={idx} className="p-4 rounded-2xl bg-white border border-slate-200 flex items-center justify-between shadow-xs">
                 <div>
@@ -857,19 +857,19 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
             <div className="space-y-1.5 text-xs">
               <div className="flex justify-between text-slate-600">
                 <span>Base Ride Fare</span>
-                <span className="font-semibold text-slate-900">${(((activeTrip || completedTripData)?.totalFare || 140) * 0.75).toFixed(2)}</span>
+                <span className="font-semibold text-slate-900">₹{(((activeTrip || completedTripData)?.totalFare || 1450) * 0.75).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-slate-600">
                 <span>Distance & Toll Charges</span>
-                <span className="font-semibold text-slate-900">${(((activeTrip || completedTripData)?.totalFare || 140) * 0.25).toFixed(2)}</span>
+                <span className="font-semibold text-slate-900">₹{(((activeTrip || completedTripData)?.totalFare || 1450) * 0.25).toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-slate-200 font-extrabold text-sm">
                 <span className="text-slate-900">Total Fare Due</span>
-                <span className="text-xl font-black text-slate-900">${((activeTrip || completedTripData)?.totalFare || 140).toFixed(2)}</span>
+                <span className="text-xl font-black text-slate-900">₹{((activeTrip || completedTripData)?.totalFare || 1450).toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-xl font-bold border border-emerald-200">
                 <span>Net Driver Payout</span>
-                <span>${((activeTrip || completedTripData)?.driverPayout || 112).toFixed(2)}</span>
+                <span>₹{((activeTrip || completedTripData)?.driverPayout || 1160).toFixed(2)}</span>
               </div>
             </div>
 
@@ -883,14 +883,14 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
               {/* QR Code Graphic Container */}
               <div className="bg-white p-3 rounded-2xl inline-block shadow-md border-2 border-[#fcd502]">
                 <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=ridingo@upi%26pn=RidingoChauffeur%26am=${(activeTrip || completedTripData)?.totalFare || 140}%26cu=USD`}
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=ridingo@upi%26pn=RidingoChauffeur%26am=${(activeTrip || completedTripData)?.totalFare || 1450}%26cu=INR`}
                   alt="Payment QR Code"
                   className="w-36 h-36 mx-auto object-contain"
                 />
               </div>
 
               <p className="text-[10px] text-slate-600 font-medium">
-                Scan via GPay, PhonePe, Apple Pay, or Mobile Banking to pay immediately.
+                Scan via GPay, PhonePe, Paytm, or Mobile Banking to pay immediately.
               </p>
             </div>
 
@@ -907,7 +907,7 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
                   }}
                   className="w-full py-3.5 rounded-2xl bg-[#fcd502] hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer text-center"
                 >
-                  Mark Payment Collected (${((activeTrip || completedTripData)?.totalFare || 140).toFixed(2)})
+                  Mark Payment Collected (₹{((activeTrip || completedTripData)?.totalFare || 1450).toFixed(2)})
                 </button>
               ) : (
                 <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-center font-bold text-xs flex items-center justify-center gap-2 animate-fade-in">

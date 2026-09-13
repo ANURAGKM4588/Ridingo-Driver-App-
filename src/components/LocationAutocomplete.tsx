@@ -23,25 +23,35 @@ interface LocationAutocompleteProps {
   className?: string;
 }
 
-// Popular pre-seeded suggestions (shown before user types or as instant filter)
+// Popular Kerala pre-seeded suggestions (Ridingo Kerala Exclusive Service Zone)
 const SEED_SUGGESTIONS: LocationSuggestion[] = [
-  { displayName: 'Kerala, India', shortName: 'Kerala State, India', lat: 10.8505, lng: 76.2711, type: 'city', city: 'Kerala' },
-  { displayName: 'Kochi (Cochin), Kerala', shortName: 'Kochi, Kerala', lat: 9.9312, lng: 76.2673, type: 'city', city: 'Kochi' },
-  { displayName: 'Trivandrum International Airport (TRV), Kerala', shortName: 'Trivandrum Airport, Kerala', lat: 8.4821, lng: 76.9200, type: 'airport', city: 'Thiruvananthapuram' },
-  { displayName: 'Cochin International Airport (COK), Kerala', shortName: 'Cochin Airport (COK), Nedumbassery', lat: 10.1520, lng: 76.4019, type: 'airport', city: 'Kochi' },
-  { displayName: 'Calicut International Airport (CCJ), Kozhikode', shortName: 'Calicut Airport, Kozhikode', lat: 11.1368, lng: 75.9553, type: 'airport', city: 'Kozhikode' },
-  { displayName: 'Indira Gandhi International Airport (DEL)', shortName: 'IGI Airport, Delhi', lat: 28.5562, lng: 77.1000, type: 'airport', city: 'New Delhi' },
-  { displayName: 'Chhatrapati Shivaji Maharaj Intl Airport (BOM)', shortName: 'Mumbai Airport', lat: 19.0896, lng: 72.8656, type: 'airport', city: 'Mumbai' },
-  { displayName: 'Kempegowda International Airport (BLR)', shortName: 'Bengaluru Airport', lat: 13.1986, lng: 77.7066, type: 'airport', city: 'Bengaluru' },
-  { displayName: 'Chennai International Airport (MAA)', shortName: 'Chennai Airport', lat: 12.9941, lng: 80.1709, type: 'airport', city: 'Chennai' },
-  { displayName: 'Connaught Place, New Delhi', shortName: 'Connaught Place, Delhi', lat: 28.6315, lng: 77.2167, type: 'commercial', city: 'New Delhi' },
-  { displayName: 'Bandra Kurla Complex, Mumbai', shortName: 'BKC, Mumbai', lat: 19.0596, lng: 72.8656, type: 'commercial', city: 'Mumbai' },
-  { displayName: 'All India Institute of Medical Sciences (AIIMS)', shortName: 'AIIMS, New Delhi', lat: 28.5672, lng: 77.2100, type: 'hospital', city: 'New Delhi' },
-  { displayName: 'Apollo Hospitals, Greams Road Chennai', shortName: 'Apollo Hospital, Chennai', lat: 13.0569, lng: 80.2520, type: 'hospital', city: 'Chennai' },
-  { displayName: 'New Delhi Railway Station', shortName: 'NDLS Railway Station', lat: 28.6421, lng: 77.2194, type: 'station', city: 'New Delhi' },
-  { displayName: 'Mumbai Central Railway Station', shortName: 'Mumbai Central', lat: 18.9696, lng: 72.8195, type: 'station', city: 'Mumbai' },
-  { displayName: 'Cyber City, Gurugram', shortName: 'Cyber City, Gurgaon', lat: 28.4951, lng: 77.0888, type: 'commercial', city: 'Gurugram' },
-  { displayName: 'Electronic City, Bengaluru', shortName: 'Electronic City, Bengaluru', lat: 12.8399, lng: 77.6770, type: 'commercial', city: 'Bengaluru' },
+  // Kochi / Ernakulam Hub
+  { displayName: 'Marine Drive Walkway, Ernakulam, Kochi', shortName: 'Marine Drive, Kochi', lat: 9.9784, lng: 76.2757, type: 'city', city: 'Kochi' },
+  { displayName: 'Cochin International Airport (COK), Nedumbassery', shortName: 'Cochin Airport (COK)', lat: 10.1520, lng: 76.4019, type: 'airport', city: 'Kochi' },
+  { displayName: 'Infopark Phase 1 & 2, Kakkanad, Kochi', shortName: 'Infopark, Kakkanad', lat: 10.0112, lng: 76.3638, type: 'commercial', city: 'Kochi' },
+  { displayName: 'Lulu International Shopping Mall, Edappally, Kochi', shortName: 'Lulu Mall, Edappally', lat: 10.0284, lng: 76.3079, type: 'commercial', city: 'Kochi' },
+  { displayName: 'Fort Kochi Heritage Zone, Kochi', shortName: 'Fort Kochi', lat: 9.9658, lng: 76.2421, type: 'city', city: 'Kochi' },
+  { displayName: 'MG Road Metro Station, Ernakulam, Kochi', shortName: 'MG Road Metro, Kochi', lat: 9.9734, lng: 76.2825, type: 'station', city: 'Kochi' },
+  { displayName: 'Aster Medcity Hospital, Cheranallur, Kochi', shortName: 'Aster Medcity, Kochi', lat: 10.0531, lng: 76.2694, type: 'hospital', city: 'Kochi' },
+  { displayName: 'Amrita Institute of Medical Sciences (AIMS), Edappally', shortName: 'Amrita Hospital, Kochi', lat: 10.0322, lng: 76.2897, type: 'hospital', city: 'Kochi' },
+  
+  // Thiruvananthapuram (Trivandrum) Hub
+  { displayName: 'Trivandrum International Airport (TRV), Chacka', shortName: 'Trivandrum Airport (TRV)', lat: 8.4821, lng: 76.9200, type: 'airport', city: 'Thiruvananthapuram' },
+  { displayName: 'Technopark Campus Phase 1-4, Kazhakkoottam, Trivandrum', shortName: 'Technopark, Trivandrum', lat: 8.5581, lng: 76.8812, type: 'commercial', city: 'Thiruvananthapuram' },
+  { displayName: 'Kovalam Beach Promenade, Trivandrum', shortName: 'Kovalam Beach', lat: 8.4004, lng: 76.9787, type: 'city', city: 'Thiruvananthapuram' },
+  { displayName: 'Thiruvananthapuram Central Railway Station, Thampanoor', shortName: 'Trivandrum Central', lat: 8.4870, lng: 76.9532, type: 'station', city: 'Thiruvananthapuram' },
+
+  // Kozhikode (Calicut) Hub
+  { displayName: 'Calicut International Airport (CCJ), Karipur', shortName: 'Calicut Airport (CCJ)', lat: 11.1368, lng: 75.9553, type: 'airport', city: 'Kozhikode' },
+  { displayName: 'Kozhikode Beach & Mananchira Square, Calicut', shortName: 'Mananchira Square, Calicut', lat: 11.2505, lng: 75.7804, type: 'city', city: 'Kozhikode' },
+  { displayName: 'Cyberpark Special Economic Zone, Nellikode, Calicut', shortName: 'Cyberpark, Calicut', lat: 11.2619, lng: 75.8364, type: 'commercial', city: 'Kozhikode' },
+
+  // Other Major Kerala Hubs
+  { displayName: 'Kannur International Airport (CNN), Mattannur', shortName: 'Kannur Airport (CNN)', lat: 11.9177, lng: 75.5484, type: 'airport', city: 'Kannur' },
+  { displayName: 'Swaraj Round & Vadakkunnathan, Thrissur', shortName: 'Thrissur Round', lat: 10.5276, lng: 76.2144, type: 'city', city: 'Thrissur' },
+  { displayName: 'Punnamada Finishing Point & Backwaters, Alappuzha', shortName: 'Alappuzha Backwaters', lat: 9.5011, lng: 76.3470, type: 'city', city: 'Alappuzha' },
+  { displayName: 'Kumarakom Lake Resort & Bird Sanctuary, Kottayam', shortName: 'Kumarakom, Kottayam', lat: 9.6175, lng: 76.4301, type: 'hotel', city: 'Kottayam' },
+  { displayName: 'Munnar Tea Estates & Town, Idukki', shortName: 'Munnar, Idukki', lat: 10.0889, lng: 77.0595, type: 'city', city: 'Idukki' },
 ];
 
 const TYPE_ICONS: Record<string, string> = {
@@ -56,26 +66,35 @@ const TYPE_ICONS: Record<string, string> = {
 
 async function fetchNominatim(query: string): Promise<LocationSuggestion[]> {
   try {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=8&addressdetails=1&accept-language=en`;
+    // Restricted strictly to Kerala bounds (Viewbox: 74.85,12.85,77.40,8.15 & bounded=1)
+    const keralaViewbox = '74.85,12.85,77.40,8.15';
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ', Kerala')}&format=json&limit=8&addressdetails=1&accept-language=en&viewbox=${keralaViewbox}&bounded=1&countrycodes=in`;
     const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
     if (!res.ok) return [];
     const data: any[] = await res.json();
 
-    return data.map(item => {
-      const typeRaw = (item.type || item.class || 'default') as string;
-      const knownTypes = ['airport', 'hospital', 'station', 'hotel', 'commercial', 'city'];
-      const type = knownTypes.find(t => typeRaw.includes(t)) ?? (item.class === 'place' ? 'city' : 'default');
-      const city = item.address?.city || item.address?.town || item.address?.state || item.address?.county || item.address?.country || '';
-      const shortName = item.display_name.split(',').slice(0, 2).join(',').trim();
-      return {
-        displayName: item.display_name,
-        shortName,
-        lat: parseFloat(item.lat),
-        lng: parseFloat(item.lon),
-        type,
-        city,
-      } as LocationSuggestion;
-    });
+    return data
+      .filter(item => {
+        const lat = parseFloat(item.lat);
+        const lng = parseFloat(item.lon);
+        // Strict Kerala boundary filter (Lat: 8.15 to 12.85, Lng: 74.85 to 77.40)
+        return lat >= 8.15 && lat <= 12.85 && lng >= 74.85 && lng <= 77.40;
+      })
+      .map(item => {
+        const typeRaw = (item.type || item.class || 'default') as string;
+        const knownTypes = ['airport', 'hospital', 'station', 'hotel', 'commercial', 'city'];
+        const type = knownTypes.find(t => typeRaw.includes(t)) ?? (item.class === 'place' ? 'city' : 'default');
+        const city = item.address?.city || item.address?.town || item.address?.state || item.address?.county || 'Kerala';
+        const shortName = item.display_name.split(',').slice(0, 2).join(',').trim();
+        return {
+          displayName: item.display_name,
+          shortName,
+          lat: parseFloat(item.lat),
+          lng: parseFloat(item.lon),
+          type,
+          city,
+        } as LocationSuggestion;
+      });
   } catch (err) {
     console.warn('[Nominatim] Error fetching places:', err);
     return [];

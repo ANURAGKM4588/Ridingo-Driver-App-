@@ -137,7 +137,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   </div>
 
                   <div className="pt-1 flex items-center justify-between text-xs">
-                    <span className="font-black text-slate-900">${booking.priceTotal.toFixed(2)}</span>
+                    <span className="font-black text-slate-900">{formatPrice(booking.priceTotal, currentRegion, 2)}</span>
 
                     {onRepeatBooking && (
                       <button

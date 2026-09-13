@@ -5,7 +5,7 @@ export const MOCK_SERVICES: ServiceItem[] = [
     id: 'hourly-driver',
     title: 'Hourly Driver',
     subtitle: 'Flexible per-hour chauffeur for errands or meetings',
-    priceStarting: '$15 / hr',
+    priceStarting: '₹199 / hr',
     iconName: 'Clock',
     badge: 'Most Popular',
     popular: true,
@@ -15,7 +15,7 @@ export const MOCK_SERVICES: ServiceItem[] = [
     id: 'airport-pickup',
     title: 'Airport Pickup Driver',
     subtitle: 'Punctual terminal pickup & smooth transfer in your car',
-    priceStarting: '$45 flat',
+    priceStarting: '₹649 flat',
     iconName: 'PlaneTakeoff',
     badge: 'Flight Tracking',
     category: 'special'
@@ -24,7 +24,7 @@ export const MOCK_SERVICES: ServiceItem[] = [
     id: 'wedding-chauffeur',
     title: 'Wedding Chauffeur',
     subtitle: 'Elite uniform-attired driver for luxury bridal cars',
-    priceStarting: '$120 / day',
+    priceStarting: '₹1,899 / day',
     iconName: 'Sparkles',
     badge: 'VIP White Glove',
     category: 'special'
@@ -33,7 +33,7 @@ export const MOCK_SERVICES: ServiceItem[] = [
     id: 'office-drop',
     title: 'Office Drop & Pick',
     subtitle: 'Daily commute driver so you can work during transit',
-    priceStarting: '$28 / ride',
+    priceStarting: '₹349 / ride',
     iconName: 'Briefcase',
     category: 'daily'
   },
@@ -41,7 +41,7 @@ export const MOCK_SERVICES: ServiceItem[] = [
     id: 'school-drop',
     title: 'School Drop Driver',
     subtitle: 'Vetted, high-security drivers for family & kids',
-    priceStarting: '$20 / ride',
+    priceStarting: '₹249 / ride',
     iconName: 'GraduationCap',
     badge: 'Extra Vetted',
     category: 'daily'
@@ -50,7 +50,7 @@ export const MOCK_SERVICES: ServiceItem[] = [
     id: 'night-party',
     title: 'Night Party Driver',
     subtitle: 'Safe designated driver after evening drinks & galas',
-    priceStarting: '$35 flat',
+    priceStarting: '₹499 flat',
     iconName: 'Wine',
     badge: '24/7 Available',
     popular: true,
@@ -60,7 +60,7 @@ export const MOCK_SERVICES: ServiceItem[] = [
     id: 'family-tour',
     title: 'Family Tour Driver',
     subtitle: 'Full-day relaxed city & sight-seeing chauffeur',
-    priceStarting: '$95 / 8 hrs',
+    priceStarting: '₹1,499 / 8 hrs',
     iconName: 'Compass',
     category: 'daily'
   },
@@ -68,7 +68,7 @@ export const MOCK_SERVICES: ServiceItem[] = [
     id: 'corporate-travel',
     title: 'Corporate Travel',
     subtitle: 'Dedicated executive driver for business delegates',
-    priceStarting: '$150 / day',
+    priceStarting: '₹2,200 / day',
     iconName: 'Building2',
     category: 'special'
   },
@@ -76,7 +76,7 @@ export const MOCK_SERVICES: ServiceItem[] = [
     id: 'outstation-driver',
     title: 'Outstation Driver',
     subtitle: 'Highway-certified driver for long distance trips',
-    priceStarting: '$80 / day + stay',
+    priceStarting: '₹1,200 / day + stay',
     iconName: 'MapPin',
     badge: 'Highway Specialist',
     category: 'outstation'
@@ -210,7 +210,7 @@ export const PROMOTIONS: Promotion[] = [
     title: 'Corporate Membership',
     description: 'Unlimited priority driver dispatch with monthly invoicing',
     code: 'CORPEXEC',
-    discountTag: 'FLAT $50 CREDITS',
+    discountTag: 'FLAT ₹500 CREDITS',
     bgGradient: 'from-slate-900 to-black',
     validUntil: 'Business Pass',
     imageBg: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80'
@@ -223,29 +223,29 @@ export const MOCK_BOOKINGS: Booking[] = [
     bookingNumber: 'RDG-2026-8831',
     serviceId: 'hourly-driver',
     serviceTitle: 'Hourly Driver (4 Hours)',
-    pickupLocation: '742 Evergreen Terrace, Beverly Hills',
-    destinationLocation: 'Financial District & Grand Hyatt',
+    pickupLocation: 'Marine Drive Walkway, Ernakulam, Kochi',
+    destinationLocation: 'Cochin International Airport (COK), Nedumbassery',
     date: 'Today, 2:30 PM',
     time: '2:30 PM',
     durationHours: 4,
     vehicle: MOCK_VEHICLES[0], // Sedan
     driver: FEATURED_DRIVER,
     driverPreferences: {
-      language: 'English',
+      language: 'Malayalam & English',
       uniformRequired: true,
       nonSmokingRequired: true,
       seniorDriverOnly: true,
       femaleDriverPreferred: false,
-      specialInstructions: 'Please pull car around front driveway'
+      specialInstructions: 'Please arrive at Marine Drive gate 2'
     },
     status: 'in-progress',
-    priceTotal: 68.00,
+    priceTotal: 1450.00,
     priceBreakdown: {
-      baseFare: 60.00,
-      safetyInsurance: 3.50,
-      serviceFee: 4.50
+      baseFare: 1250.00,
+      safetyInsurance: 100.00,
+      serviceFee: 100.00
     },
-    paymentMethod: 'Apple Pay',
+    paymentMethod: 'UPI / PhonePe',
     createdDate: '2026-08-04'
   },
   {
@@ -253,25 +253,25 @@ export const MOCK_BOOKINGS: Booking[] = [
     bookingNumber: 'RDG-2026-7712',
     serviceId: 'airport-pickup',
     serviceTitle: 'Airport Pickup Chauffeur',
-    pickupLocation: 'Terminal 4, LAX International Airport',
-    destinationLocation: 'Bel Air Estates Residence',
+    pickupLocation: 'Cochin International Airport (COK), Terminal 3',
+    destinationLocation: 'Fort Kochi Heritage Zone, Kochi',
     date: 'Tomorrow, 08:15 AM',
     time: '08:15 AM',
     durationHours: 2,
     vehicle: MOCK_VEHICLES[1], // SUV
     driverPreferences: {
-      language: 'English',
+      language: 'Malayalam & English',
       uniformRequired: true,
       nonSmokingRequired: true,
       seniorDriverOnly: false,
       femaleDriverPreferred: false
     },
     status: 'upcoming',
-    priceTotal: 52.50,
+    priceTotal: 1150.00,
     priceBreakdown: {
-      baseFare: 45.00,
-      safetyInsurance: 3.50,
-      serviceFee: 4.00
+      baseFare: 950.00,
+      safetyInsurance: 100.00,
+      serviceFee: 100.00
     },
     paymentMethod: 'RIDINGO Wallet',
     createdDate: '2026-08-03'
@@ -281,8 +281,8 @@ export const MOCK_BOOKINGS: Booking[] = [
     bookingNumber: 'RDG-2026-6490',
     serviceId: 'night-party',
     serviceTitle: 'Night Party Designated Driver',
-    pickupLocation: 'SoHo House Downtown',
-    destinationLocation: '742 Evergreen Terrace',
+    pickupLocation: 'Infopark Phase 1, Kakkanad, Kochi',
+    destinationLocation: 'Lulu Mall, Edappally, Kochi',
     date: 'Aug 02, 2026',
     time: '11:45 PM',
     durationHours: 3,
@@ -290,26 +290,26 @@ export const MOCK_BOOKINGS: Booking[] = [
     driver: {
       ...FEATURED_DRIVER,
       id: 'drv-402',
-      name: 'Elena Rostova',
+      name: 'Priya Sharma',
       rating: 4.99,
       yearsExperience: 7,
-      phone: '+1 (555) 819-2049'
+      phone: '+91 98471 20491'
     },
     driverPreferences: {
-      language: 'English',
+      language: 'Malayalam & English',
       uniformRequired: false,
       nonSmokingRequired: true,
       seniorDriverOnly: false,
       femaleDriverPreferred: true
     },
     status: 'completed',
-    priceTotal: 45.00,
+    priceTotal: 950.00,
     priceBreakdown: {
-      baseFare: 38.00,
-      safetyInsurance: 3.50,
-      serviceFee: 3.50
+      baseFare: 800.00,
+      safetyInsurance: 75.00,
+      serviceFee: 75.00
     },
-    paymentMethod: 'Visa ending in 4921',
+    paymentMethod: 'GPay / UPI',
     createdDate: '2026-08-02'
   }
 ];
@@ -449,7 +449,7 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
   },
   {
     id: 'nt-3',
-    title: '$35 Cashback Unlocked!',
+    title: '₹350 Cashback Unlocked!',
     description: 'Your weekend family tour booking reward has been credited to your wallet.',
     timestamp: 'Yesterday',
     read: true,
@@ -459,7 +459,7 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
   {
     id: 'nt-4',
     title: 'Payment Successful',
-    description: '$68.00 processed seamlessly via Apple Pay.',
+    description: '₹680.00 processed seamlessly via UPI / Card.',
     timestamp: '2 days ago',
     read: true,
     type: 'payment',

@@ -17,10 +17,10 @@ interface WalletViewProps {
   currentRegion?: RegionCode;
 }
 
-export const WalletView: React.FC<WalletViewProps> = ({ onBack, currentRegion = 'us' }) => {
-  const [balance, setBalance] = useState<number>(340.50);
+export const WalletView: React.FC<WalletViewProps> = ({ onBack, currentRegion = 'in' }) => {
+  const [balance, setBalance] = useState<number>(3450.00);
   const [showTopUpModal, setShowTopUpModal] = useState<boolean>(false);
-  const [topUpAmount, setTopUpAmount] = useState<number>(100);
+  const [topUpAmount, setTopUpAmount] = useState<number>(500);
   const [autoPayEnabled, setAutoPayEnabled] = useState<boolean>(true);
 
   const handleTopUpSubmit = (e: React.FormEvent) => {
@@ -176,7 +176,7 @@ export const WalletView: React.FC<WalletViewProps> = ({ onBack, currentRegion = 
                   Select Amount
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {[50, 100, 250].map((amt) => (
+                  {[250, 500, 1000].map((amt) => (
                     <button
                       key={amt}
                       type="button"
@@ -198,11 +198,11 @@ export const WalletView: React.FC<WalletViewProps> = ({ onBack, currentRegion = 
                   Custom Amount
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-slate-400">$</span>
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-slate-400">₹</span>
                   <input
                     type="number"
-                    min="10"
-                    max="2000"
+                    min="50"
+                    max="25000"
                     value={topUpAmount}
                     onChange={(e) => setTopUpAmount(Number(e.target.value))}
                     className="w-full pl-8 pr-4 py-3 rounded-xl border border-slate-200 font-black text-sm text-slate-900 focus:outline-none focus:border-[#fcd502] text-center"

@@ -322,7 +322,7 @@ export const PaymentSettingsView: React.FC<PaymentSettingsViewProps> = ({ onBack
             <div className="p-3 rounded-xl flex items-center justify-between">
               <div>
                 <span className="font-extrabold text-slate-900 block">Auto Wallet Reload</span>
-                <span className="text-[10px] text-slate-500 font-medium">Add $50 when wallet falls below $20</span>
+                <span className="text-[10px] text-slate-500 font-medium">Add ₹500 when wallet falls below ₹200</span>
               </div>
               <button
                 type="button"

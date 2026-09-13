@@ -29,9 +29,9 @@ interface LiveTrackingViewProps {
   onCancelRide?: () => void;
 }
 
-// Default coordinates: Connaught Place, New Delhi & DEL Airport
-const DEFAULT_PICKUP: LatLng = { lat: 28.6315, lng: 77.2167 };
-const DEFAULT_DEST: LatLng = { lat: 28.5562, lng: 77.1000 };
+// Default coordinates: Marine Drive, Kochi & Cochin Airport (COK), Kerala
+const DEFAULT_PICKUP: LatLng = { lat: 9.9784, lng: 76.2757 };
+const DEFAULT_DEST: LatLng = { lat: 10.1520, lng: 76.4019 };
 
 export const LiveTrackingView: React.FC<LiveTrackingViewProps> = ({
   booking,

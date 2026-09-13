@@ -1,4 +1,4 @@
-﻿/**
+/**
  * LeafletMap — Interactive map with Leaflet.js + OpenStreetMap + OSRM route display
  * 100% free, no API key required.
  */
@@ -70,13 +70,22 @@ const destIcon = L.divIcon({
   iconAnchor: [8, 8],
 });
 
-const DARK_TILES  = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-const LIGHT_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-const DARK_ATTR   = '&copy; <a href="https://carto.com">CARTO</a> &copy; <a href="https://openstreetmap.org">OSM</a>';
-const LIGHT_ATTR  = '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
+// 100% Open-Source, Free & Unlimited Map Tile Endpoints (Zero API Key, Zero Watermarks)
+// Official OpenStreetMap Foundation standard tile servers (100% Free Community Map)
+const OPENSTREETMAP_TILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const OSM_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors';
+
+// Kerala Geographical Bounding Box (Lat: 8.15°N to 12.85°N, Lng: 74.85°E to 77.40°E)
+// Strictly locks the viewport to Kerala state only (Trivandrum to Kasaragod)
+export const KERALA_BOUNDS: L.LatLngBoundsExpression = [
+  [8.15, 74.85],  // South-West (Trivandrum coastal)
+  [12.85, 77.40], // North-East (Kasaragod / Wayanad border)
+];
+
+export const KERALA_CENTER: LatLng = { lat: 9.9816, lng: 76.2999 }; // Marine Drive / MG Road, Kochi, Kerala
 
 export const LeafletMap: React.FC<LeafletMapProps> = ({
-  center = { lat: 12.9716, lng: 77.5946 },
+  center = KERALA_CENTER,
   zoom = 14,
   className = 'w-full h-full',
   pickup,
@@ -98,24 +107,29 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
   const fallbackLineRef  = useRef<L.Polyline | null>(null);
   const headingRef       = useRef<number | undefined>(driverHeading);
 
-  // ── Init map ──
+  // ── Init 100% Open-Source Kerala Map (Strict Kerala Boundary Lock) ──
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
     const map = L.map(containerRef.current, {
       center: [center.lat, center.lng],
-      zoom,
+      zoom: Math.max(zoom, 10),
       zoomControl: false,
-      attributionControl: true,
+      attributionControl: false,
+      maxBounds: KERALA_BOUNDS,
+      maxBoundsViscosity: 1.0, // Strict rigid lock: impossible to pan or drag outside Kerala
+      minZoom: 9,              // Cannot zoom out to see other states
+      maxZoom: 18,
     });
 
-    L.tileLayer(darkMode ? DARK_TILES : LIGHT_TILES, {
-      attribution: darkMode ? DARK_ATTR : LIGHT_ATTR,
-      maxZoom: 19,
-      subdomains: 'abcd',
-    }).addTo(map);
+    // 100% Free OpenStreetMap Foundation raster tiles (Zero API key, Zero limit)
+    const tileLayer = L.tileLayer(OPENSTREETMAP_TILES, {
+      attribution: OSM_ATTR,
+      maxZoom: 18,
+      className: darkMode ? 'osm-dark-tiles' : '',
+    });
+    tileLayer.addTo(map);
 
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
     mapRef.current = map;
     onMapReady?.(map);
 

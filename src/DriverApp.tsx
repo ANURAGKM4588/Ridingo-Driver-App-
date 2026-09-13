@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  Home,
   Navigation,
   DollarSign,
   Clock,
@@ -23,10 +22,21 @@ import {
   Shield,
   Award,
   ChevronRight,
+  ChevronDown,
   Flame,
   Radio,
   Bell,
-  X
+  X,
+  Compass,
+  Camera,
+  Lock,
+  LocateFixed,
+  Layers,
+  ArrowUpRight,
+  SlidersHorizontal,
+  ChevronUp,
+  Play,
+  AlertCircle
 } from 'lucide-react';
 import ridingoLogo from './assets/ridingo-logo.png';
 import { MobileControlCenterStatusBar } from './components/MobileControlCenterStatusBar';
@@ -37,10 +47,13 @@ import { fetchRoute } from './lib/routing';
 import type { Route } from './lib/routing';
 import { LeafletMap } from './components/LeafletMap';
 import { NavigationPanel } from './components/NavigationPanel';
+import { VehicleInspectionModal } from './components/VehicleInspectionModal';
+import type { VehicleConditionData } from './components/VehicleInspectionModal';
+import { formatRupees } from './data/currencies';
 
 export function DriverApp() {
   // Driver Auth State
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [isOtpStep, setIsOtpStep] = useState<boolean>(false);
   const [driverEmail, setDriverEmail] = useState<string>('');
   const [driverPhone, setDriverPhone] = useState<string>('');
@@ -51,18 +64,17 @@ export function DriverApp() {
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'rides' | 'earnings' | 'history' | 'profile'>('rides');
   const [selectedCategoryTab, setSelectedCategoryTab] = useState<'Hourly' | 'Airport' | 'Outstation'>('Hourly');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [todayEarnings, setTodayEarnings] = useState<number>(248.50);
+  const [todayEarnings, setTodayEarnings] = useState<number>(2850.00);
   const [completedTripsCount, setCompletedTripsCount] = useState<number>(5);
+  const [onlineHours, setOnlineHours] = useState<string>('4h 20m');
 
   // Driver Profile & Settings State
   const [preferredNav, setPreferredNav] = useState<'google_maps' | 'waze' | 'apple_maps'>('google_maps');
   const [autoAccept, setAutoAccept] = useState<boolean>(false);
   const [pickupRadius, setPickupRadius] = useState<number>(15);
-  const [destinationAddress, setDestinationAddress] = useState<string>('742 Evergreen Terrace, Beverly Hills');
   const [destinationFilterEnabled, setDestinationFilterEnabled] = useState<boolean>(false);
 
-  // Incoming Dispatch Request State — null by default, populated via BroadcastChannel from User App
+  // Incoming Dispatch Request State
   const [incomingRequest, setIncomingRequest] = useState<any | null>(null);
   const [pendingRequestId, setPendingRequestId] = useState<string | null>(null);
 
@@ -70,21 +82,64 @@ export function DriverApp() {
   const [completedTripData, setCompletedTripData] = useState<any | null>(null);
   const [tripStep, setTripStep] = useState<'en_route' | 'arrived' | 'trip_started' | 'completed'>('en_route');
   const [requestTimer, setRequestTimer] = useState<number>(30);
-  const geoWatchRef = React.useRef<number | null>(null);
+  const geoWatchRef = useRef<number | null>(null);
   const [locationTrackingActive, setLocationTrackingActive] = useState(false);
 
-  // Geospatial, Navigation & Traccar State
-  const [driverCurrentLocation, setDriverCurrentLocation] = useState<{ lat: number; lng: number }>({ lat: 28.6289, lng: 77.2065 });
+  // Incomplete / Paused Trips State
+  const [incompleteTrips, setIncompleteTrips] = useState<Array<{
+    id: string;
+    trip: any;
+    tripStep: 'en_route' | 'arrived' | 'trip_started';
+    pausedAt: string;
+    vehicleInspectionData?: VehicleConditionData | null;
+  }>>([]);
+
+  // Completed Trips State (Kerala)
+  const [completedTripsList, setCompletedTripsList] = useState<Array<{
+    id: string;
+    customer: string;
+    route: string;
+    date: string;
+    fare: string;
+    rating: string;
+    serviceType?: string;
+  }>>([
+    { id: 'HIST-1', customer: 'Priya Sharma', route: 'Marine Drive, Kochi ➔ Cochin Airport (COK)', date: 'Today, 2:15 PM', fare: '₹1,250.00', rating: '5.0 ★', serviceType: 'Executive Sedan' },
+    { id: 'HIST-2', customer: 'Alexander Vance', route: 'Fort Kochi Heritage ➔ Willingdon Island', date: 'Today, 10:45 AM', fare: '₹850.00', rating: '5.0 ★', serviceType: 'Luxury Chauffeur' },
+    { id: 'HIST-3', customer: 'David Miller', route: 'Infopark Phase 1, Kakkanad ➔ MG Road, Kochi', date: 'Yesterday, 6:30 PM', fare: '₹950.00', rating: '4.9 ★', serviceType: 'Business Comfort' },
+    { id: 'HIST-4', customer: 'Neha Kapoor', route: 'Aluva Metro Hub ➔ Thrissur Round East', date: '08/03/2026', fare: '₹1,450.00', rating: '5.0 ★', serviceType: 'Outstation Executive' },
+  ]);
+
+  // Geospatial, Navigation & Traccar State (Kerala, India)
+  const [driverCurrentLocation, setDriverCurrentLocation] = useState<{ lat: number; lng: number }>({ lat: 9.9816, lng: 76.2999 }); // Marine Drive / MG Road, Kochi, Kerala
   const [driverHeading, setDriverHeading] = useState<number>(45);
-  const [pickupLatLng, setPickupLatLng] = useState<{ lat: number; lng: number }>({ lat: 28.6315, lng: 77.2167 });
-  const [destLatLng, setDestLatLng] = useState<{ lat: number; lng: number }>({ lat: 28.5562, lng: 77.1000 });
+  const [pickupLatLng, setPickupLatLng] = useState<{ lat: number; lng: number }>({ lat: 9.9784, lng: 76.2757 }); // Marine Drive Promenade, Kochi
+  const [destLatLng, setDestLatLng] = useState<{ lat: number; lng: number }>({ lat: 10.1518, lng: 76.3930 }); // Cochin International Airport T3 (COK), Nedumbassery, Kerala
   const [activeRoute, setActiveRoute] = useState<Route | null>(null);
   const [isLoadingRoute, setIsLoadingRoute] = useState<boolean>(false);
   const [currentNavStepIndex, setCurrentNavStepIndex] = useState<number>(0);
-  const [showNavPanel, setShowNavPanel] = useState<boolean>(true);
+  const [showNavPanel, setShowNavPanel] = useState<boolean>(false);
+
+  // Payment Request Slip Modal State
+  const [showPaymentSlipModal, setShowPaymentSlipModal] = useState<boolean>(false);
+  const [isPaymentCollected, setIsPaymentCollected] = useState<boolean>(false);
+  const [isClosingPaymentSlip, setIsClosingPaymentSlip] = useState<boolean>(false);
+
+  // Vehicle Pre-Trip Condition Inspection Modal State
+  const [showInspectionModal, setShowInspectionModal] = useState<boolean>(false);
+  const [vehicleInspectionData, setVehicleInspectionData] = useState<VehicleConditionData | null>(null);
+
+  // Driver Notifications State
+  const [showNotificationsModal, setShowNotificationsModal] = useState<boolean>(false);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(2);
+  const [notificationsList, setNotificationsList] = useState([
+    { id: '1', title: 'High Demand Surge Active ⚡', desc: 'Earn +₹250 surge bonus per completed ride in Kochi Marine Drive & Kakkanad Infopark zone until 6:00 PM.', time: '8m ago', unread: true, type: 'offer', icon: Sparkles },
+    { id: '2', title: 'Commercial Permit Verified ✓', desc: 'Kerala Motor Vehicles Department (KMVD) chauffeur permit is active.', time: '1h ago', unread: true, type: 'driver', icon: ShieldCheck },
+    { id: '3', title: 'Direct Deposit Confirmed 💰', desc: 'Weekly earnings payout of ₹24,850.00 transferred to Federal Bank ****4921.', time: '4h ago', unread: false, type: 'booking', icon: CheckCircle2 },
+  ]);
 
   // Fetch OSRM navigation route on trip step change
-  React.useEffect(() => {
+  useEffect(() => {
     if (!activeTrip) {
       setActiveRoute(null);
       return;
@@ -103,20 +158,6 @@ export function DriverApp() {
     });
   }, [activeTrip, tripStep]);
 
-  // Payment Request Slip Modal State
-  const [showPaymentSlipModal, setShowPaymentSlipModal] = useState<boolean>(false);
-  const [isPaymentCollected, setIsPaymentCollected] = useState<boolean>(false);
-  const [isClosingPaymentSlip, setIsClosingPaymentSlip] = useState<boolean>(false);
-
-  // Driver Notifications State
-  const [showNotificationsModal, setShowNotificationsModal] = useState<boolean>(false);
-  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(2);
-  const [notificationsList, setNotificationsList] = useState([
-    { id: '1', title: 'High Demand Surge Bonus ⚡', desc: 'Earn +$15.00 extra per completed trip in Beverly Hills zone until 6:00 PM.', time: '10m ago', unread: true, type: 'offer', icon: Sparkles },
-    { id: '2', title: 'Vehicle Inspection Verified ✓', desc: 'Your 2024 Mercedes-Maybach commercial permit was approved for 2026.', time: '1h ago', unread: true, type: 'driver', icon: ShieldCheck },
-    { id: '3', title: 'Weekly Payout Ready 💰', desc: 'Direct deposit of $1,420.50 initiated to Chase Checking ****4921.', time: '5h ago', unread: false, type: 'booking', icon: CheckCircle2 },
-  ]);
-
   // ── BroadcastChannel: Listen for booking requests from User App ──
   useEffect(() => {
     const cleanup = bridgeListen((msg) => {
@@ -124,7 +165,6 @@ export function DriverApp() {
 
       if (msg.type === 'BOOKING_REQUEST') {
         const req = msg.payload as BookingRequestPayload;
-        // Only show if driver is online and not on an active trip
         if (!isOnline) return;
         setPendingRequestId(req.requestId);
         setRequestTimer(30);
@@ -145,14 +185,13 @@ export function DriverApp() {
           airlineName: req.airlineName,
           distance: '1.4 mi away',
           timeRemaining: 30,
-          fromUserApp: true, // flag — this is a real request
+          fromUserApp: true,
         });
-        // Add notification
         setUnreadNotificationsCount(prev => prev + 1);
         setNotificationsList(prev => [{
           id: req.requestId,
-          title: '🚗 New Ride Request!',
-          desc: `${req.customerName} needs a ride from ${req.pickup.substring(0, 30)}...`,
+          title: '🚗 New Ride Dispatch!',
+          desc: `${req.customerName} requested pickup from ${req.pickup.substring(0, 30)}...`,
           time: 'just now',
           unread: true,
           type: 'booking',
@@ -162,7 +201,6 @@ export function DriverApp() {
 
       if (msg.type === 'BOOKING_CANCELLED') {
         const p = msg.payload as { requestId: string };
-        // Dismiss if this is the active incoming request
         setIncomingRequest((prev: any) => {
           if (prev?.bookingNumber === p.requestId || prev?.id === p.requestId) return null;
           return prev;
@@ -177,7 +215,6 @@ export function DriverApp() {
   useEffect(() => {
     if (!incomingRequest) return;
     if (requestTimer <= 0) {
-      // Auto-decline when timer hits 0
       setIncomingRequest(null);
       setPendingRequestId(null);
       return;
@@ -186,17 +223,50 @@ export function DriverApp() {
     return () => clearTimeout(t);
   }, [requestTimer, incomingRequest]);
 
+  // ── Synchronize Active Trip & Step Progression into Incomplete Trips ──
+  useEffect(() => {
+    if (!activeTrip) return;
+    const tripId = activeTrip.bookingNumber || activeTrip.id;
+    if (!tripId) return;
+
+    if (tripStep === 'completed') return;
+
+    setIncompleteTrips((prev) => {
+      const idx = prev.findIndex((t) => t.id === tripId);
+      const updatedItem = {
+        id: tripId,
+        trip: activeTrip,
+        tripStep: tripStep as 'en_route' | 'arrived' | 'trip_started',
+        pausedAt: prev[idx]?.pausedAt || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        vehicleInspectionData: vehicleInspectionData || prev[idx]?.vehicleInspectionData,
+      };
+
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = updatedItem;
+        return copy;
+      } else {
+        return [updatedItem, ...prev];
+      }
+    });
+  }, [activeTrip, tripStep, vehicleInspectionData]);
+
   const handleClosePaymentSlipModal = () => {
     setIsClosingPaymentSlip(true);
+    const finishedTrip = activeTrip || completedTripData;
+    if (finishedTrip) {
+      const tripId = finishedTrip.bookingNumber || finishedTrip.id;
+      setIncompleteTrips((prev) => prev.filter((t) => t.id !== tripId));
+    }
     setTimeout(() => {
       setShowPaymentSlipModal(false);
       setIsClosingPaymentSlip(false);
       setActiveTrip(null);
+      setCompletedTripData(null);
       setTripStep('en_route');
+      setVehicleInspectionData(null);
     }, 280);
   };
-
-  // Incoming request stays active until accepted or declined by driver
 
   const handleSendOtp = (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,7 +280,6 @@ export function DriverApp() {
 
   const handleAcceptRequest = () => {
     if (!incomingRequest) return;
-    // If this came from real User App, broadcast acceptance back
     if (incomingRequest.fromUserApp) {
       const response: BookingResponsePayload = {
         requestId: incomingRequest.id,
@@ -218,15 +287,42 @@ export function DriverApp() {
         driverName: driverName,
         driverRating: 4.96,
         driverPhone: '+1 (555) 382-9102',
-        estimatedArrival: '8 minutes',
+        estimatedArrival: '6 mins',
         status: 'accepted',
       };
       bridgeSend('BOOKING_ACCEPTED', response, 'driver-app');
     }
+
+    // Immediately record newly accepted trip in incompleteTrips
+    const tripId = incomingRequest.bookingNumber || incomingRequest.id || `TRIP-${Date.now()}`;
+    const newIncompleteItem = {
+      id: tripId,
+      trip: incomingRequest,
+      tripStep: 'en_route' as const,
+      pausedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      vehicleInspectionData: null,
+    };
+    setIncompleteTrips((prev) => [newIncompleteItem, ...prev.filter((t) => t.id !== tripId)]);
+
     setActiveTrip(incomingRequest);
     setIncomingRequest(null);
     setPendingRequestId(null);
     setTripStep('en_route');
+    setActiveTab('rides');
+
+    setNotificationsList((prev) => [
+      {
+        id: `accepted-${Date.now()}`,
+        title: '✅ Ride Accepted & In Progress',
+        desc: `Accepted ride for ${incomingRequest.customerName}. Added to Incomplete Trips in History.`,
+        time: 'just now',
+        unread: true,
+        type: 'booking',
+        icon: CheckCircle2,
+      },
+      ...prev,
+    ]);
+    setUnreadNotificationsCount((prev) => prev + 1);
   };
 
   const handleDeclineRequest = () => {
@@ -246,33 +342,71 @@ export function DriverApp() {
   };
 
   const handleSimulateNewRequest = () => {
+    setIsOnline(true);
+    setActiveTab('rides');
     setRequestTimer(30);
     setIncomingRequest({
       id: `REQ-${Math.floor(1000 + Math.random() * 9000)}`,
-      customerName: 'Sophia Loren',
-      customerRating: 4.95,
-      pickup: '100 Wilshire Blvd, Santa Monica',
-      destination: 'The Beverly Hills Hotel, Sunset Blvd',
-      serviceType: 'Outstation Luxury Drive',
-      duration: '2 Hours',
-      totalFare: 195.00,
-      driverPayout: 156.00,
-      distance: '1.8 mi away',
+      customerName: 'Priya Sharma',
+      customerRating: 4.96,
+      pickup: 'Marine Drive Walkway, Ernakulam, Kochi, Kerala',
+      destination: 'Cochin International Airport (COK), Nedumbassery, Kerala',
+      serviceType: 'Executive Chauffeur Drive',
+      duration: '42 mins',
+      totalFare: 1450.00,
+      driverPayout: 1160.00,
+      distance: '2.5 km away (6 min pickup)',
       timeRemaining: 30,
       fromUserApp: false,
     });
   };
 
+  const handleConfirmStartTrip = (data: VehicleConditionData) => {
+    if (!data || !data.front || !data.rightSide || !data.back || !data.leftSide) {
+      alert('Trip Locked!\n\nAll 4 car images (Front, Right Side, Back, Left Side) must be captured before starting the trip.');
+      setShowInspectionModal(true);
+      return;
+    }
+    setVehicleInspectionData(data);
+    setShowInspectionModal(false);
+    setTripStep('trip_started');
+    bridgeSend('TRIP_STARTED', {
+      bookingNumber: activeTrip?.bookingNumber || activeTrip?.id || 'TRIP-DEMO',
+      driverName: driverName,
+      timestamp: Date.now(),
+    } as TripEventPayload, 'driver-app');
+    if (activeTrip) {
+      startLocationTracking(activeTrip.bookingNumber || activeTrip.id);
+    }
+  };
+
   const handleCompleteTrip = () => {
     if (activeTrip) {
-      // Stop GPS streaming
       stopLocationTracking();
-      // Broadcast trip completed to User App
       bridgeSend('TRIP_COMPLETED', {
         bookingNumber: activeTrip.bookingNumber || activeTrip.id,
         driverName: driverName,
         timestamp: Date.now(),
       } as TripEventPayload, 'driver-app');
+
+      const tripId = activeTrip.bookingNumber || activeTrip.id;
+      // Remove finished trip from Incomplete Trips
+      setIncompleteTrips((prev) => prev.filter((t) => t.id !== tripId));
+
+      // Append finished trip to Completed Trips History
+      setCompletedTripsList((prev) => [
+        {
+          id: `COMPLETED-${Date.now()}`,
+          customer: activeTrip.customerName || 'Passenger',
+          route: `${activeTrip.pickup || 'Pickup'} ➔ ${activeTrip.destination || 'Destination'}`,
+          date: `Today, ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+          fare: formatRupees(activeTrip.totalFare || 1450),
+          rating: '5.0 ★',
+          serviceType: activeTrip.serviceType || 'Executive Drive',
+        },
+        ...prev,
+      ]);
+
       setTodayEarnings((prev) => prev + activeTrip.driverPayout);
       setCompletedTripsCount((prev) => prev + 1);
       setCompletedTripData(activeTrip);
@@ -282,41 +416,107 @@ export function DriverApp() {
     }
   };
 
+  // ── Cancel / Pause Active Trip -> Keep as Incomplete in History ──
+  const handlePauseOrCancelActiveTrip = () => {
+    if (!activeTrip) return;
+    const tripId = activeTrip.bookingNumber || activeTrip.id || `TRIP-${Date.now()}`;
+    const pausedItem = {
+      id: tripId,
+      trip: activeTrip,
+      tripStep: (tripStep === 'completed' ? 'trip_started' : tripStep) as 'en_route' | 'arrived' | 'trip_started',
+      pausedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      vehicleInspectionData: vehicleInspectionData,
+    };
+    setIncompleteTrips((prev) => [pausedItem, ...prev.filter((t) => t.id !== tripId)]);
+    setActiveTrip(null);
+    setShowNavPanel(false);
+    stopLocationTracking();
+
+    setNotificationsList((prev) => [
+      {
+        id: `incomplete-${Date.now()}`,
+        title: '⏸️ Trip Minimized to Incomplete',
+        desc: `Ride for ${activeTrip.customerName} remains in Incomplete Trips history. Tap 'Complete Step' anytime to resume.`,
+        time: 'just now',
+        unread: true,
+        type: 'booking',
+        icon: Clock,
+      },
+      ...prev,
+    ]);
+    setUnreadNotificationsCount((prev) => prev + 1);
+  };
+
+  // ── Resume Incomplete Trip Step from History / Map Pill ──
+  const handleResumeTrip = (item: {
+    id: string;
+    trip: any;
+    tripStep: 'en_route' | 'arrived' | 'trip_started';
+    pausedAt: string;
+    vehicleInspectionData?: VehicleConditionData | null;
+  }) => {
+    setActiveTrip(item.trip);
+    setTripStep(item.tripStep);
+    if (item.vehicleInspectionData) {
+      setVehicleInspectionData(item.vehicleInspectionData);
+    }
+    setActiveTab('rides');
+    setIsOnline(true);
+    if (item.tripStep === 'trip_started') {
+      startLocationTracking(item.trip.bookingNumber || item.trip.id);
+    }
+  };
+
+  // ── Permanently Discard / Cancel Incomplete Trip ──
+  const handleDiscardIncompleteTrip = (id: string) => {
+    if (confirm('Cancel and remove this incomplete ride permanently?')) {
+      setIncompleteTrips((prev) => prev.filter((t) => t.id !== id));
+      if (activeTrip && (activeTrip.bookingNumber === id || activeTrip.id === id)) {
+        setActiveTrip(null);
+        stopLocationTracking();
+      }
+    }
+  };
+
   // ── GPS Location Tracking ──
   const startLocationTracking = (bookingNumber: string) => {
     if (!navigator.geolocation) return;
-    // Clear any existing watcher
     if (geoWatchRef.current !== null) navigator.geolocation.clearWatch(geoWatchRef.current);
 
     geoWatchRef.current = navigator.geolocation.watchPosition(
       (pos) => {
+        // Strict Kerala boundary filter (Lat: 8.15 to 12.85, Lng: 74.85 to 77.40)
+        // Ridingo operates exclusively in Kerala state: clamp to Kerala if testing outside
+        const rawLat = pos.coords.latitude;
+        const rawLng = pos.coords.longitude;
+        const isKerala = rawLat >= 8.15 && rawLat <= 12.85 && rawLng >= 74.85 && rawLng <= 77.40;
+        const finalLat = isKerala ? rawLat : 9.9816;
+        const finalLng = isKerala ? rawLng : 76.2999;
+
         const payload: DriverLocationPayload = {
           bookingNumber,
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
+          lat: finalLat,
+          lng: finalLng,
           heading: pos.coords.heading ?? undefined,
-          speed: pos.coords.speed ? pos.coords.speed * 3.6 : undefined, // m/s → km/h
+          speed: pos.coords.speed ? pos.coords.speed * 3.6 : undefined,
           accuracy: pos.coords.accuracy,
           timestamp: Date.now(),
         };
-        // Update driver state
-        setDriverCurrentLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        if (pos.coords.heading) setDriverHeading(pos.coords.heading);
-
-        // 1. Broadcast via local BroadcastChannel bridge
+        setDriverCurrentLocation({ lat: finalLat, lng: finalLng });
+        if (pos.coords.heading !== null && !isNaN(pos.coords.heading)) {
+          setDriverHeading(pos.coords.heading);
+        }
         bridgeSend('DRIVER_LOCATION', payload, 'driver-app');
-
-        // 2. Report to Traccar server (OsmAnd protocol)
         traccarReportPosition(
-          pos.coords.latitude,
-          pos.coords.longitude,
+          finalLat,
+          finalLng,
           pos.coords.accuracy,
-          pos.coords.speed ?? undefined,
+          pos.coords.speed ? pos.coords.speed * 3.6 : undefined,
           pos.coords.heading ?? undefined
         );
       },
-      (err) => console.warn('[GPS] Error:', err.message),
-      { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
     );
     setLocationTrackingActive(true);
   };
@@ -329,675 +529,975 @@ export function DriverApp() {
     setLocationTrackingActive(false);
   };
 
-  // Cleanup GPS on unmount
-  React.useEffect(() => () => stopLocationTracking(), []);
+  const handleRecenterMap = () => {
+    // Recenter strictly inside Kerala (Marine Drive, Kochi hub)
+    setDriverCurrentLocation((prev) => {
+      const isKerala = prev.lat >= 8.15 && prev.lat <= 12.85 && prev.lng >= 74.85 && prev.lng <= 77.40;
+      return isKerala ? { ...prev } : { lat: 9.9816, lng: 76.2999 };
+    });
+  };
 
   const navTabs = [
-    { id: 'rides' as const, label: 'Home', icon: Home },
+    { id: 'rides' as const, label: 'Cockpit', icon: Navigation },
     { id: 'earnings' as const, label: 'Earnings', icon: DollarSign },
-    { id: 'history' as const, label: 'History', icon: Clock },
+    { id: 'history' as const, label: 'Trips', icon: Clock },
     { id: 'profile' as const, label: 'Account', icon: User },
   ];
 
   return (
-    <div className="min-h-screen h-screen w-full bg-slate-950 flex items-center justify-center selection:bg-[#fcd502] selection:text-black overflow-hidden p-0 md:p-3 font-sans">
-      {/* Ultra-Modern iPhone 16 Pro Mobile Container with Frame Bezel */}
-      <div className="w-full max-w-[420px] h-full md:h-[90vh] md:max-h-[880px] md:rounded-[48px] bg-[#FAFAFA] text-[#0F172A] flex flex-col relative shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] border-x md:border-[8px] border-slate-900 overflow-hidden ring-1 ring-slate-800/90">
+    <div className="min-h-screen h-screen w-full bg-[#05080E] flex items-center justify-center selection:bg-[#fcd502] selection:text-black overflow-hidden p-0 sm:p-3 font-sans">
+      {/* Authentic iPhone 15 Pro Device Frame Container (Exact 393px × 852px viewport) */}
+      <div className="w-full sm:w-[393px] h-full sm:h-[852px] sm:max-h-[92vh] sm:rounded-[54px] bg-[#0A0E17] text-white flex flex-col relative shadow-[0_25px_70px_rgba(0,0,0,0.95)] sm:border-[10px] sm:border-[#1A2234] sm:ring-1 sm:ring-white/15 overflow-hidden select-none">
 
-        {/* Sticky Mobile Status Bar with Dynamic Island */}
-        <MobileControlCenterStatusBar />
+        {/* Minimal Mobile Status Bar */}
+        <MobileControlCenterStatusBar theme="dark" />
 
-        {/* AUTHENTICATION & LOGIN SCREEN */}
+        {/* ─── AUTHENTICATION / LOGIN VIEW ─── */}
         {!isAuthenticated ? (
-          <div className="w-full h-full overflow-y-auto bg-white p-6 flex flex-col justify-between pt-3 pb-5 space-y-6">
+          <div className="w-full h-full overflow-y-auto bg-[#0A0E17] text-white p-6 flex flex-col justify-between pt-4 pb-6 space-y-6">
             <div className="space-y-6 my-auto max-w-sm mx-auto w-full">
-              <div className="flex items-center justify-between w-full pb-1">
-                <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Driver Portal</span>
+              <div className="flex items-center justify-between w-full">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Driver Partner</span>
                 <button
                   type="button"
                   onClick={() => setIsAuthenticated(true)}
-                  className="px-4 py-1.5 rounded-full bg-[#fcd502] hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer border border-amber-300"
+                  className="px-3.5 py-1.5 rounded-full bg-[#fcd502] text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer hover:bg-[#eac500]"
                 >
-                  <span>Skip Login</span>
-                  <ArrowRight className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>Skip to App</span>
+                  <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
               </div>
 
-              <div className="text-center space-y-3">
+              <div className="text-center space-y-2.5">
                 <img
                   src={ridingoLogo}
-                  alt="RIDINGO Driver"
-                  className="h-16 w-auto object-contain mx-auto drop-shadow-xs"
+                  alt="RIDINGO"
+                  className="h-14 w-auto object-contain mx-auto"
                 />
-                <div className="inline-flex items-center gap-1.5 bg-[#fcd502]/20 border border-[#fcd502]/60 px-3.5 py-1 rounded-full text-[#a18200] font-bold text-xs uppercase tracking-widest">
-                  <ShieldCheck className="w-4 h-4 text-[#a18200]" />
-                  <span>Driver Partner Portal</span>
-                </div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight pt-1">Driver Partner Sign In</h1>
-                <p className="text-xs text-slate-500 font-medium leading-relaxed">Enter your registered credentials to start accepting rides</p>
+                <h1 className="text-2xl font-black text-white tracking-tight pt-1">Driver Partner Console</h1>
+                <p className="text-xs text-slate-400 font-medium">Sign in to start receiving trip dispatches</p>
               </div>
 
               {!isOtpStep ? (
-                <form onSubmit={handleSendOtp} className="space-y-4">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Email Address</label>
+                <form onSubmit={handleSendOtp} className="space-y-3.5">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block">Email Address</label>
                     <div className="relative">
-                      <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                      <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
                       <input
                         type="email"
                         required
                         value={driverEmail}
                         onChange={(e) => setDriverEmail(e.target.value)}
                         placeholder="marcus.vance@ridingo.com"
-                        className="w-full py-3 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#fcd502] focus:bg-white transition-all"
+                        className="w-full py-3 pl-10 pr-4 bg-[#121824] border border-white/10 rounded-2xl text-xs font-semibold text-white placeholder:font-normal placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#fcd502] focus:bg-[#161E2E] transition-all"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Mobile Number</label>
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block">Mobile Number</label>
                     <div className="relative">
-                      <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                      <Phone className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
                       <input
                         type="tel"
                         required
                         value={driverPhone}
                         onChange={(e) => setDriverPhone(e.target.value)}
                         placeholder="+1 (555) 019-2834"
-                        className="w-full py-3 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#fcd502] focus:bg-white transition-all"
+                        className="w-full py-3 pl-10 pr-4 bg-[#121824] border border-white/10 rounded-2xl text-xs font-semibold text-white placeholder:font-normal placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#fcd502] focus:bg-[#161E2E] transition-all"
                       />
                     </div>
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-3.5 rounded-2xl bg-[#fcd502] hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 cursor-pointer"
+                    className="w-full py-3.5 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-[#fcd502]/20 transition-transform active:scale-[0.98] cursor-pointer"
                   >
-                    <span>Sign In (Skip OTP)</span>
-                    <ArrowRight className="w-4 h-4 stroke-[3]" />
+                    <span>Sign In</span>
+                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setIsAuthenticated(true)}
-                    className="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border border-slate-200"
+                    className="w-full py-3 rounded-2xl bg-[#121824] hover:bg-[#182032] text-slate-200 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border border-white/10"
                   >
-                    <span>⚡ Skip Login & Enter Driver App</span>
+                    <span>⚡ Skip Login &amp; Explore Console</span>
                   </button>
                 </form>
               ) : (
-                /* Demo Mode OTP verification step */
-                <form onSubmit={handleVerifyOtp} className="space-y-4 animate-fade-in">
-                  <div className="p-4 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-center space-y-2.5 shadow-xs">
-                    <div className="flex items-center justify-center gap-1.5 font-bold text-amber-700 text-xs tracking-wider uppercase">
-                      <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
-                      <span>Demo Driver Mode Active</span>
-                    </div>
-                    <p className="text-[11px] text-slate-600 font-medium">
-                      Your generated Demo OTP code is below. Any 6-digit code will sign you in:
-                    </p>
-                    <div className="font-mono text-2xl font-extrabold text-slate-900 tracking-widest bg-white px-4 py-1.5 rounded-2xl border border-amber-200 shadow-inner inline-block">
+                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                  <div className="p-4 rounded-2xl bg-[#151D2C] border border-amber-400/30 text-center space-y-2">
+                    <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Demo Code</span>
+                    <div className="font-mono text-2xl font-black text-[#fcd502] tracking-widest bg-[#0A0E17] px-4 py-1.5 rounded-xl border border-amber-400/30 inline-block">
                       {demoOtp}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsAuthenticated(true)}
-                      className="w-full py-3 px-4 rounded-2xl bg-[#fcd502] hover:bg-amber-400 text-[#121212] font-black text-xs uppercase tracking-wider shadow-md transition-transform active:scale-95 cursor-pointer block"
-                    >
-                      ⚡ One-Tap Auto-Fill & Sign In
-                    </button>
                   </div>
-
-                  <div className="flex items-center justify-center gap-2 py-1">
-                    {[0, 1, 2, 3, 4, 5].map((idx) => (
-                      <input
-                        key={idx}
-                        type="text"
-                        maxLength={1}
-                        value={demoOtp[idx] || ''}
-                        readOnly
-                        className="w-11 h-12 text-center text-lg font-bold rounded-2xl border-2 border-slate-200 bg-slate-50 text-slate-900 focus:outline-none"
-                      />
-                    ))}
-                  </div>
-
                   <button
                     type="submit"
-                    className="w-full py-3.5 rounded-2xl bg-[#121212] hover:bg-slate-800 text-white font-black text-xs uppercase tracking-wider shadow-lg transition-transform active:scale-95 cursor-pointer"
+                    className="w-full py-3.5 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider transition-transform active:scale-[0.98] cursor-pointer shadow-lg shadow-[#fcd502]/20"
                   >
-                    Verify & Enter Driver App
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsOtpStep(false)}
-                    className="w-full text-center text-xs font-bold text-slate-500 hover:text-slate-900 cursor-pointer py-1"
-                  >
-                    ← Change Driver Credentials
+                    Verify &amp; Enter
                   </button>
                 </form>
               )}
             </div>
 
-            <div className="text-center text-[10px] text-slate-400 font-medium space-y-1">
-              <p>RIDINGO Chauffeur Partner Network v2.5</p>
-              <p>256-bit Encrypted Security & Verified Background Checks</p>
+            <div className="text-center text-[11px] text-slate-500 font-medium">
+              RIDINGO Driver App • Modern Map Cockpit
             </div>
           </div>
         ) : (
-          /* MAIN ULTRA-MODERN DRIVER APP PORTAL */
-          <div className="w-full h-full flex flex-col bg-[#FAFAFA] text-slate-900 overflow-hidden relative">
+          /* ─── MAIN 2026 MAP-FIRST COCKPIT INTERFACE ─── */
+          <div className="relative flex-1 w-full h-full overflow-hidden bg-[#0A0E17] flex flex-col font-sans">
 
-            {/* Clean Professional Header Bar */}
-            <header className="shrink-0 sticky top-0 z-40 w-full px-4 sm:px-5 pt-2 pb-3 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
-              <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
-                <div className="flex items-center gap-2">
-                  <img
-                    src={ridingoLogo}
-                    alt="RIDINGO"
-                    className="h-8 w-auto object-contain"
-                  />
-                  <span className="text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200">
-                    DRIVER
-                  </span>
+            {/* ═════════ LAYER 0: FULL-BLEED LIVE MAP FOUNDATION ═════════ */}
+            <div className="absolute inset-0 z-0 w-full h-full bg-[#080C14]">
+              <LeafletMap
+                center={driverCurrentLocation}
+                zoom={activeTrip ? 15 : 14}
+                className="w-full h-full"
+                driverLocation={driverCurrentLocation}
+                driverHeading={driverHeading}
+                pickup={activeTrip ? pickupLatLng : undefined}
+                destination={activeTrip ? destLatLng : undefined}
+                pickupLabel={activeTrip?.pickup}
+                destinationLabel={activeTrip?.destination}
+                routeGeometry={activeRoute?.geometry}
+                darkMode={true}
+              />
+            </div>
+
+            {/* ═════════ LAYER 1: FLOATING TOP COCKPIT HUD ═════════ */}
+            <div className="relative z-30 px-3 pt-2 pointer-events-auto">
+              {/* Turn-by-Turn Navigation Top Banner (When in active trip & navigating) */}
+              {activeTrip && activeRoute && (
+                <div className="cockpit-glass rounded-2xl p-3 mb-2 shadow-2xl border border-white/10 flex items-center justify-between gap-3 animate-slide-up-smooth">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#fcd502] text-slate-950 flex items-center justify-center font-black flex-shrink-0 shadow-md shadow-[#fcd502]/20">
+                      <Navigation className="w-5 h-5 stroke-[2.5]" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs font-black text-white block truncate leading-tight">
+                        {activeRoute.steps[currentNavStepIndex]?.instruction || (tripStep === 'en_route' ? 'Navigate to pickup' : 'Head to passenger dropoff')}
+                      </span>
+                      <span className="text-[10px] text-[#fcd502] font-extrabold flex items-center gap-1.5 mt-0.5">
+                        <span>{tripStep === 'en_route' ? 'Pickup in 6 mins' : 'Dropoff in 18 mins'}</span>
+                        <span>•</span>
+                        <span className="text-slate-400">Step {currentNavStepIndex + 1}/{activeRoute.steps.length || 1}</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setShowNavPanel(!showNavPanel)}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 text-[10px] font-extrabold flex items-center gap-1 transition-all cursor-pointer"
+                    >
+                      <span>Steps</span>
+                      {showNavPanel ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                    </button>
+                  </div>
                 </div>
+              )}
 
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {/* Online / Offline Toggle Switch */}
+              {/* Turn-by-turn expanded panel */}
+              {activeTrip && showNavPanel && (
+                <div className="mb-2 animate-slide-up-smooth">
+                  <NavigationPanel
+                    route={activeRoute}
+                    isLoading={isLoadingRoute}
+                    pickup={activeTrip.pickup}
+                    destination={activeTrip.destination}
+                    currentStepIndex={currentNavStepIndex}
+                    onClose={() => setShowNavPanel(false)}
+                    onNextStep={() => setCurrentNavStepIndex((prev) => (activeRoute ? Math.min(prev + 1, activeRoute.steps.length - 1) : prev))}
+                  />
+                </div>
+              )}
+
+              {/* Incomplete / Paused Trip Quick Resume Banner (When on map & incomplete trip exists) */}
+              {incompleteTrips.length > 0 && !activeTrip && (
+                <div className="cockpit-glass rounded-2xl p-2.5 mb-2 shadow-xl border border-amber-400/40 flex items-center justify-between animate-slide-up-smooth">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-2 h-2 rounded-full bg-[#fcd502] animate-pulse flex-shrink-0" />
+                    <span className="text-[11px] font-bold text-white truncate">
+                      {incompleteTrips.length} Incomplete Trip{incompleteTrips.length > 1 ? 's' : ''} in History
+                    </span>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => setIsOnline(!isOnline)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-xs ${isOnline
-                        ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-[0_0_12px_rgba(16,185,129,0.3)]'
-                        : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                      }`}
+                    onClick={() => setActiveTab('history')}
+                    className="px-2.5 py-1 rounded-xl bg-[#fcd502] text-slate-950 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
                   >
-                    <Power className="w-3.5 h-3.5 stroke-[2.5]" />
-                    <span>{isOnline ? 'ONLINE' : 'OFFLINE'}</span>
+                    <span>Resume</span>
+                    <ArrowRight className="w-3 h-3 stroke-[3]" />
+                  </button>
+                </div>
+              )}
+
+              {/* Top Cockpit Floating Header Capsule */}
+              <div className="cockpit-glass rounded-full px-3 py-1.5 flex items-center justify-between shadow-2xl border border-white/10">
+                {/* Driver Avatar & Rating Pill */}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('profile')}
+                  className="flex items-center gap-2 cursor-pointer group active:scale-95 transition-all text-left"
+                  title="Open Driver Profile"
+                >
+                  <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/20 flex-shrink-0">
+                    <img
+                      src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80"
+                      alt={driverName}
+                      className="w-full h-full object-cover"
+                    />
+                    <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border border-black ${isOnline ? 'bg-emerald-400' : 'bg-slate-500'}`} />
+                  </div>
+                  <div className="hidden xs:block">
+                    <div className="flex items-center gap-1 text-[11px] font-black text-white leading-tight">
+                      <span>{driverName.split(' ')[0]}</span>
+                      <Star className="w-3 h-3 fill-[#fcd502] text-[#fcd502]" />
+                      <span className="text-slate-300 font-bold">4.96</span>
+                    </div>
+                  </div>
+                </button>
+
+                {/* Center Online/Offline Status Capsule */}
+                <button
+                  type="button"
+                  onClick={() => setIsOnline(!isOnline)}
+                  className={`px-3 py-1 rounded-full text-[11px] font-black tracking-wide flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs ${
+                    isOnline
+                      ? 'bg-emerald-500/90 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] border border-emerald-400/40'
+                      : 'bg-[#182032] text-slate-400 border border-white/10'
+                  }`}
+                  title="Toggle Driver Online / Offline"
+                >
+                  <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-white animate-pulse' : 'bg-slate-500'}`} />
+                  <span>{isOnline ? 'ONLINE' : 'OFFLINE'}</span>
+                </button>
+
+                {/* Right: Today Earnings Ticker & Notifications */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('earnings')}
+                    className="px-2.5 py-1 rounded-full bg-[#182032] hover:bg-[#202B42] text-white border border-white/10 flex items-center gap-1 text-[11px] font-black tabular-nums active:scale-95 transition-all cursor-pointer"
+                    title="View Earnings"
+                  >
+                    <span className="text-[#fcd502] font-black">{formatRupees(todayEarnings, 0)}</span>
                   </button>
 
-                  {/* Notification Bell Icon Button */}
                   <button
                     type="button"
                     onClick={() => {
                       setShowNotificationsModal(true);
                       setUnreadNotificationsCount(0);
                     }}
-                    className="relative p-2 rounded-full bg-slate-100/90 text-slate-700 hover:bg-slate-200/90 active:scale-95 transition-all cursor-pointer shadow-2xs"
-                    aria-label="Notifications"
-                    title="Driver Notifications"
+                    className="relative p-1.5 rounded-full bg-[#182032] hover:bg-[#202B42] border border-white/10 text-slate-200 active:scale-90 transition-all cursor-pointer"
+                    title="Notifications"
                   >
-                    <Bell className="w-4 h-4 text-slate-800 fill-slate-800/25 stroke-[2]" />
+                    <Bell className="w-3.5 h-3.5" />
                     {unreadNotificationsCount > 0 && (
-                      <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#fcd502] text-slate-950 text-[9px] font-black flex items-center justify-center border border-white shadow-xs animate-pulse">
+                      <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-[#fcd502] text-slate-950 text-[9px] font-black flex items-center justify-center">
                         {unreadNotificationsCount}
                       </span>
                     )}
                   </button>
-
-                  {/* Profile Avatar Icon Button */}
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('profile')}
-                    className="w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-xs hover:ring-2 hover:ring-[#fcd502] active:scale-95 transition-all flex-shrink-0 cursor-pointer"
-                    title="Driver Profile"
-                  >
-                    <img
-                      src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80"
-                      alt={driverName}
-                      className="w-full h-full object-cover rounded-full"
-                    />
-                  </button>
                 </div>
               </div>
-            </header>
+            </div>
 
-            {/* Scrollable Main Content Body */}
-            <div className="flex-1 overflow-y-auto px-4 pt-3.5 pb-24 space-y-4 scrollbar-none">
+            {/* ═════════ LAYER 2: FLOATING RIGHT TACTICAL TOOLBAR ═════════ */}
+            <div className="absolute right-3.5 top-20 z-20 flex flex-col gap-2.5 pointer-events-auto">
+              {/* GPS Recenter */}
+              <button
+                type="button"
+                onClick={handleRecenterMap}
+                className="cockpit-tactical-btn w-10 h-10 rounded-2xl flex items-center justify-center cursor-pointer shadow-xl"
+                title="Recenter GPS Position"
+              >
+                <LocateFixed className="w-4 h-4 text-white" />
+              </button>
 
-              {/* TAB 1: RIDES & DISPATCH (HOME TAB) */}
-              {activeTab === 'rides' && (
-                <div className="space-y-4">
+              {/* Destination Filter Quick Pill */}
+              <button
+                type="button"
+                onClick={() => setDestinationFilterEnabled(!destinationFilterEnabled)}
+                className={`w-10 h-10 rounded-2xl flex items-center justify-center cursor-pointer transition-all shadow-xl ${
+                  destinationFilterEnabled
+                    ? 'bg-[#fcd502] text-slate-950 font-black ring-2 ring-[#fcd502]/40 shadow-lg shadow-[#fcd502]/25'
+                    : 'cockpit-tactical-btn text-slate-300'
+                }`}
+                title={`Destination Filter: ${destinationFilterEnabled ? 'Active (heading home)' : 'Off'}`}
+              >
+                <Compass className={`w-4 h-4 ${destinationFilterEnabled ? 'text-slate-950 stroke-[2.5]' : 'text-slate-300'}`} />
+              </button>
 
-                  {/* Greeting Section (Only on Home tab as requested) */}
-                  <div className="bg-white p-4.5 rounded-3xl border border-slate-200/90 shadow-xs space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h1 className="text-[26px] sm:text-[28px] font-medium text-slate-900 leading-[1.15] tracking-tight">
-                          <span className="block">Good</span>
-                          <span className="block">afternoon, {driverName.split(' ')[0]} 💪</span>
-                        </h1>
-                        <p className="text-xs text-slate-500 font-semibold pt-1 flex items-center gap-1.5">
-                          <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                          <span>4.96 Rating</span>
-                          <span>•</span>
-                          <span>2024 Mercedes-Maybach S-Class</span>
-                        </p>
-                      </div>
+              {/* Auto-Accept Quick Pill */}
+              <button
+                type="button"
+                onClick={() => setAutoAccept(!autoAccept)}
+                className={`w-10 h-10 rounded-2xl flex items-center justify-center cursor-pointer transition-all shadow-xl ${
+                  autoAccept
+                    ? 'bg-emerald-500 text-white font-black ring-2 ring-emerald-400/40 shadow-lg shadow-emerald-500/30'
+                    : 'cockpit-tactical-btn text-slate-300'
+                }`}
+                title={`Auto-Accept: ${autoAccept ? 'ON (Instant confirmation)' : 'OFF'}`}
+              >
+                <Zap className={`w-4 h-4 ${autoAccept ? 'text-white fill-white' : 'text-slate-300'}`} />
+              </button>
+
+              {/* Simulate Dispatch Quick Pill (Only when no active trip & no incoming request) */}
+              {!activeTrip && !incomingRequest && (
+                <button
+                  type="button"
+                  onClick={handleSimulateNewRequest}
+                  className="cockpit-tactical-btn w-10 h-10 rounded-2xl flex items-center justify-center cursor-pointer shadow-xl text-[#fcd502] hover:bg-[#fcd502] hover:text-slate-950 transition-all group relative"
+                  title="Simulate Incoming Ride Request"
+                >
+                  <Sparkles className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#fcd502] animate-pulse" />
+                </button>
+              )}
+            </div>
+
+            {/* ═════════ LAYER 3: FLOATING HUD BOTTOM COCKPIT DRAWER ═════════ */}
+            <div className="mt-auto relative z-30 pointer-events-auto px-3 pb-20">
+
+              {/* ── STATE A: OFFLINE COCKPIT BOTTOM SHEET ── */}
+              {!isOnline && !activeTrip && (
+                <div className="cockpit-glass-elevated rounded-3xl p-4.5 space-y-3.5 shadow-2xl border border-white/10 animate-slide-up-smooth">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Driver Cockpit</span>
+                      <h2 className="text-base font-black text-white">You're Currently Offline</h2>
                     </div>
-
-                    {/* 3 Quick Driver Stats Cards */}
-                    {isOnline && (
-                      <div className="grid grid-cols-3 gap-2.5 pt-1">
-                        <div className="bg-slate-50 border border-slate-200/80 p-3 rounded-2xl text-center space-y-0.5 shadow-2xs">
-                          <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Today's Pay</span>
-                          <span className="text-base font-black text-slate-900">${todayEarnings.toFixed(2)}</span>
-                          <span className="text-[9px] font-bold text-emerald-600 flex items-center justify-center gap-0.5">
-                            <TrendingUp className="w-2.5 h-2.5" /> +14.2%
-                          </span>
-                        </div>
-                        <div className="bg-slate-50 border border-slate-200/80 p-3 rounded-2xl text-center space-y-0.5 shadow-2xs">
-                          <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Completed</span>
-                          <span className="text-base font-black text-slate-900">{completedTripsCount} Rides</span>
-                          <span className="text-[9px] font-bold text-slate-500">100% Accept</span>
-                        </div>
-                        <div className="bg-slate-50 border border-slate-200/80 p-3 rounded-2xl text-center space-y-0.5 shadow-2xs">
-                          <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Rating</span>
-                          <span className="text-base font-black text-amber-500 flex items-center justify-center gap-1">
-                            <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" /> 4.96
-                          </span>
-                          <span className="text-[9px] font-bold text-amber-700">Top 1% Driver</span>
-                        </div>
-                      </div>
-                    )}
+                    <span className="px-2.5 py-1 rounded-full bg-[#182032] text-slate-400 text-[10px] font-bold border border-white/10">
+                      Resting
+                    </span>
                   </div>
 
-                  {/* Offline Card */}
-                  {!isOnline && (
-                    <div className="p-6 rounded-3xl bg-white border border-slate-200 text-center space-y-3 shadow-xs">
-                      <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                        <Power className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-base text-slate-900">You Are Offline</h3>
-                        <p className="text-xs text-slate-500 font-medium mt-1">
-                          Switch to Online status in the header bar above to accept new ride requests.
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setIsOnline(true)}
-                        className="py-3 px-6 rounded-2xl bg-[#fcd502] hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-95 cursor-pointer"
-                      >
-                        Go Online Now
-                      </button>
+                  {/* 3-Stat Glanceable Bar */}
+                  <div className="grid grid-cols-3 gap-2 py-1 border-y border-white/10">
+                    <div className="text-center">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase block">Today's Total</span>
+                      <span className="text-sm font-black text-white tabular-nums">{formatRupees(todayEarnings, 0)}</span>
                     </div>
-                  )}
-
-                  {/* Online & Ready — Idle Waiting State */}
-                  {isOnline && !incomingRequest && !activeTrip && (
-                    <div className="p-5 rounded-3xl bg-white border border-slate-200 text-center space-y-3 shadow-xs">
-                      <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
-                        <Radio className="w-6 h-6 animate-pulse" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-base text-slate-900">Waiting for Ride Requests</h3>
-                        <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed">
-                          Open the <span className="font-bold text-slate-800">User App</span> in another browser tab, book a ride, and it will appear here instantly.
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 pt-1">
-                        <div className="flex-1 h-px bg-slate-100" />
-                        <span className="text-[10px] text-slate-400 font-medium">or test locally</span>
-                        <div className="flex-1 h-px bg-slate-100" />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleSimulateNewRequest}
-                        className="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        Simulate Demo Request
-                      </button>
+                    <div className="text-center border-x border-white/10">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase block">Trips</span>
+                      <span className="text-sm font-black text-white tabular-nums">{completedTripsCount}</span>
                     </div>
-                  )}
-
-
-                  {incomingRequest && !activeTrip && (
-                    <div className={`bg-white border rounded-3xl p-5 shadow-lg space-y-4 font-sans animate-drop-up ${incomingRequest.fromUserApp ? 'border-[#fcd502] ring-2 ring-[#fcd502]/30 shadow-[#fcd502]/20' : 'border-slate-200/90'}`}>
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                        <div>
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Incoming Dispatch</span>
-                            {incomingRequest.fromUserApp && (
-                              <span className="px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[9px] font-black uppercase tracking-wider flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse inline-block" />
-                                LIVE
-                              </span>
-                            )}
-                          </div>
-                          <h3 className="font-black text-lg text-slate-900">{incomingRequest.customerName}</h3>
-                          <p className="text-xs text-slate-500 font-medium">★ {incomingRequest.customerRating} • {incomingRequest.serviceType}</p>
-                          {incomingRequest.vehicleName && (
-                            <p className="text-[10px] text-slate-400 font-medium mt-0.5">🚗 {incomingRequest.vehicleName}</p>
-                          )}
-                        </div>
-                        <div className="text-right">
-                          <span className="text-2xl font-black text-slate-900 block">${incomingRequest.driverPayout.toFixed(2)}</span>
-                          <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 inline-block">Net Payout</span>
-                          {/* Countdown timer */}
-                          <div className={`mt-1.5 text-[11px] font-black tabular-nums ${requestTimer <= 10 ? 'text-rose-600' : 'text-slate-500'}`}>
-                            ⏱ {requestTimer}s
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Route Pickup / Dropoff Timeline */}
-                      <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-3 text-xs">
-                        <div className="flex items-start gap-3">
-                          <div className="flex flex-col items-center pt-1">
-                            <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                            <div className="w-0.5 h-6 bg-slate-300 my-0.5" />
-                            <div className="w-3 h-3 rounded-full bg-amber-500" />
-                          </div>
-                          <div className="flex-1 space-y-3">
-                            <div>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase block">Pickup ({incomingRequest.distance})</span>
-                              <span className="font-bold text-slate-900 block">{incomingRequest.pickup}</span>
-                            </div>
-                            <div>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase block">Dropoff</span>
-                              <span className="font-bold text-slate-900 block">{incomingRequest.destination}</span>
-                            </div>
-                          </div>
-                        </div>
-                        {/* Flight info if airport transfer */}
-                        {incomingRequest.flightNumber && (
-                          <div className="pt-2 border-t border-slate-200/60 flex items-center gap-2 text-[11px]">
-                            <span className="text-slate-400 font-medium">✈️ Flight:</span>
-                            <span className="font-bold text-slate-900">{incomingRequest.flightNumber}</span>
-                            {incomingRequest.airlineName && <span className="text-slate-500">({incomingRequest.airlineName})</span>}
-                          </div>
-                        )}
-                        {/* Duration & fare */}
-                        <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
-                          <span className="text-slate-500 font-medium">Duration: <span className="text-slate-900 font-bold">{incomingRequest.duration}</span></span>
-                          <span className="text-slate-500 font-medium">Total: <span className="text-slate-900 font-bold">${incomingRequest.totalFare?.toFixed(2)}</span></span>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="grid grid-cols-3 gap-2 pt-1">
-                        <button
-                          type="button"
-                          onClick={handleDeclineRequest}
-                          className="py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer border border-slate-200"
-                        >
-                          Decline
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleAcceptRequest}
-                          className="col-span-2 py-3.5 rounded-2xl bg-[#fcd502] hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md active:scale-95 transition-all cursor-pointer"
-                        >
-                          Accept Ride Request
-                        </button>
-                      </div>
+                    <div className="text-center">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase block">Online</span>
+                      <span className="text-sm font-black text-white tabular-nums">{onlineHours}</span>
                     </div>
-                  )}
+                  </div>
 
-                  {/* Clean Professional Active Ride Progress Card */}
-                  {activeTrip && (
-                    <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-lg space-y-4 font-sans animate-drop-up">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                        <div>
-                          <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">Active Trip</span>
-                          <h3 className="font-black text-lg text-slate-900">{activeTrip.customerName}</h3>
-                        </div>
-                        <span className="text-xl font-black text-slate-900 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-2xl border border-emerald-200">
-                          ${activeTrip.driverPayout.toFixed(2)}
+                  {/* Uber-Style Iconic "GO ONLINE" Yellow Master Action Button */}
+                  <button
+                    type="button"
+                    onClick={() => setIsOnline(true)}
+                    className="w-full py-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-sm uppercase tracking-wider shadow-2xl shadow-[#fcd502]/30 flex items-center justify-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer"
+                  >
+                    <Power className="w-5 h-5 stroke-[2.5]" />
+                    <span>Go Online Now</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Clean Map: No searching popup covering the map. The ride details popup appears ONLY when a ride request comes in below! */}
+
+              {/* ── STATE B-INCOMPLETE: FLOATING INCOMPLETE TRIP RESUME HUD ── */}
+              {isOnline && !activeTrip && !incomingRequest && incompleteTrips.length > 0 && (
+                <div className="cockpit-glass-elevated rounded-3xl p-4 space-y-2.5 shadow-2xl border-2 border-[#fcd502]/70 bg-[#121824]/95 animate-slide-up-smooth mb-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#fcd502] animate-pulse" />
+                      <span className="text-[10px] font-black uppercase tracking-wider text-[#fcd502]">
+                        Incomplete Accepted Ride ({incompleteTrips.length})
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-slate-400 font-bold">
+                      {incompleteTrips[0].pausedAt}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="min-w-0 flex-1 pr-2">
+                      <h4 className="font-black text-sm text-white truncate">{incompleteTrips[0].trip.customerName}</h4>
+                      <span className="text-[11px] text-slate-300 block truncate">
+                        {incompleteTrips[0].tripStep === 'en_route' && 'Step 1: En Route to Pickup'}
+                        {incompleteTrips[0].tripStep === 'arrived' && 'Step 2: Arrived & Inspection Required'}
+                        {incompleteTrips[0].tripStep === 'trip_started' && 'Step 3: Ride in Progress'}
+                      </span>
+                    </div>
+                    <span className="text-sm font-black text-[#fcd502] tabular-nums">
+                      {formatRupees(incompleteTrips[0].trip.driverPayout)}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleResumeTrip(incompleteTrips[0])}
+                    className="w-full py-3.5 px-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl shadow-[#fcd502]/30 cursor-pointer active:scale-[0.98] transition-all"
+                  >
+                    <Play className="w-4 h-4 fill-slate-950 stroke-none" />
+                    <span>
+                      {incompleteTrips[0].tripStep === 'en_route' && 'Complete Step: Mark Arrived'}
+                      {incompleteTrips[0].tripStep === 'arrived' && 'Complete Step: Inspect & Start'}
+                      {incompleteTrips[0].tripStep === 'trip_started' && 'Complete Step: Finish & Collect'}
+                    </span>
+                    <ArrowRight className="w-4 h-4 stroke-[3]" />
+                  </button>
+                </div>
+              )}
+
+              {/* ── STATE C: INCOMING DISPATCH HIGH-URGENCY SHEET ── */}
+              {incomingRequest && !activeTrip && (
+                <div className="cockpit-glass-elevated rounded-3xl p-4.5 space-y-3.5 shadow-2xl border-2 border-[#fcd502] animate-slide-up-smooth">
+                  {/* Countdown Timer Header */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-[#fcd502] bg-amber-950/80 border border-[#fcd502]/40 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#fcd502] animate-pulse" />
+                        Incoming Dispatch
+                      </span>
+                      <span className={`text-xs font-black tabular-nums ${requestTimer <= 10 ? 'text-rose-400 animate-pulse' : 'text-[#fcd502]'}`}>
+                        ⏱ {requestTimer}s left
+                      </span>
+                    </div>
+
+                    {/* Timer progress bar */}
+                    <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-1000 ${requestTimer <= 10 ? 'bg-rose-500' : 'bg-[#fcd502]'}`}
+                        style={{ width: `${(requestTimer / 30) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Customer Info & Net Payout Hero */}
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-base font-black text-white">{incomingRequest.customerName}</h3>
+                      <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold mt-0.5">
+                        <span className="flex items-center gap-1 text-amber-300">
+                          <Star className="w-3.5 h-3.5 fill-[#fcd502] text-[#fcd502]" />
+                          {incomingRequest.customerRating}
                         </span>
+                        <span>•</span>
+                        <span>{incomingRequest.serviceType}</span>
                       </div>
+                    </div>
 
-                      {/* Passenger Contact Actions */}
-                      <div className="grid grid-cols-3 gap-2">
-                        <button
-                          type="button"
-                          onClick={() => alert(`Calling Customer ${activeTrip.customerName}...`)}
-                          className="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-900 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-                        >
-                          <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Call</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => alert(`Opening chat with ${activeTrip.customerName}...`)}
-                          className="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-900 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-                        >
-                          <MessageSquare className="w-3.5 h-3.5 text-amber-600" />
-                          <span>Chat</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setShowNavPanel(!showNavPanel)}
-                          className="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-900 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-                        >
-                          <Navigation className="w-3.5 h-3.5 text-blue-600" />
-                          <span>{showNavPanel ? 'Hide Nav' : 'Show Nav'}</span>
-                        </button>
+                    <div className="text-right">
+                      <span className="text-2xl font-black text-white tabular-nums block">
+                        {formatRupees(incomingRequest.driverPayout)}
+                      </span>
+                      <span className="text-[9px] font-extrabold text-emerald-300 bg-emerald-950/80 border border-emerald-500/30 px-2 py-0.5 rounded-full inline-block">
+                        Net Driver Payout
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Route Overview */}
+                  <div className="p-3 rounded-2xl bg-[#121824] border border-white/10 space-y-2 text-xs">
+                    <div className="flex items-start gap-2.5">
+                      <div className="flex flex-col items-center pt-1">
+                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                        <div className="w-0.5 h-6 bg-white/20 my-0.5" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#fcd502]" />
                       </div>
-
-                      {/* Live Leaflet Driver Map View */}
-                      <div className="w-full h-56 rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 shadow-md relative">
-                        <LeafletMap
-                          center={driverCurrentLocation}
-                          zoom={15}
-                          className="w-full h-full"
-                          driverLocation={driverCurrentLocation}
-                          driverHeading={driverHeading}
-                          pickup={pickupLatLng}
-                          destination={destLatLng}
-                          pickupLabel={activeTrip.pickup}
-                          destinationLabel={activeTrip.destination}
-                          routeGeometry={activeRoute?.geometry}
-                          darkMode={true}
-                        />
-                      </div>
-
-                      {/* Turn-by-Turn Navigation Panel for Driver */}
-                      {showNavPanel && (
-                        <NavigationPanel
-                          route={activeRoute}
-                          isLoading={isLoadingRoute}
-                          pickup={activeTrip.pickup}
-                          destination={activeTrip.destination}
-                          currentStepIndex={currentNavStepIndex}
-                          onClose={() => setShowNavPanel(false)}
-                          onNextStep={() => setCurrentNavStepIndex((prev) => (activeRoute ? Math.min(prev + 1, activeRoute.steps.length - 1) : prev))}
-                        />
-                      )}
-
-                      {/* Route Timeline */}
-                      <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-3 text-xs">
-                        <div className="flex items-start gap-3">
-                          <div className="flex flex-col items-center pt-1">
-                            <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                            <div className="w-0.5 h-6 bg-slate-300 my-0.5" />
-                            <div className="w-3 h-3 rounded-full bg-amber-500" />
-                          </div>
-                          <div className="flex-1 space-y-3">
-                            <div>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase block">Pickup Location</span>
-                              <span className="font-bold text-slate-900 block">{activeTrip.pickup}</span>
-                            </div>
-                            <div>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase block">Destination</span>
-                              <span className="font-bold text-slate-900 block">{activeTrip.destination}</span>
-                            </div>
-                          </div>
+                      <div className="flex-1 space-y-2">
+                        <div>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase block">Pickup ({incomingRequest.distance})</span>
+                          <span className="font-bold text-white block truncate">{incomingRequest.pickup}</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase block">Dropoff</span>
+                          <span className="font-bold text-white block truncate">{incomingRequest.destination}</span>
                         </div>
                       </div>
+                    </div>
+                  </div>
 
-                      {/* Primary Step Action Button */}
-                      <div className="pt-1">
-                        {tripStep === 'en_route' && (
-                          <button
-                            type="button"
-                            onClick={() => setTripStep('arrived')}
-                            className="w-full py-4 px-5 rounded-2xl bg-[#fcd502] hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider text-center shadow-md cursor-pointer transition-all active:scale-95"
-                          >
-                            Arrived at Pickup Location
-                          </button>
-                        )}
+                  {/* Decline / Accept Action Grid */}
+                  <div className="grid grid-cols-3 gap-2 pt-0.5">
+                    <button
+                      type="button"
+                      onClick={handleDeclineRequest}
+                      className="py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-xs cursor-pointer active:scale-95 transition-all"
+                    >
+                      Decline
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleAcceptRequest}
+                      className="col-span-2 py-3.5 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider shadow-xl shadow-[#fcd502]/30 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <span>Accept Ride</span>
+                      <ArrowRight className="w-4 h-4 stroke-[3]" />
+                    </button>
+                  </div>
+                </div>
+              )}
 
-                        {tripStep === 'arrived' && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setTripStep('trip_started');
-                              // Start GPS broadcast to User App
-                              bridgeSend('TRIP_STARTED', {
-                                bookingNumber: activeTrip.bookingNumber || activeTrip.id,
-                                driverName: driverName,
-                                timestamp: Date.now(),
-                              } as TripEventPayload, 'driver-app');
-                              startLocationTracking(activeTrip.bookingNumber || activeTrip.id);
-                            }}
-                            className="w-full py-4 px-5 rounded-2xl bg-[#fcd502] hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider text-center shadow-md cursor-pointer transition-all active:scale-95"
-                          >
-                            Start Ride Meter
-                          </button>
-                        )}
-                        {/* Live GPS indicator when trip is running */}
-                        {tripStep === 'trip_started' && locationTrackingActive && (
-                          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 self-start">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-[10px] font-bold text-emerald-700">GPS Live — Streaming Location</span>
-                          </div>
-                        )}
+              {/* ── STATE D: ACTIVE TRIP PROGRESSION COCKPIT SHEET ── */}
+              {activeTrip && (
+                <div className="cockpit-glass-elevated rounded-3xl p-4 space-y-3 shadow-2xl border border-white/15 animate-slide-up-smooth">
+                  {/* Status Banner, Payout & X Cancel/Close Icon */}
+                  <div className="flex items-start justify-between border-b border-white/10 pb-2.5">
+                    <div>
+                      <span className="text-[9px] font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded-md border border-emerald-500/40 inline-block mb-1">
+                        {tripStep === 'en_route' && 'En Route to Pickup'}
+                        {tripStep === 'arrived' && 'Waiting for Passenger'}
+                        {tripStep === 'trip_started' && 'Ride in Progress'}
+                        {tripStep === 'completed' && 'Trip Completed'}
+                      </span>
+                      <h3 className="font-black text-sm text-white">{activeTrip.customerName}</h3>
+                    </div>
 
-                        {tripStep === 'trip_started' && (
-                          <button
-                            type="button"
-                            onClick={handleCompleteTrip}
-                            className="w-full py-4 px-5 rounded-2xl bg-[#fcd502] hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider text-center shadow-md cursor-pointer transition-all active:scale-95"
-                          >
-                            Complete Ride & Collect ${activeTrip.driverPayout.toFixed(2)}
-                          </button>
-                        )}
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <span className="text-lg font-black text-white tabular-nums block">
+                          {formatRupees(activeTrip.driverPayout)}
+                        </span>
+                        <span className="text-[9px] font-bold text-slate-400">Guaranteed</span>
+                      </div>
 
-                        {tripStep === 'completed' && (
-                          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-2">
-                            <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
-                            <h4 className="font-bold text-sm text-slate-900">Trip Completed Successfully!</h4>
-                            <p className="text-xs text-slate-500 font-medium">
-                              ${activeTrip.driverPayout.toFixed(2)} added to your Driver Balance.
-                            </p>
+                      {/* X Icon on Top Right Corner to cancel / move to incomplete in history */}
+                      <button
+                        type="button"
+                        onClick={handlePauseOrCancelActiveTrip}
+                        className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer active:scale-90 transition-all ml-1 border border-white/10"
+                        title="Close & Move to Incomplete in Trips History"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* In-Trip Communication Shortcuts */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => alert(`Calling passenger ${activeTrip.customerName}...`)}
+                      className="py-2.5 px-3 rounded-xl bg-[#141C2C] border border-white/10 hover:bg-[#1A2438] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Call Passenger</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => alert(`Opening chat with ${activeTrip.customerName}...`)}
+                      className="py-2.5 px-3 rounded-xl bg-[#141C2C] border border-white/10 hover:bg-[#1A2438] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5 text-[#fcd502]" />
+                      <span>Chat Message</span>
+                    </button>
+                  </div>
+
+                  {/* Route Pickup / Dropoff Capsule */}
+                  <div className="p-2.5 rounded-2xl bg-[#101622] border border-white/5 space-y-1 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span className="text-[10px] text-slate-400">Pickup:</span>
+                      <span className="font-bold text-white truncate text-[11px]">{activeTrip.pickup}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-[#fcd502]" />
+                      <span className="text-[10px] text-slate-400">Dropoff:</span>
+                      <span className="font-bold text-white truncate text-[11px]">{activeTrip.destination}</span>
+                    </div>
+                  </div>
+
+                  {/* Step Progression Buttons */}
+                  <div className="pt-0.5">
+                    {tripStep === 'en_route' && (
+                      <button
+                        type="button"
+                        onClick={() => setTripStep('arrived')}
+                        className="w-full py-4 px-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider text-center shadow-xl shadow-[#fcd502]/30 cursor-pointer transition-all active:scale-[0.98]"
+                      >
+                        I Have Arrived at Pickup
+                      </button>
+                    )}
+
+                    {tripStep === 'arrived' && (() => {
+                      const isInspectionDone = Boolean(
+                        vehicleInspectionData?.front &&
+                        vehicleInspectionData?.rightSide &&
+                        vehicleInspectionData?.back &&
+                        vehicleInspectionData?.leftSide
+                      );
+                      const countTaken = vehicleInspectionData
+                        ? [vehicleInspectionData.front, vehicleInspectionData.rightSide, vehicleInspectionData.back, vehicleInspectionData.leftSide].filter(Boolean).length
+                        : 0;
+
+                      return (
+                        <div className="space-y-2">
+                          {isInspectionDone ? (
+                            <div className="p-2.5 rounded-2xl bg-emerald-950/50 border border-emerald-500/40 flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-2">
+                                <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                                <div>
+                                  <span className="font-extrabold text-emerald-300 block text-[11px]">Condition Verified ✓</span>
+                                  <span className="text-[9px] text-emerald-400/80">4 angles &amp; {vehicleInspectionData?.defects.length || 0} defects documented</span>
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setShowInspectionModal(true)}
+                                className="text-[10px] font-bold text-emerald-300 bg-[#182032] px-2 py-0.5 rounded-xl border border-emerald-500/40 cursor-pointer"
+                              >
+                                Review
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="p-2.5 rounded-2xl bg-rose-950/50 border border-rose-800/50 flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-2">
+                                <Lock className="w-4 h-4 text-rose-400" />
+                                <div>
+                                  <span className="font-extrabold text-rose-200 text-[11px] block">Vehicle Inspection Required</span>
+                                  <span className="text-[9px] text-rose-300/80">{countTaken}/4 live camera photos taken</span>
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setShowInspectionModal(true)}
+                                className="px-2.5 py-1 rounded-xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-[10px] uppercase shadow-md shadow-[#fcd502]/20 cursor-pointer active:scale-95 transition-all"
+                              >
+                                Take Photos
+                              </button>
+                            </div>
+                          )}
+
+                          {isInspectionDone ? (
                             <button
                               type="button"
-                              onClick={() => {
-                                setActiveTrip(null);
-                                setTripStep('en_route');
-                              }}
-                              className="py-2.5 px-6 rounded-xl bg-[#fcd502] hover:bg-amber-400 text-slate-950 font-black text-xs cursor-pointer mt-2 shadow-xs"
+                              onClick={() => handleConfirmStartTrip(vehicleInspectionData!)}
+                              className="w-full py-4 px-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider text-center shadow-xl shadow-[#fcd502]/30 cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                             >
-                              Ready for Next Ride
+                              <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                              <span>Start the Trip</span>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setShowInspectionModal(true)}
+                              className="w-full py-4 px-4 rounded-2xl bg-white/10 hover:bg-white/15 text-slate-300 font-black text-xs uppercase tracking-wider text-center cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-2 border border-white/10"
+                            >
+                              <Lock className="w-4 h-4 text-[#fcd502]" />
+                              <span>Take All 4 Photos to Start ({countTaken}/4)</span>
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()}
+
+                    {tripStep === 'trip_started' && (
+                      <div className="space-y-2">
+                        {vehicleInspectionData && (
+                          <div className="p-2 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex items-center justify-between text-xs">
+                            <span className="text-[10px] text-emerald-300 font-bold flex items-center gap-1">
+                              <ShieldCheck className="w-3.5 h-3.5" /> Condition Proof Locked
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setShowInspectionModal(true)}
+                              className="text-[9px] font-bold text-emerald-300 underline"
+                            >
+                              View
                             </button>
                           </div>
                         )}
-                      </div>
-                    </div>
-                  )}
 
-                </div>
-              )}
-
-              {/* TAB 2: EARNINGS & CASHOUT */}
-              {activeTab === 'earnings' && (
-                <div className="space-y-4 animate-fade-in">
-                  <div className="p-5 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Available Driver Balance</span>
-                        <h3 className="text-3xl font-black text-slate-900">${todayEarnings.toFixed(2)}</h3>
+                        <button
+                          type="button"
+                          onClick={handleCompleteTrip}
+                          className="w-full py-4 px-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider text-center shadow-xl shadow-[#fcd502]/30 cursor-pointer transition-all active:scale-[0.98]"
+                        >
+                          Complete Ride &amp; Collect {formatRupees(activeTrip.driverPayout)}
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => alert(`Initiating instant payout of $${todayEarnings.toFixed(2)} to Chase Bank ****4921`)}
-                        className="py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider shadow-md cursor-pointer"
-                      >
-                        Instant Cashout
-                      </button>
-                    </div>
+                    )}
 
-                    <div className="border-t border-slate-100 pt-3 flex items-center justify-between text-xs text-slate-500 font-medium">
-                      <span>Weekly Goal: $1,200.00</span>
-                      <span className="text-emerald-600 font-bold">82% Completed</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-3xl p-4 border border-slate-200 shadow-xs space-y-3">
-                    <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider">Recent Ride Payouts</h4>
-                    <div className="space-y-2 text-xs">
-                      <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-                        <div>
-                          <span className="font-bold text-slate-900 block">Beverly Hills ➔ LAX Airport</span>
-                          <span className="text-[10px] text-slate-500 font-medium">4 Hours • Executive SUV</span>
-                        </div>
-                        <span className="font-bold text-emerald-600 text-sm">+$112.00</span>
+                    {tripStep === 'completed' && (
+                      <div className="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-center space-y-2">
+                        <CheckCircle2 className="w-6 h-6 text-emerald-400 mx-auto" />
+                        <h4 className="font-extrabold text-sm text-white">Trip Completed!</h4>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveTrip(null);
+                            setTripStep('en_route');
+                          }}
+                          className="py-2.5 px-5 rounded-xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs cursor-pointer active:scale-95 transition-all shadow-md shadow-[#fcd502]/20"
+                        >
+                          Ready for Next Ride
+                        </button>
                       </div>
-                      <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-                        <div>
-                          <span className="font-bold text-slate-900 block">Santa Monica ➔ Sunset Blvd</span>
-                          <span className="text-[10px] text-slate-500 font-medium">2 Hours • Maybach Chauffeur</span>
-                        </div>
-                        <span className="font-bold text-emerald-600 text-sm">+$136.50</span>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               )}
 
-              {/* TAB 3: TRIP HISTORY */}
-              {activeTab === 'history' && (
-                <div className="space-y-3 animate-fade-in text-xs">
-                  <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider px-1">Completed Chauffeur Trips</h4>
-                  {[
-                    { customer: 'Alexander Vance', date: 'Today, 2:30 PM', fare: '$112.00', status: 'Completed', rating: '5.0 ★' },
-                    { customer: 'Lady Eleanor Vance', date: 'Yesterday, 6:15 PM', fare: '$180.00', status: 'Completed', rating: '5.0 ★' },
-                    { customer: 'David Miller', date: '08/03/2026', fare: '$95.00', status: 'Completed', rating: '4.9 ★' },
-                  ].map((item, idx) => (
-                    <div key={idx} className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex items-center justify-between">
+            </div>
+
+            {/* ═════════ LAYER 4: SLIDE-UP FULL SHEETS (EARNINGS, HISTORY, ACCOUNT) ═════════ */}
+
+            {/* ── TAB 2: EARNINGS FULL SHEET ── */}
+            {activeTab === 'earnings' && (
+              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col pt-3 animate-slide-up-smooth">
+                <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-2" />
+                <div className="px-4 py-2 flex items-center justify-between border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-[#fcd502]" />
+                    <h3 className="font-black text-base text-white">Earnings &amp; Payouts</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('rides')}
+                    className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer active:scale-90"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-none pb-24 text-xs">
+                  {/* Balance Hero Card */}
+                  <div className="uber-card p-5 rounded-3xl space-y-3.5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Available Balance</span>
+                    <div className="flex items-baseline justify-between">
+                      <h3 className="text-3xl font-black text-white tabular-nums">{formatRupees(todayEarnings)}</h3>
+                      <span className="text-xs font-bold text-emerald-300 bg-emerald-950/70 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                        +14.2% this week
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => alert(`Instant cashout of ${formatRupees(todayEarnings)} initiated to HDFC Bank ****4921`)}
+                      className="w-full py-3.5 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider shadow-xl shadow-[#fcd502]/25 transition-all active:scale-[0.98] cursor-pointer text-center"
+                    >
+                      Instant Cashout to Bank
+                    </button>
+                  </div>
+
+                  {/* Weekly Goal Progress */}
+                  <div className="uber-card p-4 rounded-3xl space-y-2.5">
+                    <div className="flex justify-between items-center font-bold">
+                      <span className="text-slate-300">Weekly Target</span>
+                      <span className="text-white font-extrabold">₹25,000.00</span>
+                    </div>
+                    <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full bg-[#fcd502] rounded-full" style={{ width: '74%' }} />
+                    </div>
+                    <div className="flex justify-between text-[11px] text-slate-400 font-medium">
+                      <span>₹18,450.00 earned</span>
+                      <span className="text-emerald-400 font-bold">74% achieved</span>
+                    </div>
+                  </div>
+
+                  {/* Recent Payouts Feed */}
+                  <div className="uber-card p-4 rounded-3xl space-y-2.5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Recent Payouts</span>
+                    <div className="space-y-2">
+                      <div className="p-3 rounded-2xl bg-[#182032] border border-white/10 flex items-center justify-between">
+                        <div>
+                          <span className="font-bold text-white block">Marine Drive, Kochi ➔ Cochin Airport (COK)</span>
+                          <span className="text-[10px] text-slate-400 font-medium">Today • Executive Sedan</span>
+                        </div>
+                        <span className="font-black text-emerald-400 text-sm tabular-nums">+₹1,250.00</span>
+                      </div>
+                      <div className="p-3 rounded-2xl bg-[#182032] border border-white/10 flex items-center justify-between">
+                        <div>
+                          <span className="font-bold text-white block">Infopark Kakkanad ➔ Lulu Mall, Edappally</span>
+                          <span className="text-[10px] text-slate-400 font-medium">Yesterday • Maybach Chauffeur</span>
+                        </div>
+                        <span className="font-black text-emerald-400 text-sm tabular-nums">+₹950.00</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── TAB 3: TRIP HISTORY FULL SHEET ── */}
+            {activeTab === 'history' && (
+              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col pt-3 animate-slide-up-smooth">
+                <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-2" />
+                <div className="px-4 py-2 flex items-center justify-between border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-[#fcd502]" />
+                    <h3 className="font-black text-base text-white">Trip History</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('rides')}
+                    className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer active:scale-90"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-none pb-24 text-xs">
+                  {/* Incomplete / Active Trips Category */}
+                  <div className="space-y-2.5 mb-4">
+                    <div className="flex items-center justify-between px-1">
+                      <span className="text-[11px] font-black text-[#fcd502] uppercase tracking-wider flex items-center gap-1.5">
+                        <span className={`w-2 h-2 rounded-full ${incompleteTrips.length > 0 ? 'bg-[#fcd502] animate-pulse' : 'bg-slate-600'}`} />
+                        Incomplete Trips Category ({incompleteTrips.length})
+                      </span>
+                      {incompleteTrips.length > 0 ? (
+                        <span className="text-[10px] text-amber-300 font-bold bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-500/30">
+                          Step Pending
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-slate-500 font-medium">None pending</span>
+                      )}
+                    </div>
+
+                    {incompleteTrips.length === 0 ? (
+                      <div className="p-4 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] text-center space-y-1">
+                        <Clock className="w-5 h-5 text-slate-500 mx-auto" />
+                        <span className="text-xs font-bold text-slate-400 block">No Incomplete Trips</span>
+                        <span className="text-[10px] text-slate-500 block">Accepted trips with pending steps will appear here automatically.</span>
+                      </div>
+                    ) : (
+                      incompleteTrips.map((item) => (
+                        <div
+                          key={item.id}
+                          className="p-4 rounded-2xl border border-amber-400/50 bg-[#141C2C] space-y-3 shadow-xl shadow-amber-500/10 relative overflow-hidden"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="min-w-0 flex-1 pr-2">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className="font-black text-sm text-white truncate">{item.trip.customerName}</h4>
+                                <span className="text-[9px] font-black text-slate-950 bg-[#fcd502] px-2 py-0.5 rounded-full uppercase whitespace-nowrap shadow-xs">
+                                  {item.tripStep === 'en_route' ? 'Step 1: En Route' : item.tripStep === 'arrived' ? 'Step 2: Arrived' : 'Step 3: In Progress'}
+                                </span>
+                              </div>
+                              <span className="text-[11px] text-slate-300 block truncate mt-1 font-medium">
+                                {item.trip.pickup} ➔ {item.trip.destination}
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-medium mt-0.5 block">
+                                Accepted {item.pausedAt} • {item.trip.serviceType}
+                              </span>
+                            </div>
+
+                            <div className="text-right flex-shrink-0">
+                              <span className="font-black text-[#fcd502] text-sm tabular-nums block">
+                                {formatRupees(item.trip.driverPayout)}
+                              </span>
+                              <span className="text-[9px] font-bold text-emerald-400">Guaranteed</span>
+                            </div>
+                          </div>
+
+                          {/* Step Progression Visualizer */}
+                          <div className="p-2 rounded-xl bg-[#0D131F] border border-white/5 grid grid-cols-3 gap-1.5 text-center text-[9px] font-bold">
+                            <div className={`py-1 rounded-lg ${item.tripStep === 'en_route' ? 'bg-[#fcd502]/25 text-[#fcd502] border border-[#fcd502]/50' : 'bg-emerald-950/50 text-emerald-400 border border-emerald-500/20'}`}>
+                              1. En Route {item.tripStep !== 'en_route' && '✓'}
+                            </div>
+                            <div className={`py-1 rounded-lg ${item.tripStep === 'arrived' ? 'bg-[#fcd502]/25 text-[#fcd502] border border-[#fcd502]/50' : item.tripStep === 'trip_started' ? 'bg-emerald-950/50 text-emerald-400 border border-emerald-500/20' : 'text-slate-500'}`}>
+                              2. Arrive &amp; Inspect {item.tripStep === 'trip_started' && '✓'}
+                            </div>
+                            <div className={`py-1 rounded-lg ${item.tripStep === 'trip_started' ? 'bg-[#fcd502]/25 text-[#fcd502] border border-[#fcd502]/50' : 'text-slate-500'}`}>
+                              3. Ride to Dest.
+                            </div>
+                          </div>
+
+                          {/* Action Button: "Complete Step" in Brand Yellow + Discard */}
+                          <div className="flex items-center gap-2 pt-1 border-t border-white/10">
+                            <button
+                              type="button"
+                              onClick={() => handleResumeTrip(item)}
+                              className="flex-1 py-3 px-3 rounded-xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-[#fcd502]/25 cursor-pointer active:scale-95 transition-all"
+                            >
+                              <Play className="w-3.5 h-3.5 fill-slate-950 stroke-none" />
+                              <span>
+                                {item.tripStep === 'en_route' && 'Complete Step: Arrive at Pickup'}
+                                {item.tripStep === 'arrived' && 'Complete Step: Inspect & Start'}
+                                {item.tripStep === 'trip_started' && 'Complete Step: Finish & Collect'}
+                              </span>
+                              <ArrowRight className="w-3.5 h-3.5 stroke-[3]" />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDiscardIncompleteTrip(item.id)}
+                              className="py-3 px-3 rounded-xl bg-white/10 hover:bg-rose-950/40 text-slate-400 hover:text-rose-300 font-bold text-xs transition-colors cursor-pointer"
+                              title="Discard this trip"
+                            >
+                              Discard
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 block">Completed Trips (Kerala)</span>
+                  {completedTripsList.map((item) => (
+                    <div key={item.id} className="uber-card p-3.5 rounded-2xl flex items-center justify-between">
                       <div>
-                        <span className="font-bold text-slate-900 block">{item.customer}</span>
-                        <span className="text-[10px] text-slate-500 font-medium">{item.date} • {item.rating}</span>
+                        <span className="font-bold text-white block">{item.customer}</span>
+                        <span className="text-[11px] text-slate-300 block truncate">{item.route}</span>
+                        <span className="text-[10px] text-slate-400 font-medium mt-0.5 block">{item.date} • {item.rating}</span>
                       </div>
                       <div className="text-right">
-                        <span className="font-black text-slate-900 text-sm block">{item.fare}</span>
-                        <span className="text-[9px] font-bold text-emerald-600 uppercase">{item.status}</span>
+                        <span className="font-black text-white text-sm tabular-nums block">{item.fare}</span>
+                        <span className="text-[9px] font-extrabold text-emerald-300 bg-emerald-950/70 border border-emerald-500/30 px-1.5 py-0.5 rounded-md uppercase">
+                          Completed
+                        </span>
                       </div>
                     </div>
                   ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* TAB 4: DRIVER PROFILE & ACCOUNT */}
-              {activeTab === 'profile' && (
-                <div className="space-y-4 animate-fade-in text-xs pb-6">
+            {/* ── TAB 4: ACCOUNT / PROFILE FULL SHEET ── */}
+            {activeTab === 'profile' && (
+              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col pt-3 animate-slide-up-smooth">
+                <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-2" />
+                <div className="px-4 py-2 flex items-center justify-between border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <User className="w-5 h-5 text-[#fcd502]" />
+                    <h3 className="font-black text-base text-white">Driver Partner Profile</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('rides')}
+                    className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer active:scale-90"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
 
-                  {/* 1. DRIVER CARD */}
-                  <div className="p-5 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-3">
-                    <div className="flex items-center gap-4">
-                      <div className="relative">
-                        <img
-                          src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80"
-                          alt={driverName}
-                          className="w-16 h-16 rounded-2xl object-cover border-2 border-[#fcd502] shadow-sm"
-                        />
-                        <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-[10px] text-white font-bold">✓</span>
-                      </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-none pb-24 text-xs">
+                  {/* Driver Card */}
+                  <div className="uber-card p-4.5 rounded-3xl space-y-3">
+                    <div className="flex items-center gap-3.5">
+                      <img
+                        src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80"
+                        alt={driverName}
+                        className="w-14 h-14 rounded-2xl object-cover border border-white/10"
+                      />
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-bold text-base text-slate-900 truncate">{driverName}</h3>
-                        </div>
-                        <p className="text-xs text-slate-500 font-medium pt-0.5">Senior Executive Chauffeur</p>
-                        <div className="flex items-center gap-1.5 mt-1 text-[10px] text-emerald-600 font-semibold">
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                        <h3 className="font-black text-base text-white">{driverName}</h3>
+                        <p className="text-xs text-slate-400 font-medium">Executive Partner Driver</p>
+                        <div className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold mt-0.5">
+                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                           <span>Verified Commercial Chauffeur</span>
                         </div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-slate-600 font-medium">
+
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-slate-300">
                       <div className="flex items-center gap-1.5 truncate">
                         <Phone className="w-3.5 h-3.5 text-slate-400" />
                         <span>+1 (555) 234-5678</span>
@@ -1009,86 +1509,70 @@ export function DriverApp() {
                     </div>
                   </div>
 
-                  {/* 2. ASSIGNED FLEET VEHICLE CARD */}
-                  <div className="p-4 rounded-3xl bg-white border border-slate-200/90 shadow-xs space-y-2.5">
+                  {/* Assigned Fleet Vehicle */}
+                  <div className="uber-card p-4 rounded-3xl space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assigned Fleet Vehicle</span>
-                      <span className="text-[10px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Active & Insured</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assigned Vehicle</span>
+                      <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950/70 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                        Active &amp; Insured
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-extrabold text-sm text-slate-900">2024 Mercedes-Maybach S-Class</h4>
-                        <p className="text-xs text-slate-500 font-medium">Black • Luxury First Class Chauffeur</p>
+                        <h4 className="font-extrabold text-sm text-white">2024 Mercedes-Maybach S-Class</h4>
+                        <p className="text-xs text-slate-400 font-medium">Obsidian Black • First Class</p>
                       </div>
-                      <span className="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-900 font-mono font-black text-xs border border-slate-200">
+                      <span className="px-2.5 py-1 rounded-xl bg-[#182032] text-[#fcd502] font-mono font-black text-xs border border-white/10">
                         CA 7XYZ99
                       </span>
                     </div>
                   </div>
 
-                  {/* 3. APP & DISPATCH PREFERENCES */}
-                  <div className="p-4 rounded-3xl bg-white border border-slate-200/90 shadow-xs space-y-4">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Preferences</span>
-
-                    {/* Navigation App Engine Selection */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-800 block">Preferred Navigation Map Engine</label>
-                      <div className="grid grid-cols-3 gap-2">
+                  {/* Navigation Engine Preference */}
+                  <div className="uber-card p-4 rounded-3xl space-y-2.5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Navigation App</span>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(['google_maps', 'waze', 'apple_maps'] as const).map((eng) => (
                         <button
+                          key={eng}
                           type="button"
-                          onClick={() => setPreferredNav('google_maps')}
-                          className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${preferredNav === 'google_maps'
+                          onClick={() => setPreferredNav(eng)}
+                          className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center ${
+                            preferredNav === eng
                               ? 'bg-[#fcd502] text-slate-950 border-[#fcd502] font-black shadow-xs'
-                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                            }`}
+                              : 'bg-[#182032] text-slate-300 border-white/10 hover:bg-[#202A3E]'
+                          }`}
                         >
-                          Google Maps
+                          {eng === 'google_maps' ? 'Google' : eng === 'waze' ? 'Waze' : 'Apple'}
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setPreferredNav('waze')}
-                          className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${preferredNav === 'waze'
-                              ? 'bg-[#fcd502] text-slate-950 border-[#fcd502] font-black shadow-xs'
-                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                            }`}
-                        >
-                          Waze
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setPreferredNav('apple_maps')}
-                          className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${preferredNav === 'apple_maps'
-                              ? 'bg-[#fcd502] text-slate-950 border-[#fcd502] font-black shadow-xs'
-                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                            }`}
-                        >
-                          Apple Maps
-                        </button>
-                      </div>
+                      ))}
                     </div>
+                  </div>
 
-                    {/* Auto-Accept Toggle */}
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                  {/* Auto-Accept Toggle & Pickup Radius */}
+                  <div className="uber-card p-4 rounded-3xl space-y-3">
+                    <div className="flex items-center justify-between">
                       <div>
-                        <span className="font-bold text-slate-900 block">Auto-Accept Incoming Requests</span>
-                        <span className="text-[10px] text-slate-500">Automatically confirm back-to-back rides</span>
+                        <span className="font-bold text-white block">Auto-Accept Rides</span>
+                        <span className="text-[10px] text-slate-400">Instantly confirm back-to-back requests</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => setAutoAccept(!autoAccept)}
-                        className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${autoAccept ? 'bg-[#fcd502]' : 'bg-slate-300'
-                          }`}
+                        className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${
+                          autoAccept ? 'bg-[#fcd502]' : 'bg-white/20'
+                        }`}
                       >
-                        <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform shadow-xs ${autoAccept ? 'right-0.5' : 'left-0.5'
-                          }`} />
+                        <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-slate-950 transition-transform shadow-xs ${
+                          autoAccept ? 'right-0.5' : 'left-0.5'
+                        }`} />
                       </button>
                     </div>
 
-                    {/* Max Pickup Radius Slider */}
-                    <div className="pt-2 border-t border-slate-100 space-y-2">
+                    <div className="pt-2 border-t border-white/10 space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-900">Maximum Pickup Radius</span>
-                        <span className="font-black text-slate-950 bg-[#fcd502] px-2 py-0.5 rounded-full text-xs">
+                        <span className="font-bold text-white">Pickup Radius</span>
+                        <span className="font-bold text-slate-950 bg-[#fcd502] px-2 py-0.5 rounded-full text-xs">
                           {pickupRadius} miles
                         </span>
                       </div>
@@ -1104,45 +1588,21 @@ export function DriverApp() {
                     </div>
                   </div>
 
-                  {/* 4. BANKING & SUPPORT */}
-                  <div className="p-4 rounded-3xl bg-white border border-slate-200/90 shadow-xs space-y-3">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Banking & Support</span>
-                    <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-xs shadow-xs">
-                          CHASE
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-slate-900">Chase Checking ****4921</h4>
-                          <p className="text-[10px] text-slate-500 font-medium">Direct Deposit • Instant Cashout Enabled</p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => alert('Payout method edit modal opening...')}
-                        className="text-xs font-bold text-amber-700 hover:text-amber-800 cursor-pointer"
-                      >
-                        Manage
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* 5. LOG OUT BUTTON */}
+                  {/* Log Out */}
                   <button
                     type="button"
                     onClick={() => setIsAuthenticated(false)}
-                    className="w-full p-4 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-extrabold text-xs text-center cursor-pointer transition-colors shadow-xs"
+                    className="w-full py-3.5 rounded-2xl bg-[#182032] hover:bg-rose-950/40 text-rose-300 hover:text-rose-200 font-bold text-xs text-center cursor-pointer transition-colors border border-white/10"
                   >
-                    Log Out of Driver App
+                    Log Out of Driver Console
                   </button>
                 </div>
-              )}
+              </div>
+            )}
 
-            </div>
-
-            {/* FLOATING BOTTOM NAVIGATION PILL (MATCHING FloatingNav.tsx 1:1) */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-sm pointer-events-auto transition-all duration-300">
-              <nav className="glass-floating-dark rounded-full p-2 flex items-center justify-between shadow-2xl border border-slate-800/90 backdrop-blur-2xl bg-[#121212]/95 ring-1 ring-white/10">
+            {/* ═════════ LAYER 5: FLOATING MINIMAL BOTTOM COMMAND DOCK ═════════ */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm pointer-events-auto">
+              <nav className="cockpit-glass rounded-full p-1.5 flex items-center justify-between shadow-2xl border border-white/10">
                 {navTabs.map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
@@ -1152,17 +1612,16 @@ export function DriverApp() {
                       key={tab.id}
                       type="button"
                       onClick={() => setActiveTab(tab.id)}
-                      className={`relative flex items-center justify-center gap-2 py-3 px-4 rounded-full transition-all duration-300 cursor-pointer ${isActive
-                          ? 'bg-[#fcd502] text-[#121212] shadow-lg shadow-[#fcd502]/20 font-black flex-1'
-                          : 'text-slate-400 hover:text-white font-bold hover:bg-slate-800/60'
-                        }`}
+                      className={`relative flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full transition-all duration-200 cursor-pointer ${
+                        isActive
+                          ? 'bg-[#fcd502] text-slate-950 font-black shadow-lg shadow-[#fcd502]/25 flex-1'
+                          : 'text-slate-400 hover:text-white font-semibold'
+                      }`}
                       aria-label={tab.label}
                     >
-                      <Icon className={`w-5 h-5 transition-all duration-300 ${isActive ? 'scale-110 text-[#121212] fill-[#121212]/20 stroke-[2.5]' : 'text-slate-400 stroke-[2]'
-                        }`} />
-
+                      <Icon className={`w-4 h-4 ${isActive ? 'stroke-[2.5]' : 'stroke-[2]'}`} />
                       {isActive && (
-                        <span className="text-xs font-black tracking-tight whitespace-nowrap text-[#121212]">
+                        <span className="text-xs font-black tracking-tight whitespace-nowrap">
                           {tab.label}
                         </span>
                       )}
@@ -1172,85 +1631,79 @@ export function DriverApp() {
               </nav>
             </div>
 
-            {/* PAYMENT REQUEST SLIP POPUP MODAL WITH SMOOTH ANIMATION */}
+            {/* ═════════ FINTECH PAYMENT SLIP MODAL ═════════ */}
             {showPaymentSlipModal && (activeTrip || completedTripData) && (
-              <div className={`absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md transition-opacity duration-300 ${isClosingPaymentSlip ? 'opacity-0 pointer-events-none' : 'opacity-100'
-                }`}>
-                <div className={`bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 text-slate-900 space-y-4 relative overflow-hidden font-sans transition-all duration-300 transform ${isClosingPaymentSlip ? 'scale-95 translate-y-4 opacity-0' : 'scale-100 translate-y-0 opacity-100 animate-drop-up'
-                  }`}>
-
-                  {/* Decorative Slip Header Ticket Accent */}
-                  <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-400 via-[#fcd502] to-amber-500" />
-
-                  {/* Slip Title Bar */}
-                  <div className="flex items-center justify-between pt-1 border-b border-slate-100 pb-3">
+              <div className={`absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-xs transition-opacity duration-200 ${
+                isClosingPaymentSlip ? 'opacity-0 pointer-events-none' : 'opacity-100'
+              }`}>
+                <div className="bg-[#121824] rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-white/10 text-white space-y-4 animate-slide-up-smooth">
+                  {/* Slip Header */}
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
                     <div>
-                      <span className="text-[10px] font-black tracking-widest text-[#a18200] uppercase block">Ridingo Chauffeur</span>
-                      <h3 className="font-extrabold text-base text-slate-900">Payment Request Slip</h3>
+                      <span className="text-[10px] font-black tracking-wider text-[#fcd502] uppercase block">Ridingo Digital Receipt</span>
+                      <h3 className="font-extrabold text-base text-white">Payment Collection Slip</h3>
                     </div>
-                    <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-mono text-[10px] font-bold">
+                    <span className="px-2 py-0.5 rounded-full bg-[#182032] text-slate-300 font-mono text-[10px] font-bold border border-white/10">
                       #SLIP-8841
                     </span>
                   </div>
 
-                  {/* Passenger & Trip Summary */}
-                  <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 space-y-2 text-xs">
+                  {/* Summary */}
+                  <div className="bg-[#182032] p-3 rounded-2xl border border-white/10 space-y-1.5 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500 font-medium">Passenger</span>
-                      <span className="font-bold text-slate-900">{(activeTrip || completedTripData)?.customerName}</span>
+                      <span className="text-slate-400 font-medium">Passenger</span>
+                      <span className="font-bold text-white">{(activeTrip || completedTripData)?.customerName}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500 font-medium">Service</span>
-                      <span className="font-bold text-slate-900">{(activeTrip || completedTripData)?.serviceType}</span>
+                      <span className="text-slate-400 font-medium">Service</span>
+                      <span className="font-bold text-white">{(activeTrip || completedTripData)?.serviceType}</span>
                     </div>
-                    <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
-                      <span className="text-slate-500 font-medium">Date & Time</span>
-                      <span className="font-semibold text-slate-700">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
+                    {vehicleInspectionData && (
+                      <div className="flex items-center justify-between pt-1 border-t border-white/10">
+                        <span className="text-slate-400 font-medium">Vehicle Condition</span>
+                        <span className="font-bold text-emerald-400 flex items-center gap-1 text-[11px]">
+                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                          Documented (No dispute)
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Fare Breakdown Details */}
+                  {/* Breakdown */}
                   <div className="space-y-1.5 text-xs">
-                    <div className="flex justify-between text-slate-600">
+                    <div className="flex justify-between text-slate-300">
                       <span>Base Ride Fare</span>
-                      <span className="font-semibold text-slate-900">${(((activeTrip || completedTripData)?.totalFare || 140) * 0.75).toFixed(2)}</span>
+                      <span className="font-semibold text-white">{formatRupees((((activeTrip || completedTripData)?.totalFare || 1450) * 0.75))}</span>
                     </div>
-                    <div className="flex justify-between text-slate-600">
-                      <span>Distance & Toll Charges</span>
-                      <span className="font-semibold text-slate-900">${(((activeTrip || completedTripData)?.totalFare || 140) * 0.25).toFixed(2)}</span>
+                    <div className="flex justify-between text-slate-300">
+                      <span>Distance &amp; Toll</span>
+                      <span className="font-semibold text-white">{formatRupees((((activeTrip || completedTripData)?.totalFare || 1450) * 0.25))}</span>
                     </div>
-                    <div className="flex justify-between items-center pt-2 border-t border-slate-200 font-extrabold text-sm">
-                      <span className="text-slate-900">Total Fare Due</span>
-                      <span className="text-xl font-black text-slate-900">${((activeTrip || completedTripData)?.totalFare || 140).toFixed(2)}</span>
+                    <div className="flex justify-between items-center pt-2 border-t border-white/10 font-bold text-sm">
+                      <span>Total Due</span>
+                      <span className="text-xl font-black text-white tabular-nums">
+                        {formatRupees((activeTrip || completedTripData)?.totalFare || 1450)}
+                      </span>
                     </div>
-                    <div className="flex justify-between items-center text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-xl font-bold border border-emerald-200">
+                    <div className="flex justify-between items-center text-[11px] text-emerald-300 bg-emerald-950/70 px-2.5 py-1 rounded-xl font-bold border border-emerald-500/30">
                       <span>Net Driver Payout</span>
-                      <span>${((activeTrip || completedTripData)?.driverPayout || 112).toFixed(2)}</span>
+                      <span className="tabular-nums">{formatRupees((activeTrip || completedTripData)?.driverPayout || 1160)}</span>
                     </div>
                   </div>
 
-                  {/* QR Code Section */}
-                  <div className="bg-amber-500/10 border border-amber-200 text-slate-900 p-4 rounded-2xl text-center space-y-3 shadow-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wider">Scan QR Code</span>
-                      <span className="text-[10px] font-mono text-slate-500">UPI / Card / GPay</span>
-                    </div>
-
-                    {/* QR Code Graphic Container */}
-                    <div className="bg-white p-3 rounded-2xl inline-block shadow-md border-2 border-[#fcd502]">
+                  {/* QR Code Container */}
+                  <div className="bg-[#182032] border border-amber-400/20 text-white p-3.5 rounded-2xl text-center space-y-2.5">
+                    <span className="text-[10px] font-bold text-[#fcd502] uppercase tracking-wider block">Scan to Pay via UPI (PhonePe / GPay / Paytm / BHIM)</span>
+                    <div className="bg-white p-2.5 rounded-2xl inline-block shadow-sm border border-amber-300">
                       <img
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=ridingo@upi%26pn=RidingoChauffeur%26am=${(activeTrip || completedTripData)?.totalFare || 140}%26cu=USD`}
-                        alt="Payment QR Code"
-                        className="w-36 h-36 mx-auto object-contain"
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=ridingo@upi%26pn=RidingoChauffeur%26am=${(activeTrip || completedTripData)?.totalFare || 1450}%26cu=INR`}
+                        alt="Payment QR"
+                        className="w-32 h-32 mx-auto object-contain"
                       />
                     </div>
-
-                    <p className="text-[10px] text-slate-600 font-medium">
-                      Scan via GPay, PhonePe, Apple Pay, or Mobile Banking to pay immediately.
-                    </p>
                   </div>
 
-                  {/* Payment Status & Action Buttons */}
+                  {/* Actions */}
                   <div className="space-y-2 pt-1">
                     {!isPaymentCollected ? (
                       <button
@@ -1259,57 +1712,43 @@ export function DriverApp() {
                           setIsPaymentCollected(true);
                           setTimeout(() => {
                             handleClosePaymentSlipModal();
-                          }, 1000);
+                          }, 900);
                         }}
-                        className="w-full py-3.5 rounded-2xl bg-[#fcd502] hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer text-center"
+                        className="w-full py-3.5 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider shadow-xl shadow-[#fcd502]/25 transition-all active:scale-[0.98] cursor-pointer text-center"
                       >
-                        Mark Payment Collected (${((activeTrip || completedTripData)?.totalFare || 140).toFixed(2)})
+                        Mark Payment Collected ({formatRupees((activeTrip || completedTripData)?.totalFare || 1450)})
                       </button>
                     ) : (
-                      <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-center font-bold text-xs flex items-center justify-center gap-2 animate-fade-in">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                        <span>Payment Verified & Collected! Closing...</span>
+                      <div className="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 text-center font-bold text-xs flex items-center justify-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        <span>Payment Verified! Closing...</span>
                       </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => alert('Sending digital receipt to customer email & SMS...')}
-                        className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer border border-slate-200"
-                      >
-                        <span>📧 Receipt</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleClosePaymentSlipModal}
-                        className="py-2.5 px-3 rounded-xl bg-[#fcd502] hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-transform"
-                      >
-                        <span>Done & Close</span>
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={handleClosePaymentSlipModal}
+                      className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-xs transition-colors cursor-pointer"
+                    >
+                      Done &amp; Close
+                    </button>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* DRIVER NOTIFICATIONS SLIDE DRAWER (MATCHING USER APP NOTIFICATION UI STYLE 1:1) */}
+            {/* ═════════ NOTIFICATIONS DRAWER ═════════ */}
             {showNotificationsModal && (
-              <div className="absolute inset-0 z-50 flex justify-end bg-slate-950/60 backdrop-blur-xs transition-opacity duration-300 animate-fade-in">
-                {/* Backdrop overlay */}
-                <div
-                  className="absolute inset-0"
-                  onClick={() => setShowNotificationsModal(false)}
-                />
+              <div className="absolute inset-0 z-50 flex justify-end bg-slate-950/75 backdrop-blur-xs transition-opacity duration-200">
+                <div className="absolute inset-0" onClick={() => setShowNotificationsModal(false)} />
 
-                {/* Right Slide Panel Container matching App.tsx */}
-                <div className="relative w-[340px] max-w-full h-full bg-[#FAFAFA] shadow-2xl flex flex-col z-10 animate-slide-left border-l border-slate-200/80 font-sans">
-                  {/* Minimal Single-Line Drawer Top Header matching App.tsx */}
-                  <div className="px-4 pt-7 pb-3 bg-white border-b border-slate-200 flex items-center justify-between shadow-sm shrink-0">
+                <div className="relative w-[320px] max-w-full h-full bg-[#0E1420] text-white shadow-2xl flex flex-col z-10 animate-slide-up-smooth border-l border-white/10 font-sans">
+                  {/* Header */}
+                  <div className="px-4 pt-6 pb-3 bg-[#121824] border-b border-white/10 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-extrabold text-sm text-slate-900 tracking-tight">Notifications</h3>
+                      <h3 className="font-extrabold text-sm text-white">Notifications</h3>
                       {notificationsList.filter(n => n.unread).length > 0 && (
-                        <span className="px-2 py-0.5 rounded-full bg-[#fcd502] text-[#121212] text-[10px] font-black">
+                        <span className="px-2 py-0.5 rounded-full bg-[#fcd502] text-slate-950 text-[10px] font-black">
                           {notificationsList.filter(n => n.unread).length}
                         </span>
                       )}
@@ -1321,68 +1760,72 @@ export function DriverApp() {
                         setNotificationsList(notificationsList.map(n => ({ ...n, unread: false })));
                         setUnreadNotificationsCount(0);
                       }}
-                      className="text-[11px] font-extrabold text-[#a18200] hover:underline whitespace-nowrap cursor-pointer"
+                      className="text-[11px] font-bold text-[#fcd502] hover:underline cursor-pointer"
                     >
                       Mark all read
                     </button>
                   </div>
 
-                  {/* Scrollable Notification Cards List matching NotificationsView.tsx */}
-                  <div className="flex-1 overflow-y-auto p-3.5 space-y-3 scrollbar-none relative">
+                  {/* List */}
+                  <div className="flex-1 overflow-y-auto p-3 space-y-2.5 scrollbar-none">
                     {notificationsList.map((item) => {
                       const Icon = item.icon || Bell;
-
                       return (
                         <div
                           key={item.id}
-                          className={`glass-card rounded-3xl p-4 border transition-all flex items-start gap-3.5 ${!item.unread
-                              ? 'bg-white/80 border-slate-200/70 text-slate-700 opacity-90'
-                              : 'bg-white border-[#fcd502] text-slate-900 shadow-md ring-1 ring-[#fcd502]/30'
-                            }`}
+                          className={`uber-card rounded-2xl p-3.5 flex items-start gap-3 transition-all ${
+                            item.unread ? 'border-[#fcd502]/40 ring-1 ring-[#fcd502]/20 bg-[#151D2C]' : 'bg-[#121824] border-white/5 opacity-90'
+                          }`}
                         >
-                          <div className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 ${item.type === 'driver' ? 'bg-[#121212] text-[#fcd502]' :
-                              item.type === 'booking' ? 'bg-emerald-500/10 text-emerald-600' :
-                                item.type === 'offer' ? 'bg-amber-500/10 text-amber-600' :
-                                  'bg-blue-500/10 text-blue-600'
-                            }`}>
-                            <Icon className="w-5 h-5" />
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                            item.type === 'driver' ? 'bg-[#182032] text-[#fcd502]' :
+                            item.type === 'booking' ? 'bg-emerald-950/60 text-emerald-400' :
+                            'bg-amber-950/60 text-[#fcd502]'
+                          }`}>
+                            <Icon className="w-4 h-4" />
                           </div>
 
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
-                              <h4 className="font-extrabold text-sm text-slate-900 truncate">{item.title}</h4>
-                              <span className="text-[10px] text-slate-400 font-medium ml-2 flex-shrink-0">{item.time}</span>
+                              <h4 className="font-bold text-xs text-white truncate">{item.title}</h4>
+                              <span className="text-[10px] text-slate-400 font-medium">{item.time}</span>
                             </div>
-                            <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
+                            <p className="text-[11px] text-slate-300 mt-0.5 leading-relaxed font-medium">
                               {item.desc}
                             </p>
                           </div>
-
-                          {item.unread && (
-                            <span className="w-2.5 h-2.5 rounded-full bg-[#fcd502] flex-shrink-0 mt-2 animate-pulse" />
-                          )}
                         </div>
                       );
                     })}
                   </div>
 
-                  {/* Thumb-Friendly Bottom Round Transparent Close Icon Button matching App.tsx */}
+                  {/* Close button */}
                   <div className="p-3 bg-transparent flex justify-center pb-6 shrink-0">
                     <button
                       type="button"
                       onClick={() => setShowNotificationsModal(false)}
-                      className="w-11 h-11 rounded-full bg-slate-900/10 hover:bg-slate-900/20 backdrop-blur-md border border-slate-300/80 text-slate-800 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-lg"
-                      aria-label="Close notifications"
+                      className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-sm"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
               </div>
             )}
 
+            {/* ═════════ PRE-TRIP VEHICLE CONDITION INSPECTION MODAL ═════════ */}
+            <VehicleInspectionModal
+              isOpen={showInspectionModal}
+              initialData={vehicleInspectionData}
+              onClose={() => setShowInspectionModal(false)}
+              onConfirmAndStartTrip={handleConfirmStartTrip}
+              vehicleName="2024 Mercedes-Maybach S-Class"
+              customerName={activeTrip?.customerName || 'Passenger'}
+            />
+
           </div>
         )}
+
       </div>
     </div>
   );
