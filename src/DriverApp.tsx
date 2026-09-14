@@ -1481,13 +1481,13 @@ export function DriverApp() {
 
                       return (
                         <div className="space-y-2">
-                          {isInspectionDone ? (
-                            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs gap-2">
+                          {isInspectionDone && (
+                            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs gap-2 animate-fade-in">
                               <div className="flex items-center gap-2 min-w-0 flex-1">
                                 <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                                 <div className="min-w-0 flex-1">
                                   <span className="font-semibold text-emerald-400 block text-xs whitespace-nowrap truncate">Condition Verified</span>
-                                  <span className="text-[11px] text-white/50 block whitespace-nowrap truncate">4 angles &amp; {vehicleInspectionData?.defects.length || 0} defects documented</span>
+                                  <span className="text-[11px] text-white/50 block whitespace-nowrap truncate">4 angles documented</span>
                                 </div>
                               </div>
                               <button
@@ -1496,23 +1496,6 @@ export function DriverApp() {
                                 className="text-xs font-medium text-white/80 bg-white/[0.06] hover:bg-white/10 px-2.5 py-1 rounded-lg border border-white/10 cursor-pointer whitespace-nowrap shrink-0 transition-colors"
                               >
                                 Review
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between text-xs gap-2">
-                              <div className="flex items-center gap-2 min-w-0 flex-1">
-                                <Lock className="w-4 h-4 text-amber-400 shrink-0" />
-                                <div className="min-w-0 flex-1">
-                                  <span className="font-semibold text-amber-200 text-xs block whitespace-nowrap truncate">Inspection Required</span>
-                                  <span className="text-[11px] text-white/50 block whitespace-nowrap truncate">{countTaken}/4 angles photographed</span>
-                                </div>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => setShowInspectionModal(true)}
-                                className="px-3 py-1.5 rounded-lg bg-[#F5C518] hover:bg-[#E5B510] text-black font-semibold text-xs cursor-pointer active:scale-95 transition-all whitespace-nowrap shrink-0"
-                              >
-                                Inspect
                               </button>
                             </div>
                           )}
@@ -1530,10 +1513,10 @@ export function DriverApp() {
                             <button
                               type="button"
                               onClick={() => setShowInspectionModal(true)}
-                              className="w-full h-12 px-4 rounded-xl bg-white/[0.06] hover:bg-white/10 text-white/60 font-medium text-xs text-center cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-2 border border-white/[0.08] whitespace-nowrap"
+                              className="w-full h-12 px-4 rounded-xl bg-[#F5C518] hover:bg-[#E5B510] text-black font-semibold text-xs text-center shadow-md shadow-[#F5C518]/20 cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-2 whitespace-nowrap"
                             >
-                              <Lock className="w-4 h-4 text-[#F5C518] shrink-0" />
-                              <span className="whitespace-nowrap">Take 4 Photos to Start ({countTaken}/4)</span>
+                              <Lock className="w-4 h-4 text-black stroke-[2.5] shrink-0" />
+                              <span className="whitespace-nowrap font-semibold">Take 4 Photos to Start ({countTaken}/4)</span>
                             </button>
                           )}
                         </div>
