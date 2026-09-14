@@ -21,7 +21,6 @@ import {
   Mail,
   ArrowRight,
   Sparkles,
-  Zap,
   RotateCcw,
   TrendingUp,
   Shield,
@@ -32,7 +31,6 @@ import {
   Radio,
   Bell,
   X,
-  Compass,
   Camera,
   Lock,
   LocateFixed,
@@ -81,9 +79,9 @@ export function DriverApp() {
   const [editPhonePrimary, setEditPhonePrimary] = useState<string>('+91 98470 12345');
   const [editPhoneEmergency, setEditPhoneEmergency] = useState<string>('+91 98470 54321');
   const [editEmail, setEditEmail] = useState<string>('marcus.vance@ridingo.com');
-  const [demoOtp, setDemoOtp] = useState<string>('492018');
-  const [destinationFilterEnabled, setDestinationFilterEnabled] = useState<boolean>(false);
-  const [autoAccept, setAutoAccept] = useState<boolean>(false);
+  // Tactical Toolbar & Map Location State
+  const [isLocating, setIsLocating] = useState<boolean>(false);
+  const mapInstanceRef = useRef<any>(null);
 
   // Home Section Search State: Easy Access to Trip History & Transactions
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -271,6 +269,26 @@ export function DriverApp() {
       setIsLoadingRoute(false);
     });
   }, [activeTrip, tripStep]);
+
+  // ── Acquire Driver's Real Initial GPS Location on Mount ──
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          setDriverCurrentLocation({ lat, lng });
+          if (pos.coords.heading !== null && !isNaN(pos.coords.heading)) {
+            setDriverHeading(pos.coords.heading);
+          }
+        },
+        () => {
+          // Keep default Marine Drive, Kochi hub coordinates if denied or unavailable
+        },
+        { enableHighAccuracy: true, timeout: 6000, maximumAge: 60000 }
+      );
+    }
+  }, []);
 
   // ── BroadcastChannel: Listen for booking requests from User App ──
   useEffect(() => {
@@ -616,13 +634,8 @@ export function DriverApp() {
 
     geoWatchRef.current = navigator.geolocation.watchPosition(
       (pos) => {
-        // Strict Kerala boundary filter (Lat: 8.15 to 12.85, Lng: 74.85 to 77.40)
-        // Ridingo operates exclusively in Kerala state: clamp to Kerala if testing outside
-        const rawLat = pos.coords.latitude;
-        const rawLng = pos.coords.longitude;
-        const isKerala = rawLat >= 8.15 && rawLat <= 12.85 && rawLng >= 74.85 && rawLng <= 77.40;
-        const finalLat = isKerala ? rawLat : 9.9816;
-        const finalLng = isKerala ? rawLng : 76.2999;
+        const finalLat = pos.coords.latitude;
+        const finalLng = pos.coords.longitude;
 
         const payload: DriverLocationPayload = {
           bookingNumber,
@@ -661,11 +674,47 @@ export function DriverApp() {
   };
 
   const handleRecenterMap = () => {
-    // Recenter strictly inside Kerala (Marine Drive, Kochi hub)
-    setDriverCurrentLocation((prev) => {
-      const isKerala = prev.lat >= 8.15 && prev.lat <= 12.85 && prev.lng >= 74.85 && prev.lng <= 77.40;
-      return isKerala ? { ...prev } : { lat: 9.9816, lng: 76.2999 };
-    });
+    setIsLocating(true);
+    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          setDriverCurrentLocation({ lat, lng });
+          if (pos.coords.heading !== null && !isNaN(pos.coords.heading)) {
+            setDriverHeading(pos.coords.heading);
+          }
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.flyTo([lat, lng], 16, {
+              animate: true,
+              duration: 1.2,
+            });
+          }
+          setIsLocating(false);
+        },
+        (err) => {
+          console.warn('Geolocation access error or denied, recentering to current location:', err);
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.flyTo(
+              [driverCurrentLocation.lat, driverCurrentLocation.lng],
+              16,
+              { animate: true, duration: 1.2 }
+            );
+          }
+          setIsLocating(false);
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+      );
+    } else {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.flyTo(
+          [driverCurrentLocation.lat, driverCurrentLocation.lng],
+          16,
+          { animate: true, duration: 1.2 }
+        );
+      }
+      setIsLocating(false);
+    }
   };
 
   const navTabs = [
@@ -797,6 +846,9 @@ export function DriverApp() {
                 destinationLabel={activeTrip?.destination}
                 routeGeometry={activeRoute?.geometry}
                 darkMode={true}
+                onMapReady={(map) => {
+                  mapInstanceRef.current = map;
+                }}
               />
             </div>
 
@@ -1154,56 +1206,47 @@ export function DriverApp() {
             </div>
 
             {/* ═════════ LAYER 2: FLOATING RIGHT TACTICAL TOOLBAR ═════════ */}
-            <div className="absolute right-3.5 top-[118px] z-20 flex flex-col bg-[#12141A]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-1 shadow-2xl gap-1 pointer-events-auto">
-              {/* GPS Recenter */}
+            <div className="absolute right-3.5 top-[118px] z-30 flex flex-col items-center bg-[#12141A]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-1.5 shadow-2xl gap-1.5 pointer-events-auto">
+              {/* GPS Recenter / User Location */}
               <button
                 type="button"
                 onClick={handleRecenterMap}
-                className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer text-zinc-300 hover:text-white hover:bg-white/10 transition-colors"
-                title="Recenter GPS Position"
+                disabled={isLocating}
+                className={`w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-all active:scale-95 ${
+                  isLocating
+                    ? 'bg-[#F5C518]/20 text-[#F5C518]'
+                    : 'text-zinc-300 hover:text-white hover:bg-white/10'
+                }`}
+                title="Show Current Location"
+                aria-label="Show Current Location"
               >
-                <LocateFixed className="w-4 h-4" />
+                <LocateFixed className={`w-4.5 h-4.5 ${isLocating ? 'animate-spin text-[#F5C518]' : ''}`} />
               </button>
 
-              {/* Destination Filter Quick Pill */}
+              {/* Hairline Capsule Divider */}
+              <div className="w-5 h-[1px] bg-white/10 my-0.5" />
+
+              {/* Simulate Dispatch Ride Request (Star Icon) */}
               <button
                 type="button"
-                onClick={() => setDestinationFilterEnabled(!destinationFilterEnabled)}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors ${
-                  destinationFilterEnabled
-                    ? 'bg-[#F5C518] text-black shadow-sm'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/10'
+                onClick={handleSimulateNewRequest}
+                disabled={!!activeTrip || !!incomingRequest}
+                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                  activeTrip || incomingRequest
+                    ? 'text-zinc-600 cursor-not-allowed opacity-35'
+                    : 'cursor-pointer text-[#F5C518] hover:bg-[#F5C518]/20 active:scale-95'
                 }`}
-                title={`Destination Filter: ${destinationFilterEnabled ? 'Active' : 'Off'}`}
+                title={
+                  activeTrip
+                    ? 'Trip in progress'
+                    : incomingRequest
+                    ? 'Request pending'
+                    : 'Simulate Trip Request'
+                }
+                aria-label="Simulate Trip Request"
               >
-                <Compass className="w-4 h-4" />
+                <Sparkles className="w-4.5 h-4.5" />
               </button>
-
-              {/* Auto-Accept Quick Pill */}
-              <button
-                type="button"
-                onClick={() => setAutoAccept(!autoAccept)}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors ${
-                  autoAccept
-                    ? 'bg-emerald-500 text-white shadow-sm'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/10'
-                }`}
-                title={`Auto-Accept: ${autoAccept ? 'ON' : 'OFF'}`}
-              >
-                <Zap className="w-4 h-4" />
-              </button>
-
-              {/* Simulate Dispatch Quick Pill */}
-              {!activeTrip && !incomingRequest && (
-                <button
-                  type="button"
-                  onClick={handleSimulateNewRequest}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer text-[#F5C518] hover:bg-[#F5C518] hover:text-black transition-colors relative"
-                  title="Simulate Dispatch Request"
-                >
-                  <Sparkles className="w-4 h-4" />
-                </button>
-              )}
             </div>
 
             {/* ═════════ LAYER 3: FLOATING HUD BOTTOM COCKPIT DRAWER ═════════ */}

@@ -116,16 +116,14 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       zoom: Math.max(zoom, 10),
       zoomControl: false,
       attributionControl: false,
-      maxBounds: KERALA_BOUNDS,
-      maxBoundsViscosity: 1.0, // Strict rigid lock: impossible to pan or drag outside Kerala
-      minZoom: 9,              // Cannot zoom out to see other states
-      maxZoom: 18,
+      minZoom: 3,
+      maxZoom: 19,
     });
 
     // 100% Free OpenStreetMap Foundation raster tiles (Zero API key, Zero limit)
     const tileLayer = L.tileLayer(OPENSTREETMAP_TILES, {
       attribution: OSM_ATTR,
-      maxZoom: 18,
+      maxZoom: 19,
       className: darkMode ? 'osm-dark-tiles' : '',
     });
     tileLayer.addTo(map);
@@ -201,7 +199,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         [driverLocation.lat, driverLocation.lng],
         { icon: makeDriverIcon(driverHeading), zIndexOffset: 1000 }
       )
-        .bindTooltip('🚗 Your Chauffeur', { permanent: false })
+        .bindTooltip('📍 Your Location', { permanent: false, className: 'ridingo-tooltip' })
         .addTo(map);
     } else {
       driverMarkerRef.current.setLatLng([driverLocation.lat, driverLocation.lng]);
