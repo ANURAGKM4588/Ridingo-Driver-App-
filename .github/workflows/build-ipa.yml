@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-ios:
-    name: Build Unsigned IPA
+    name: Build Unsigned IPA (Latest UI)
     runs-on: macos-latest
 
     steps:
@@ -26,22 +26,31 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
-      # ── 4. Build web (Vite) ────────────────────────────────────────
-      - name: Build Vite web app
-        run: npm run build
+      # ── 4. Build web (Vite) — always fresh ────────────────────────
+      - name: Build Vite web app (clean)
+        run: |
+          rm -rf dist
+          npm run build
+          echo "✅ Web build complete. dist/ size:"
+          du -sh dist/
 
-      # ── 5. Capacitor iOS sync ──────────────────────────────────────
-      - name: Capacitor sync iOS
-        run: npx cap sync ios
+      # ── 5. Clean old iOS web assets, then Capacitor sync ──────────
+      - name: Clean iOS public assets & Capacitor sync iOS
+        run: |
+          echo "🧹 Wiping stale iOS web assets..."
+          rm -rf ios/App/App/public
+          npx cap sync ios --deployment
+          echo "✅ Capacitor sync done. New web assets:"
+          ls -la ios/App/App/public/
 
-      # ── 6. Force correct Bundle ID & App Name in Info.plist ────────
+      # ── 6. Force Bundle ID & Display Name in Info.plist ───────────
       - name: Set Bundle ID & Display Name (Driver App)
         run: |
           PLIST="ios/App/App/Info.plist"
           /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier com.ridingo.driver"   "$PLIST"
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Ridingo Driver"      "$PLIST"
           /usr/libexec/PlistBuddy -c "Set :CFBundleName Ridingo Driver"             "$PLIST"
-          echo "--- Verifying Info.plist ---"
+          echo "--- ✅ Info.plist verified ---"
           /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier"  "$PLIST"
           /usr/libexec/PlistBuddy -c "Print :CFBundleDisplayName" "$PLIST"
 
