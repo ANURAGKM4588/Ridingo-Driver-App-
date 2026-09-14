@@ -1247,11 +1247,11 @@ export function DriverApp() {
 
             {/* ═════════ LAYER 4: SLIDE-UP FULL SHEETS (EARNINGS, HISTORY, ACCOUNT) ═════════ */}
 
-            {/* ── TAB 2: EARNINGS FULL SEPARATE PAGE POPUP ── */}
+            {/* ── TAB 2: EARNINGS FULL SEPARATE PAGE ── */}
             {activeTab === 'earnings' && (
-              <div className="absolute inset-x-2 sm:inset-x-3 top-3 bottom-0 z-40 bg-[#0A0E17]/98 text-white flex flex-col rounded-t-[32px] border-t border-x border-white/12 shadow-[0_-12px_45px_rgba(0,0,0,0.95)] animate-slide-up-smooth select-none overflow-hidden">
+              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col w-full h-full select-none overflow-hidden animate-fade-in">
                 {/* Dedicated Page Header (No Cross Icon - Navigate via bottom navbar) */}
-                <div className="px-4 py-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420]/80 backdrop-blur-md shrink-0">
+                <div className="px-4.5 pt-3 pb-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420] shrink-0">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="w-8 h-8 rounded-xl bg-[#fcd502]/15 text-[#fcd502] flex items-center justify-center font-black shrink-0">
                       <DollarSign className="w-4.5 h-4.5 text-[#fcd502] stroke-[2.5]" />
@@ -1325,11 +1325,11 @@ export function DriverApp() {
               </div>
             )}
 
-            {/* ── TAB 3: TRIP HISTORY FULL SEPARATE PAGE POPUP ── */}
+            {/* ── TAB 3: TRIP HISTORY FULL SEPARATE PAGE ── */}
             {activeTab === 'history' && (
-              <div className="absolute inset-x-2 sm:inset-x-3 top-3 bottom-0 z-40 bg-[#0A0E17]/98 text-white flex flex-col rounded-t-[32px] border-t border-x border-white/12 shadow-[0_-12px_45px_rgba(0,0,0,0.95)] animate-slide-up-smooth select-none overflow-hidden">
+              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col w-full h-full select-none overflow-hidden animate-fade-in">
                 {/* Dedicated Page Header (No Cross Icon - Navigate via bottom navbar) */}
-                <div className="px-4 py-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420]/80 backdrop-blur-md shrink-0">
+                <div className="px-4.5 pt-3 pb-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420] shrink-0">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="w-8 h-8 rounded-xl bg-[#fcd502]/15 text-[#fcd502] flex items-center justify-center font-black shrink-0">
                       <Clock className="w-4.5 h-4.5 text-[#fcd502] stroke-[2.5]" />
@@ -1460,11 +1460,11 @@ export function DriverApp() {
               </div>
             )}
 
-            {/* ── TAB 4: ACCOUNT / PROFILE FULL SEPARATE PAGE POPUP ── */}
+            {/* ── TAB 4: ACCOUNT / PROFILE FULL SEPARATE PAGE ── */}
             {activeTab === 'profile' && (
-              <div className="absolute inset-x-2 sm:inset-x-3 top-3 bottom-0 z-40 bg-[#0A0E17]/98 text-white flex flex-col rounded-t-[32px] border-t border-x border-white/12 shadow-[0_-12px_45px_rgba(0,0,0,0.95)] animate-slide-up-smooth select-none overflow-hidden">
+              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col w-full h-full select-none overflow-hidden animate-fade-in">
                 {/* Dedicated Page Header (No Cross Icon - Navigate via bottom navbar) */}
-                <div className="px-4 py-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420]/80 backdrop-blur-md shrink-0">
+                <div className="px-4.5 pt-3 pb-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420] shrink-0">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="w-8 h-8 rounded-xl bg-[#fcd502]/15 text-[#fcd502] flex items-center justify-center font-black shrink-0">
                       <User className="w-4.5 h-4.5 text-[#fcd502] stroke-[2.5]" />
