@@ -1250,16 +1250,11 @@ export function DriverApp() {
             {/* ── TAB 2: EARNINGS FULL SEPARATE PAGE ── */}
             {activeTab === 'earnings' && (
               <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col w-full h-full select-none overflow-hidden animate-fade-in">
-                {/* Dedicated Page Header (No Cross Icon - Navigate via bottom navbar) */}
-                <div className="px-4.5 pt-3 pb-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420] shrink-0">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-xl bg-[#fcd502]/15 text-[#fcd502] flex items-center justify-center font-black shrink-0">
-                      <DollarSign className="w-4.5 h-4.5 text-[#fcd502] stroke-[2.5]" />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="font-black text-base text-white whitespace-nowrap truncate">Earnings &amp; Payouts</h3>
-                      <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">Live revenue &amp; deposits</p>
-                    </div>
+                {/* Dedicated Page Header (Clean Minimal - No Header Icon & No Cross Icon) */}
+                <div className="px-4.5 pt-3.5 pb-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420] shrink-0">
+                  <div className="min-w-0 flex-1 pr-2">
+                    <h3 className="font-black text-base text-white whitespace-nowrap truncate">Earnings &amp; Payouts</h3>
+                    <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">Live revenue &amp; deposits</p>
                   </div>
                   <span className="px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 text-[10px] font-black uppercase tracking-wider whitespace-nowrap shrink-0">
                     Live Sync ⚡
@@ -1328,16 +1323,11 @@ export function DriverApp() {
             {/* ── TAB 3: TRIP HISTORY FULL SEPARATE PAGE ── */}
             {activeTab === 'history' && (
               <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col w-full h-full select-none overflow-hidden animate-fade-in">
-                {/* Dedicated Page Header (No Cross Icon - Navigate via bottom navbar) */}
-                <div className="px-4.5 pt-3 pb-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420] shrink-0">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-xl bg-[#fcd502]/15 text-[#fcd502] flex items-center justify-center font-black shrink-0">
-                      <Clock className="w-4.5 h-4.5 text-[#fcd502] stroke-[2.5]" />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="font-black text-base text-white whitespace-nowrap truncate">Trip History</h3>
-                      <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">Completed &amp; pending rides</p>
-                    </div>
+                {/* Dedicated Page Header (Clean Minimal - No Header Icon & No Cross Icon) */}
+                <div className="px-4.5 pt-3.5 pb-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420] shrink-0">
+                  <div className="min-w-0 flex-1 pr-2">
+                    <h3 className="font-black text-base text-white whitespace-nowrap truncate">Trip History</h3>
+                    <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">Completed &amp; pending rides</p>
                   </div>
                   <span className="px-2.5 py-1 rounded-full bg-white/10 border border-white/10 text-slate-300 text-[10px] font-bold whitespace-nowrap shrink-0">
                     {completedTripsList.length} Total
@@ -1463,16 +1453,11 @@ export function DriverApp() {
             {/* ── TAB 4: ACCOUNT / PROFILE FULL SEPARATE PAGE ── */}
             {activeTab === 'profile' && (
               <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col w-full h-full select-none overflow-hidden animate-fade-in">
-                {/* Dedicated Page Header (No Cross Icon - Navigate via bottom navbar) */}
-                <div className="px-4.5 pt-3 pb-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420] shrink-0">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-xl bg-[#fcd502]/15 text-[#fcd502] flex items-center justify-center font-black shrink-0">
-                      <User className="w-4.5 h-4.5 text-[#fcd502] stroke-[2.5]" />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="font-black text-base text-white whitespace-nowrap truncate">Driver Account</h3>
-                      <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">Profile &amp; fleet preferences</p>
-                    </div>
+                {/* Dedicated Page Header (Clean Minimal - No Header Icon & No Cross Icon) */}
+                <div className="px-4.5 pt-3.5 pb-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420] shrink-0">
+                  <div className="min-w-0 flex-1 pr-2">
+                    <h3 className="font-black text-base text-white whitespace-nowrap truncate">Driver Account</h3>
+                    <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">Profile &amp; fleet preferences</p>
                   </div>
                   <span className="px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 text-[10px] font-black uppercase tracking-wider whitespace-nowrap shrink-0">
                     Verified ✓
