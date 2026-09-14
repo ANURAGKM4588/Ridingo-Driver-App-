@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
+  Home,
+  Edit3,
+  FileText,
+  Check,
   Navigation,
   DollarSign,
   Clock,
@@ -57,7 +61,21 @@ export function DriverApp() {
   const [isOtpStep, setIsOtpStep] = useState<boolean>(false);
   const [driverEmail, setDriverEmail] = useState<string>('');
   const [driverPhone, setDriverPhone] = useState<string>('');
+  const [driverFirstName, setDriverFirstName] = useState<string>('Marcus');
+  const [driverLastName, setDriverLastName] = useState<string>('Vance');
   const [driverName, setDriverName] = useState<string>('Marcus Vance');
+  const [driverPhonePrimary, setDriverPhonePrimary] = useState<string>('+91 98470 12345');
+  const [driverPhoneEmergency, setDriverPhoneEmergency] = useState<string>('+91 98470 54321');
+  const [driverProfileEmail, setDriverProfileEmail] = useState<string>('marcus.vance@ridingo.com');
+  const [isEditingProfile, setIsEditingProfile] = useState<boolean>(false);
+  const [showLegalModal, setShowLegalModal] = useState<'terms' | 'privacy' | null>(null);
+
+  // Edit Profile Form State
+  const [editFirstName, setEditFirstName] = useState<string>('Marcus');
+  const [editLastName, setEditLastName] = useState<string>('Vance');
+  const [editPhonePrimary, setEditPhonePrimary] = useState<string>('+91 98470 12345');
+  const [editPhoneEmergency, setEditPhoneEmergency] = useState<string>('+91 98470 54321');
+  const [editEmail, setEditEmail] = useState<string>('marcus.vance@ridingo.com');
   const [demoOtp, setDemoOtp] = useState<string>('492018');
 
   // Main Driver State
@@ -67,12 +85,6 @@ export function DriverApp() {
   const [todayEarnings, setTodayEarnings] = useState<number>(2850.00);
   const [completedTripsCount, setCompletedTripsCount] = useState<number>(5);
   const [onlineHours, setOnlineHours] = useState<string>('4h 20m');
-
-  // Driver Profile & Settings State
-  const [preferredNav, setPreferredNav] = useState<'google_maps' | 'waze' | 'apple_maps'>('google_maps');
-  const [autoAccept, setAutoAccept] = useState<boolean>(false);
-  const [pickupRadius, setPickupRadius] = useState<number>(15);
-  const [destinationFilterEnabled, setDestinationFilterEnabled] = useState<boolean>(false);
 
   // Incoming Dispatch Request State
   const [incomingRequest, setIncomingRequest] = useState<any | null>(null);
@@ -538,7 +550,7 @@ export function DriverApp() {
   };
 
   const navTabs = [
-    { id: 'rides' as const, label: 'Cockpit', icon: Navigation },
+    { id: 'rides' as const, label: 'Home', icon: Home },
     { id: 'earnings' as const, label: 'Earnings', icon: DollarSign },
     { id: 'history' as const, label: 'Trips', icon: Clock },
     { id: 'profile' as const, label: 'Account', icon: User },
@@ -1445,133 +1457,341 @@ export function DriverApp() {
             {/* ── TAB 4: ACCOUNT / PROFILE FULL SEPARATE PAGE ── */}
             {activeTab === 'profile' && (
               <div className="absolute inset-0 z-40 bg-[#090A0D] text-white flex flex-col w-full h-full select-none overflow-hidden animate-fade-in font-sans">
-                {/* Dedicated Page Header (Clean Minimal - Heading Only) */}
-                <div className="px-5 py-3.5 flex items-center justify-between border-b border-white/[0.06] bg-[#090A0D] shrink-0">
-                  <h2 className="font-semibold text-sm text-white tracking-tight whitespace-nowrap truncate">Driver Account</h2>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-medium whitespace-nowrap shrink-0">
-                    Verified
-                  </span>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-none pb-28 text-xs">
-                  {/* Driver Card */}
-                  <div className="bg-[#12141A] border border-white/[0.07] p-4 rounded-2xl space-y-3">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80"
-                        alt={driverName}
-                        className="w-12 h-12 rounded-xl object-cover border border-white/10 shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm text-white whitespace-nowrap truncate">{driverName}</h3>
-                        <p className="text-xs text-white/50 font-normal whitespace-nowrap truncate">Executive Partner Driver</p>
-                        <div className="flex items-center gap-1 text-[11px] text-emerald-400 font-medium mt-0.5 whitespace-nowrap truncate">
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                          <span className="whitespace-nowrap">Verified Chauffeur</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/[0.06] text-white/60">
-                      <div className="flex items-center gap-1.5 truncate">
-                        <Phone className="w-3.5 h-3.5 text-white/40 shrink-0" />
-                        <span className="whitespace-nowrap truncate text-[11px]">+1 (555) 234-5678</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 truncate">
-                        <Mail className="w-3.5 h-3.5 text-white/40 shrink-0" />
-                        <span className="whitespace-nowrap truncate text-[11px]">marcus.v@ridingo.com</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Assigned Fleet Vehicle */}
-                  <div className="bg-[#12141A] border border-white/[0.07] p-4 rounded-2xl space-y-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-medium text-white/50 whitespace-nowrap">Assigned Vehicle</span>
-                      <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 whitespace-nowrap shrink-0">
-                        Active &amp; Insured
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <h4 className="font-medium text-sm text-white whitespace-nowrap truncate">2024 Mercedes-Maybach S-Class</h4>
-                        <p className="text-xs text-white/50 font-normal whitespace-nowrap truncate">Obsidian Black • First Class</p>
-                      </div>
-                      <span className="px-2 py-1 rounded-lg bg-[#171A22] text-[#F5C518] font-mono font-medium text-xs border border-white/10 whitespace-nowrap shrink-0">
-                        CA 7XYZ99
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Navigation Engine Preference */}
-                  <div className="bg-[#12141A] border border-white/[0.07] p-4 rounded-2xl space-y-2.5">
-                    <span className="text-xs font-medium text-white/50 block whitespace-nowrap">Navigation App</span>
-                    <div className="grid grid-cols-3 gap-2">
-                      {(['google_maps', 'waze', 'apple_maps'] as const).map((eng) => (
+                {isEditingProfile ? (
+                  /* ── EDIT PROFILE SCREEN ── */
+                  <>
+                    <div className="px-5 py-3.5 flex items-center justify-between border-b border-white/[0.06] bg-[#090A0D] shrink-0">
+                      <div className="flex items-center gap-2 min-w-0">
                         <button
-                          key={eng}
                           type="button"
-                          onClick={() => setPreferredNav(eng)}
-                          className={`h-9 rounded-xl border text-xs font-medium transition-all cursor-pointer text-center whitespace-nowrap ${
-                            preferredNav === eng
-                              ? 'bg-[#F5C518] text-black border-[#F5C518] font-semibold shadow-xs'
-                              : 'bg-[#171A22] text-white/70 border-white/[0.06] hover:bg-white/[0.06]'
-                          }`}
+                          onClick={() => setIsEditingProfile(false)}
+                          className="w-7 h-7 rounded-full bg-white/[0.06] hover:bg-white/10 text-white/70 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                          title="Cancel"
                         >
-                          {eng === 'google_maps' ? 'Google Maps' : eng === 'waze' ? 'Waze' : 'Apple Maps'}
+                          <X className="w-3.5 h-3.5" />
                         </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Auto-Accept Toggle & Pickup Radius */}
-                  <div className="bg-[#12141A] border border-white/[0.07] p-4 rounded-2xl space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <span className="font-medium text-white text-xs block whitespace-nowrap truncate">Auto-Accept Rides</span>
-                        <span className="text-[11px] text-white/40 whitespace-nowrap truncate block">Instantly confirm back-to-back requests</span>
+                        <h2 className="font-semibold text-sm text-white tracking-tight whitespace-nowrap truncate">Edit Profile</h2>
                       </div>
                       <button
                         type="button"
-                        onClick={() => setAutoAccept(!autoAccept)}
-                        className={`w-10 h-6 rounded-full transition-colors relative cursor-pointer shrink-0 ${
-                          autoAccept ? 'bg-[#F5C518]' : 'bg-white/20'
-                        }`}
+                        onClick={() => {
+                          if (!editFirstName.trim()) {
+                            alert('First name is required');
+                            return;
+                          }
+                          setDriverFirstName(editFirstName.trim());
+                          setDriverLastName(editLastName.trim());
+                          setDriverName(`${editFirstName.trim()} ${editLastName.trim()}`.trim());
+                          setDriverPhonePrimary(editPhonePrimary.trim());
+                          setDriverPhoneEmergency(editPhoneEmergency.trim());
+                          setDriverProfileEmail(editEmail.trim());
+                          setIsEditingProfile(false);
+                        }}
+                        className="px-3 py-1 rounded-lg bg-[#F5C518] hover:bg-[#E5B510] text-black font-semibold text-xs transition-all active:scale-95 cursor-pointer shadow-xs whitespace-nowrap"
                       >
-                        <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-black transition-transform shadow-xs ${
-                          autoAccept ? 'right-0.5' : 'left-0.5'
-                        }`} />
+                        Save
                       </button>
                     </div>
 
-                    <div className="pt-2 border-t border-white/[0.06] space-y-1.5">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-medium text-white/60 whitespace-nowrap">Pickup Radius</span>
-                        <span className="font-semibold text-black bg-[#F5C518] px-2 py-0.5 rounded-md text-[11px] whitespace-nowrap">
-                          {pickupRadius} miles
-                        </span>
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-none pb-28 text-xs">
+                      {/* Driver Avatar Header */}
+                      <div className="bg-[#12141A] border border-white/[0.07] p-3.5 rounded-2xl flex items-center gap-3">
+                        <div className="relative shrink-0">
+                          <img
+                            src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80"
+                            alt={driverName}
+                            className="w-13 h-13 rounded-xl object-cover border border-white/10"
+                          />
+                          <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#F5C518] text-black flex items-center justify-center shadow-xs">
+                            <Camera className="w-2.5 h-2.5" />
+                          </div>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="font-semibold text-xs text-white block truncate">{driverName}</span>
+                          <p className="text-[11px] text-white/40 font-normal">Commercial Chauffeur Partner</p>
+                          <span className="text-[10px] text-emerald-400 font-medium mt-0.5 inline-block">KMVD Badge Active ✓</span>
+                        </div>
                       </div>
-                      <input
-                        type="range"
-                        min="5"
-                        max="35"
-                        step="5"
-                        value={pickupRadius}
-                        onChange={(e) => setPickupRadius(Number(e.target.value))}
-                        className="w-full accent-[#F5C518] cursor-pointer"
-                      />
-                    </div>
-                  </div>
 
-                  {/* Log Out */}
-                  <button
-                    type="button"
-                    onClick={() => setIsAuthenticated(false)}
-                    className="w-full h-11 rounded-xl bg-[#171A22] hover:bg-rose-500/10 text-rose-400 hover:text-rose-300 font-medium text-xs text-center cursor-pointer transition-colors border border-white/[0.07] whitespace-nowrap"
-                  >
-                    Log Out of Driver Console
-                  </button>
-                </div>
+                      {/* Edit Fields Form */}
+                      <div className="bg-[#12141A] border border-white/[0.07] p-4 rounded-2xl space-y-3">
+                        {/* First Name / Username */}
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-medium text-white/50 block">First Name / Username</label>
+                          <input
+                            type="text"
+                            value={editFirstName}
+                            onChange={(e) => setEditFirstName(e.target.value)}
+                            placeholder="First Name"
+                            className="w-full h-10 px-3 rounded-xl bg-[#171A22] border border-white/[0.08] text-xs font-normal text-white placeholder:text-white/30 focus:outline-none focus:border-[#F5C518]/60 transition-colors"
+                          />
+                        </div>
+
+                        {/* Last Name */}
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-medium text-white/50 block">Last Name</label>
+                          <input
+                            type="text"
+                            value={editLastName}
+                            onChange={(e) => setEditLastName(e.target.value)}
+                            placeholder="Last Name"
+                            className="w-full h-10 px-3 rounded-xl bg-[#171A22] border border-white/[0.08] text-xs font-normal text-white placeholder:text-white/30 focus:outline-none focus:border-[#F5C518]/60 transition-colors"
+                          />
+                        </div>
+
+                        {/* Phone Number 1 (Contact No) */}
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-medium text-white/50 flex items-center justify-between">
+                            <span>Phone Number 1 (Contact No)</span>
+                            <span className="text-emerald-400 text-[10px] font-medium">Primary</span>
+                          </label>
+                          <div className="relative">
+                            <Phone className="w-3.5 h-3.5 text-white/40 absolute left-3 top-3.5" />
+                            <input
+                              type="tel"
+                              value={editPhonePrimary}
+                              onChange={(e) => setEditPhonePrimary(e.target.value)}
+                              placeholder="+91 98470 12345"
+                              className="w-full h-10 pl-9 pr-3 rounded-xl bg-[#171A22] border border-white/[0.08] text-xs font-normal text-white placeholder:text-white/30 focus:outline-none focus:border-[#F5C518]/60 transition-colors"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Phone Number 2 (Emergency Contact No) */}
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-medium text-white/50 flex items-center justify-between">
+                            <span>Phone Number 2 (Emergency Contact No)</span>
+                            <span className="text-amber-300 text-[10px] font-medium">SOS Linked</span>
+                          </label>
+                          <div className="relative">
+                            <Phone className="w-3.5 h-3.5 text-amber-400/80 absolute left-3 top-3.5" />
+                            <input
+                              type="tel"
+                              value={editPhoneEmergency}
+                              onChange={(e) => setEditPhoneEmergency(e.target.value)}
+                              placeholder="+91 98470 54321"
+                              className="w-full h-10 pl-9 pr-3 rounded-xl bg-[#171A22] border border-white/[0.08] text-xs font-normal text-white placeholder:text-white/30 focus:outline-none focus:border-[#F5C518]/60 transition-colors"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Email */}
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-medium text-white/50 block">Email Address</label>
+                          <div className="relative">
+                            <Mail className="w-3.5 h-3.5 text-white/40 absolute left-3 top-3.5" />
+                            <input
+                              type="email"
+                              value={editEmail}
+                              onChange={(e) => setEditEmail(e.target.value)}
+                              placeholder="marcus.vance@ridingo.com"
+                              className="w-full h-10 pl-9 pr-3 rounded-xl bg-[#171A22] border border-white/[0.08] text-xs font-normal text-white placeholder:text-white/30 focus:outline-none focus:border-[#F5C518]/60 transition-colors"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons: Cancel and Save */}
+                      <div className="grid grid-cols-2 gap-2.5 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setIsEditingProfile(false)}
+                          className="w-full h-11 rounded-xl bg-white/[0.06] hover:bg-white/10 text-white/70 font-medium text-xs text-center cursor-pointer transition-colors border border-white/[0.08] active:scale-[0.98]"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!editFirstName.trim()) {
+                              alert('First name is required');
+                              return;
+                            }
+                            setDriverFirstName(editFirstName.trim());
+                            setDriverLastName(editLastName.trim());
+                            setDriverName(`${editFirstName.trim()} ${editLastName.trim()}`.trim());
+                            setDriverPhonePrimary(editPhonePrimary.trim());
+                            setDriverPhoneEmergency(editPhoneEmergency.trim());
+                            setDriverProfileEmail(editEmail.trim());
+                            setIsEditingProfile(false);
+                          }}
+                          className="w-full h-11 rounded-xl bg-[#F5C518] hover:bg-[#E5B510] text-black font-semibold text-xs text-center cursor-pointer transition-all active:scale-[0.98] shadow-md shadow-[#F5C518]/15"
+                        >
+                          Save Changes
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  /* ── MAIN PROFILE OVERVIEW SCREEN ── */
+                  <>
+                    <div className="px-5 py-3.5 flex items-center justify-between border-b border-white/[0.06] bg-[#090A0D] shrink-0">
+                      <h2 className="font-semibold text-sm text-white tracking-tight whitespace-nowrap truncate">Driver Account</h2>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-medium whitespace-nowrap shrink-0">
+                        Verified
+                      </span>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-none pb-28 text-xs">
+                      {/* Driver Profile Card with Edit Profile button at bottom */}
+                      <div className="bg-[#12141A] border border-white/[0.07] p-4 rounded-2xl space-y-3">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80"
+                            alt={driverName}
+                            className="w-12 h-12 rounded-xl object-cover border border-white/10 shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-sm text-white whitespace-nowrap truncate">{driverName}</h3>
+                            <p className="text-xs text-white/50 font-normal whitespace-nowrap truncate">Executive Partner Chauffeur</p>
+                            <div className="flex items-center gap-1 text-[11px] text-emerald-400 font-medium mt-0.5 whitespace-nowrap truncate">
+                              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                              <span className="whitespace-nowrap">Verified Chauffeur • 4.96 ★</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Edit button placed at bottom of title card */}
+                        <div className="pt-2 border-t border-white/[0.06]">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditFirstName(driverFirstName);
+                              setEditLastName(driverLastName);
+                              setEditPhonePrimary(driverPhonePrimary);
+                              setEditPhoneEmergency(driverPhoneEmergency);
+                              setEditEmail(driverProfileEmail);
+                              setIsEditingProfile(true);
+                            }}
+                            className="w-full h-9 rounded-xl bg-[#171A22] hover:bg-white/[0.08] text-white/90 border border-white/[0.08] font-medium text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer active:scale-[0.98]"
+                          >
+                            <Edit3 className="w-3.5 h-3.5 text-[#F5C518]" />
+                            <span>Edit Profile</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Documents & Verification Status */}
+                      <div className="bg-[#12141A] border border-white/[0.07] p-4 rounded-2xl space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-white/50">Documents &amp; Verification</span>
+                          <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                            All Active ✓
+                          </span>
+                        </div>
+                        <div className="space-y-1.5">
+                          <div className="p-2.5 rounded-xl bg-[#171A22] border border-white/[0.04] flex items-center justify-between">
+                            <div>
+                              <span className="font-medium text-white text-xs block">Commercial Chauffeur Badge</span>
+                              <span className="text-[11px] text-white/40">KMVD-CHAUF-2024-8841</span>
+                            </div>
+                            <span className="text-[10px] text-emerald-400 font-medium">Verified</span>
+                          </div>
+                          <div className="p-2.5 rounded-xl bg-[#171A22] border border-white/[0.04] flex items-center justify-between">
+                            <div>
+                              <span className="font-medium text-white text-xs block">Commercial Driving License</span>
+                              <span className="text-[11px] text-white/40">KL-07-20180009214 • Exp 2029</span>
+                            </div>
+                            <span className="text-[10px] text-emerald-400 font-medium">Valid</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bank Account & Payout Method */}
+                      <div className="bg-[#12141A] border border-white/[0.07] p-4 rounded-2xl space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-white/50">Direct Payout Account</span>
+                          <span className="text-[10px] font-medium text-white/40">Default</span>
+                        </div>
+                        <div className="p-2.5 rounded-xl bg-[#171A22] border border-white/[0.04] flex items-center justify-between">
+                          <div className="min-w-0 flex-1">
+                            <span className="font-medium text-white text-xs block truncate">HDFC Bank Limited</span>
+                            <span className="text-[11px] text-white/40 font-mono">•••• 4921 • Primary Direct Deposit</span>
+                          </div>
+                          <span className="text-[10px] text-emerald-400 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 shrink-0">
+                            Connected
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Safety & Emergency Support */}
+                      <div className="bg-[#12141A] border border-white/[0.07] p-4 rounded-2xl space-y-2">
+                        <span className="text-xs font-medium text-white/50 block">Safety &amp; Emergency Support</span>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => alert(`Calling Ridingo 24/7 Driver Support Desk...`)}
+                            className="p-2.5 rounded-xl bg-[#171A22] hover:bg-white/[0.06] border border-white/[0.05] text-left transition-colors cursor-pointer"
+                          >
+                            <Phone className="w-3.5 h-3.5 text-[#F5C518] mb-1" />
+                            <span className="font-medium text-white text-xs block">Chauffeur Support</span>
+                            <span className="text-[10px] text-white/40">24/7 Dedicated Line</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => alert(`Emergency SOS:\nAlerting Police (112) & Emergency Contacts:\n• Primary Contact: ${driverPhonePrimary}\n• Emergency Contact: ${driverPhoneEmergency}`)}
+                            className="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/15 border border-rose-500/20 text-left transition-colors cursor-pointer"
+                          >
+                            <Shield className="w-3.5 h-3.5 text-rose-400 mb-1" />
+                            <span className="font-medium text-rose-300 text-xs block">Emergency SOS</span>
+                            <span className="text-[10px] text-rose-400/80">Police &amp; Contacts</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* App Preferences */}
+                      <div className="bg-[#12141A] border border-white/[0.07] p-4 rounded-2xl space-y-2.5">
+                        <span className="text-xs font-medium text-white/50 block">Preferences</span>
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between py-1 text-xs">
+                            <span className="text-white/80 font-normal">App Language</span>
+                            <span className="text-white/50 font-medium">English (India)</span>
+                          </div>
+                          <div className="flex items-center justify-between py-1 text-xs border-t border-white/[0.04]">
+                            <span className="text-white/80 font-normal">Audio Alerts &amp; Chimes</span>
+                            <span className="text-emerald-400 font-medium">Enabled</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Legal & Policies: Terms & Conditions and Privacy Policy */}
+                      <div className="bg-[#12141A] border border-white/[0.07] p-4 rounded-2xl space-y-1.5">
+                        <span className="text-xs font-medium text-white/50 block">Legal &amp; Policies</span>
+                        <button
+                          type="button"
+                          onClick={() => setShowLegalModal('terms')}
+                          className="w-full py-2 flex items-center justify-between text-xs text-white/80 hover:text-white transition-colors cursor-pointer border-b border-white/[0.04]"
+                        >
+                          <span className="flex items-center gap-2">
+                            <FileText className="w-3.5 h-3.5 text-white/40" />
+                            <span>Terms &amp; Conditions</span>
+                          </span>
+                          <ChevronRight className="w-3.5 h-3.5 text-white/40" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowLegalModal('privacy')}
+                          className="w-full py-2 flex items-center justify-between text-xs text-white/80 hover:text-white transition-colors cursor-pointer"
+                        >
+                          <span className="flex items-center gap-2">
+                            <Shield className="w-3.5 h-3.5 text-white/40" />
+                            <span>Privacy Policy</span>
+                          </span>
+                          <ChevronRight className="w-3.5 h-3.5 text-white/40" />
+                        </button>
+                      </div>
+
+                      {/* Log Out */}
+                      <button
+                        type="button"
+                        onClick={() => setIsAuthenticated(false)}
+                        className="w-full h-11 rounded-xl bg-[#171A22] hover:bg-rose-500/10 text-rose-400 hover:text-rose-300 font-medium text-xs text-center cursor-pointer transition-colors border border-white/[0.07] whitespace-nowrap"
+                      >
+                        Log Out of Driver Console
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
@@ -1586,7 +1806,12 @@ export function DriverApp() {
                     <button
                       key={tab.id}
                       type="button"
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => {
+                        setActiveTab(tab.id);
+                        if (tab.id !== 'profile') {
+                          setIsEditingProfile(false);
+                        }
+                      }}
                       className={`relative flex items-center justify-center gap-1.5 py-2.5 px-3.5 rounded-full transition-all duration-200 cursor-pointer select-none ${
                         isActive
                           ? 'bg-[#F5C518] text-black font-semibold shadow-sm flex-1 min-w-0'
@@ -1797,6 +2022,61 @@ export function DriverApp() {
               vehicleName="2024 Mercedes-Maybach S-Class"
               customerName={activeTrip?.customerName || 'Passenger'}
             />
+
+            {/* ═════════ TERMS & CONDITIONS / PRIVACY POLICY MODAL ═════════ */}
+            {showLegalModal && (
+              <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-200">
+                <div className="bg-[#12141A] rounded-2xl max-w-sm w-full max-h-[80vh] flex flex-col shadow-2xl border border-white/[0.08] text-white animate-slide-up-smooth font-sans overflow-hidden">
+                  {/* Header */}
+                  <div className="px-5 py-3.5 bg-[#090A0D] border-b border-white/[0.06] flex items-center justify-between shrink-0">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-[#F5C518]" />
+                      <h3 className="font-semibold text-sm text-white whitespace-nowrap">
+                        {showLegalModal === 'terms' ? 'Terms & Conditions' : 'Privacy Policy'}
+                      </h3>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowLegalModal(null)}
+                      className="w-7 h-7 rounded-full bg-white/[0.06] hover:bg-white/10 text-white/60 flex items-center justify-center cursor-pointer transition-colors"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-none text-xs text-white/70 leading-relaxed">
+                    {showLegalModal === 'terms' ? (
+                      <>
+                        <p className="font-semibold text-white text-xs">Ridingo Partner Chauffeur Master Agreement</p>
+                        <p>1. <strong className="text-white">Commercial Compliance</strong>: As an accredited Ridingo Executive Chauffeur, you agree to maintain all standards required by the Kerala Motor Vehicles Department (KMVD), including valid badge, commercial driver license, and valid vehicle insurance.</p>
+                        <p>2. <strong className="text-white">Fair Payouts &amp; Dispatches</strong>: 80% net trip revenue is credited directly to your connected bank account weekly or via instant cashout. No arbitrary platform commissions or unfair deduction penalties.</p>
+                        <p>3. <strong className="text-white">Pre-Trip Inspections</strong>: The 4-angle vehicle condition photographic proof recorded prior to passenger onboarding serves as legally binding dispute protection.</p>
+                        <p>4. <strong className="text-white">Chauffeur Conduct &amp; Safety</strong>: Uncompromising passenger safety, discreet customer confidentiality, and complete adherence to road traffic safety regulations are mandatory at all times.</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="font-semibold text-white text-xs">Ridingo Driver Privacy &amp; Data Telemetry Policy</p>
+                        <p>1. <strong className="text-white">Telemetry &amp; GPS</strong>: Live location coordinates are transmitted exclusively when your status is 'Online' or while fulfilling an active trip dispatch to provide accurate route navigation and passenger ETA.</p>
+                        <p>2. <strong className="text-white">Emergency Contacts &amp; SOS</strong>: Contact numbers saved in your profile (Primary Contact &amp; Emergency SOS) are encrypted and accessed strictly during SOS triggers or emergency dispatch calls.</p>
+                        <p>3. <strong className="text-white">Financial Data Protection</strong>: Bank payout account credentials and IFSC numbers are processed through RBI-authorized payment gateways with AES-256 bank-grade encryption.</p>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="p-3 bg-[#090A0D] border-t border-white/[0.06] shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setShowLegalModal(null)}
+                      className="w-full h-10 rounded-xl bg-[#F5C518] hover:bg-[#E5B510] text-black font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer"
+                    >
+                      I Understand &amp; Agree
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
           </div>
         )}
