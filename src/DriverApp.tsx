@@ -557,25 +557,25 @@ export function DriverApp() {
           <div className="w-full h-full overflow-y-auto bg-[#0A0E17] text-white p-6 flex flex-col justify-between pt-4 pb-6 space-y-6">
             <div className="space-y-6 my-auto max-w-sm mx-auto w-full">
               <div className="flex items-center justify-between w-full">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Driver Partner</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Driver Partner</span>
                 <button
                   type="button"
                   onClick={() => setIsAuthenticated(true)}
-                  className="px-3.5 py-1.5 rounded-full bg-[#fcd502] text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer hover:bg-[#eac500]"
+                  className="px-3.5 py-1.5 rounded-full bg-[#fcd502] text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer hover:bg-[#eac500] whitespace-nowrap"
                 >
-                  <span>Skip to App</span>
-                  <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span className="whitespace-nowrap">Skip to App</span>
+                  <ArrowRight className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
                 </button>
               </div>
 
-              <div className="text-center space-y-2.5">
+              <div className="text-center space-y-2">
                 <img
                   src={ridingoLogo}
                   alt="RIDINGO"
                   className="h-14 w-auto object-contain mx-auto"
                 />
-                <h1 className="text-2xl font-black text-white tracking-tight pt-1">Driver Partner Console</h1>
-                <p className="text-xs text-slate-400 font-medium">Sign in to start receiving trip dispatches</p>
+                <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight pt-1 whitespace-nowrap truncate">Driver Partner Console</h1>
+                <p className="text-xs text-slate-400 font-medium whitespace-nowrap truncate">Sign in to start receiving trip dispatches</p>
               </div>
 
               {!isOtpStep ? (
@@ -673,30 +673,30 @@ export function DriverApp() {
             <div className="relative z-30 px-3 pt-2 pointer-events-auto">
               {/* Turn-by-Turn Navigation Top Banner (When in active trip & navigating) */}
               {activeTrip && activeRoute && (
-                <div className="cockpit-glass rounded-2xl p-3 mb-2 shadow-2xl border border-white/10 flex items-center justify-between gap-3 animate-slide-up-smooth">
-                  <div className="flex items-center gap-2.5 min-w-0">
+                <div className="cockpit-glass rounded-2xl p-3 mb-2 shadow-2xl border border-white/10 flex items-center justify-between gap-3 animate-slide-up-smooth select-none">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
                     <div className="w-10 h-10 rounded-xl bg-[#fcd502] text-slate-950 flex items-center justify-center font-black flex-shrink-0 shadow-md shadow-[#fcd502]/20">
                       <Navigation className="w-5 h-5 stroke-[2.5]" />
                     </div>
-                    <div className="min-w-0">
-                      <span className="text-xs font-black text-white block truncate leading-tight">
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs font-bold text-white block truncate leading-tight whitespace-nowrap">
                         {activeRoute.steps[currentNavStepIndex]?.instruction || (tripStep === 'en_route' ? 'Navigate to pickup' : 'Head to passenger dropoff')}
                       </span>
-                      <span className="text-[10px] text-[#fcd502] font-extrabold flex items-center gap-1.5 mt-0.5">
-                        <span>{tripStep === 'en_route' ? 'Pickup in 6 mins' : 'Dropoff in 18 mins'}</span>
+                      <span className="text-[10px] text-[#fcd502] font-semibold flex items-center gap-1.5 mt-0.5 whitespace-nowrap truncate">
+                        <span className="whitespace-nowrap">{tripStep === 'en_route' ? 'Pickup in 6 mins' : 'Dropoff in 18 mins'}</span>
                         <span>•</span>
-                        <span className="text-slate-400">Step {currentNavStepIndex + 1}/{activeRoute.steps.length || 1}</span>
+                        <span className="text-slate-400 whitespace-nowrap">Step {currentNavStepIndex + 1}/{activeRoute.steps.length || 1}</span>
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 shrink-0">
                     <button
                       type="button"
                       onClick={() => setShowNavPanel(!showNavPanel)}
-                      className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 text-[10px] font-extrabold flex items-center gap-1 transition-all cursor-pointer"
+                      className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer whitespace-nowrap"
                     >
-                      <span>Steps</span>
+                      <span className="whitespace-nowrap">Steps</span>
                       {showNavPanel ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                     </button>
                   </div>
@@ -720,31 +720,31 @@ export function DriverApp() {
 
               {/* Incomplete / Paused Trip Quick Resume Banner (When on map & incomplete trip exists) */}
               {incompleteTrips.length > 0 && !activeTrip && (
-                <div className="cockpit-glass rounded-2xl p-2.5 mb-2 shadow-xl border border-amber-400/40 flex items-center justify-between animate-slide-up-smooth">
-                  <div className="flex items-center gap-2 min-w-0">
+                <div className="cockpit-glass rounded-2xl p-2.5 mb-2 shadow-xl border border-amber-400/40 flex items-center justify-between gap-2 animate-slide-up-smooth select-none">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
                     <span className="w-2 h-2 rounded-full bg-[#fcd502] animate-pulse flex-shrink-0" />
-                    <span className="text-[11px] font-bold text-white truncate">
+                    <span className="text-[11px] font-bold text-white truncate whitespace-nowrap">
                       {incompleteTrips.length} Incomplete Trip{incompleteTrips.length > 1 ? 's' : ''} in History
                     </span>
                   </div>
                   <button
                     type="button"
                     onClick={() => setActiveTab('history')}
-                    className="px-2.5 py-1 rounded-xl bg-[#fcd502] text-slate-950 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                    className="px-2.5 py-1 rounded-xl bg-[#fcd502] text-slate-950 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 active:scale-95 transition-all cursor-pointer whitespace-nowrap shrink-0"
                   >
-                    <span>Resume</span>
+                    <span className="whitespace-nowrap">Resume</span>
                     <ArrowRight className="w-3 h-3 stroke-[3]" />
                   </button>
                 </div>
               )}
 
               {/* Top Cockpit Floating Header Capsule */}
-              <div className="cockpit-glass rounded-full px-3 py-1.5 flex items-center justify-between shadow-2xl border border-white/10">
+              <div className="cockpit-glass rounded-full px-3 py-1.5 flex items-center justify-between shadow-2xl border border-white/10 select-none">
                 {/* Driver Avatar & Rating Pill */}
                 <button
                   type="button"
                   onClick={() => setActiveTab('profile')}
-                  className="flex items-center gap-2 cursor-pointer group active:scale-95 transition-all text-left"
+                  className="flex items-center gap-2 cursor-pointer group active:scale-95 transition-all text-left min-w-0"
                   title="Open Driver Profile"
                 >
                   <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/20 flex-shrink-0">
@@ -755,12 +755,10 @@ export function DriverApp() {
                     />
                     <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border border-black ${isOnline ? 'bg-emerald-400' : 'bg-slate-500'}`} />
                   </div>
-                  <div className="hidden xs:block">
-                    <div className="flex items-center gap-1 text-[11px] font-black text-white leading-tight">
-                      <span>{driverName.split(' ')[0]}</span>
-                      <Star className="w-3 h-3 fill-[#fcd502] text-[#fcd502]" />
-                      <span className="text-slate-300 font-bold">4.96</span>
-                    </div>
+                  <div className="hidden xs:flex items-center gap-1 text-[11px] font-bold text-white leading-tight whitespace-nowrap">
+                    <span className="truncate max-w-[70px] whitespace-nowrap">{driverName.split(' ')[0]}</span>
+                    <Star className="w-3 h-3 fill-[#fcd502] text-[#fcd502] shrink-0" />
+                    <span className="text-slate-300 font-medium whitespace-nowrap">4.96</span>
                   </div>
                 </button>
 
@@ -768,26 +766,26 @@ export function DriverApp() {
                 <button
                   type="button"
                   onClick={() => setIsOnline(!isOnline)}
-                  className={`px-3 py-1 rounded-full text-[11px] font-black tracking-wide flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs ${
+                  className={`px-3 py-1 rounded-full text-[11px] font-black tracking-wide flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs whitespace-nowrap ${
                     isOnline
                       ? 'bg-emerald-500/90 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] border border-emerald-400/40'
                       : 'bg-[#182032] text-slate-400 border border-white/10'
                   }`}
                   title="Toggle Driver Online / Offline"
                 >
-                  <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-white animate-pulse' : 'bg-slate-500'}`} />
-                  <span>{isOnline ? 'ONLINE' : 'OFFLINE'}</span>
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${isOnline ? 'bg-white animate-pulse' : 'bg-slate-500'}`} />
+                  <span className="whitespace-nowrap">{isOnline ? 'ONLINE' : 'OFFLINE'}</span>
                 </button>
 
                 {/* Right: Today Earnings Ticker & Notifications */}
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     type="button"
                     onClick={() => setActiveTab('earnings')}
-                    className="px-2.5 py-1 rounded-full bg-[#182032] hover:bg-[#202B42] text-white border border-white/10 flex items-center gap-1 text-[11px] font-black tabular-nums active:scale-95 transition-all cursor-pointer"
+                    className="px-2.5 py-1 rounded-full bg-[#182032] hover:bg-[#202B42] text-white border border-white/10 flex items-center gap-1 text-[11px] font-black tabular-nums active:scale-95 transition-all cursor-pointer whitespace-nowrap"
                     title="View Earnings"
                   >
-                    <span className="text-[#fcd502] font-black">{formatRupees(todayEarnings, 0)}</span>
+                    <span className="text-[#fcd502] font-black whitespace-nowrap">{formatRupees(todayEarnings, 0)}</span>
                   </button>
 
                   <button
@@ -796,7 +794,7 @@ export function DriverApp() {
                       setShowNotificationsModal(true);
                       setUnreadNotificationsCount(0);
                     }}
-                    className="relative p-1.5 rounded-full bg-[#182032] hover:bg-[#202B42] border border-white/10 text-slate-200 active:scale-90 transition-all cursor-pointer"
+                    className="relative p-1.5 rounded-full bg-[#182032] hover:bg-[#202B42] border border-white/10 text-slate-200 active:scale-90 transition-all cursor-pointer shrink-0"
                     title="Notifications"
                   >
                     <Bell className="w-3.5 h-3.5" />
@@ -865,34 +863,34 @@ export function DriverApp() {
             </div>
 
             {/* ═════════ LAYER 3: FLOATING HUD BOTTOM COCKPIT DRAWER ═════════ */}
-            <div className="mt-auto relative z-30 pointer-events-auto px-3 pb-20">
+            <div className="mt-auto relative z-30 pointer-events-auto px-3 pb-28 sm:pb-32">
 
               {/* ── STATE A: OFFLINE COCKPIT BOTTOM SHEET ── */}
               {!isOnline && !activeTrip && (
-                <div className="cockpit-glass-elevated rounded-3xl p-4.5 space-y-3.5 shadow-2xl border border-white/10 animate-slide-up-smooth">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Driver Cockpit</span>
-                      <h2 className="text-base font-black text-white">You're Currently Offline</h2>
+                <div className="cockpit-glass-elevated rounded-3xl p-4.5 space-y-3.5 shadow-2xl border border-white/10 animate-slide-up-smooth select-none">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block whitespace-nowrap">Driver Cockpit</span>
+                      <h2 className="text-base font-black text-white whitespace-nowrap truncate">You're Currently Offline</h2>
                     </div>
-                    <span className="px-2.5 py-1 rounded-full bg-[#182032] text-slate-400 text-[10px] font-bold border border-white/10">
+                    <span className="px-2.5 py-1 rounded-full bg-[#182032] text-slate-400 text-[10px] font-bold border border-white/10 whitespace-nowrap shrink-0">
                       Resting
                     </span>
                   </div>
 
                   {/* 3-Stat Glanceable Bar */}
-                  <div className="grid grid-cols-3 gap-2 py-1 border-y border-white/10">
-                    <div className="text-center">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase block">Today's Total</span>
-                      <span className="text-sm font-black text-white tabular-nums">{formatRupees(todayEarnings, 0)}</span>
+                  <div className="grid grid-cols-3 gap-2 py-1.5 border-y border-white/10">
+                    <div className="text-center min-w-0">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase block whitespace-nowrap">Today's Total</span>
+                      <span className="text-sm font-black text-white tabular-nums block whitespace-nowrap">{formatRupees(todayEarnings, 0)}</span>
                     </div>
-                    <div className="text-center border-x border-white/10">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase block">Trips</span>
-                      <span className="text-sm font-black text-white tabular-nums">{completedTripsCount}</span>
+                    <div className="text-center border-x border-white/10 min-w-0">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase block whitespace-nowrap">Trips</span>
+                      <span className="text-sm font-black text-white tabular-nums block whitespace-nowrap">{completedTripsCount}</span>
                     </div>
-                    <div className="text-center">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase block">Online</span>
-                      <span className="text-sm font-black text-white tabular-nums">{onlineHours}</span>
+                    <div className="text-center min-w-0">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase block whitespace-nowrap">Online</span>
+                      <span className="text-sm font-black text-white tabular-nums block whitespace-nowrap">{onlineHours}</span>
                     </div>
                   </div>
 
@@ -900,10 +898,10 @@ export function DriverApp() {
                   <button
                     type="button"
                     onClick={() => setIsOnline(true)}
-                    className="w-full py-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-sm uppercase tracking-wider shadow-2xl shadow-[#fcd502]/30 flex items-center justify-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer"
+                    className="w-full py-3.5 sm:py-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-sm uppercase tracking-wider shadow-2xl shadow-[#fcd502]/30 flex items-center justify-center gap-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
                   >
-                    <Power className="w-5 h-5 stroke-[2.5]" />
-                    <span>Go Online Now</span>
+                    <Power className="w-5 h-5 stroke-[2.5] shrink-0" />
+                    <span className="whitespace-nowrap">Go Online Now</span>
                   </button>
                 </div>
               )}
@@ -912,29 +910,29 @@ export function DriverApp() {
 
               {/* ── STATE B-INCOMPLETE: FLOATING INCOMPLETE TRIP RESUME HUD ── */}
               {isOnline && !activeTrip && !incomingRequest && incompleteTrips.length > 0 && (
-                <div className="cockpit-glass-elevated rounded-3xl p-4 space-y-2.5 shadow-2xl border-2 border-[#fcd502]/70 bg-[#121824]/95 animate-slide-up-smooth mb-1">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#fcd502] animate-pulse" />
-                      <span className="text-[10px] font-black uppercase tracking-wider text-[#fcd502]">
+                <div className="cockpit-glass-elevated rounded-3xl p-4 space-y-2.5 shadow-2xl border-2 border-[#fcd502]/70 bg-[#121824]/95 animate-slide-up-smooth mb-1 select-none">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#fcd502] animate-pulse shrink-0" />
+                      <span className="text-[10px] font-black uppercase tracking-wider text-[#fcd502] whitespace-nowrap truncate">
                         Incomplete Accepted Ride ({incompleteTrips.length})
                       </span>
                     </div>
-                    <span className="text-[10px] text-slate-400 font-bold">
+                    <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap shrink-0">
                       {incompleteTrips[0].pausedAt}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <div className="min-w-0 flex-1 pr-2">
-                      <h4 className="font-black text-sm text-white truncate">{incompleteTrips[0].trip.customerName}</h4>
-                      <span className="text-[11px] text-slate-300 block truncate">
+                      <h4 className="font-black text-sm text-white truncate whitespace-nowrap">{incompleteTrips[0].trip.customerName}</h4>
+                      <span className="text-[11px] text-slate-300 block truncate whitespace-nowrap">
                         {incompleteTrips[0].tripStep === 'en_route' && 'Step 1: En Route to Pickup'}
                         {incompleteTrips[0].tripStep === 'arrived' && 'Step 2: Arrived & Inspection Required'}
                         {incompleteTrips[0].tripStep === 'trip_started' && 'Step 3: Ride in Progress'}
                       </span>
                     </div>
-                    <span className="text-sm font-black text-[#fcd502] tabular-nums">
+                    <span className="text-sm font-black text-[#fcd502] tabular-nums whitespace-nowrap shrink-0">
                       {formatRupees(incompleteTrips[0].trip.driverPayout)}
                     </span>
                   </div>
@@ -942,30 +940,30 @@ export function DriverApp() {
                   <button
                     type="button"
                     onClick={() => handleResumeTrip(incompleteTrips[0])}
-                    className="w-full py-3.5 px-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl shadow-[#fcd502]/30 cursor-pointer active:scale-[0.98] transition-all"
+                    className="w-full py-3.5 px-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl shadow-[#fcd502]/30 cursor-pointer active:scale-[0.98] transition-all whitespace-nowrap"
                   >
-                    <Play className="w-4 h-4 fill-slate-950 stroke-none" />
-                    <span>
+                    <Play className="w-4 h-4 fill-slate-950 stroke-none shrink-0" />
+                    <span className="whitespace-nowrap truncate">
                       {incompleteTrips[0].tripStep === 'en_route' && 'Complete Step: Mark Arrived'}
                       {incompleteTrips[0].tripStep === 'arrived' && 'Complete Step: Inspect & Start'}
                       {incompleteTrips[0].tripStep === 'trip_started' && 'Complete Step: Finish & Collect'}
                     </span>
-                    <ArrowRight className="w-4 h-4 stroke-[3]" />
+                    <ArrowRight className="w-4 h-4 stroke-[3] shrink-0" />
                   </button>
                 </div>
               )}
 
               {/* ── STATE C: INCOMING DISPATCH HIGH-URGENCY SHEET ── */}
               {incomingRequest && !activeTrip && (
-                <div className="cockpit-glass-elevated rounded-3xl p-4.5 space-y-3.5 shadow-2xl border-2 border-[#fcd502] animate-slide-up-smooth">
+                <div className="cockpit-glass-elevated rounded-3xl p-4.5 space-y-3.5 shadow-2xl border-2 border-[#fcd502] animate-slide-up-smooth select-none">
                   {/* Countdown Timer Header */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-[#fcd502] bg-amber-950/80 border border-[#fcd502]/40 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#fcd502] animate-pulse" />
+                      <span className="text-[10px] font-black uppercase tracking-wider text-[#fcd502] bg-amber-950/80 border border-[#fcd502]/40 px-2.5 py-0.5 rounded-full flex items-center gap-1 whitespace-nowrap">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#fcd502] animate-pulse shrink-0" />
                         Incoming Dispatch
                       </span>
-                      <span className={`text-xs font-black tabular-nums ${requestTimer <= 10 ? 'text-rose-400 animate-pulse' : 'text-[#fcd502]'}`}>
+                      <span className={`text-xs font-black tabular-nums whitespace-nowrap ${requestTimer <= 10 ? 'text-rose-400 animate-pulse' : 'text-[#fcd502]'}`}>
                         ⏱ {requestTimer}s left
                       </span>
                     </div>
@@ -980,24 +978,24 @@ export function DriverApp() {
                   </div>
 
                   {/* Customer Info & Net Payout Hero */}
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="text-base font-black text-white">{incomingRequest.customerName}</h3>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold mt-0.5">
-                        <span className="flex items-center gap-1 text-amber-300">
-                          <Star className="w-3.5 h-3.5 fill-[#fcd502] text-[#fcd502]" />
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1 pr-2">
+                      <h3 className="text-base font-black text-white whitespace-nowrap truncate">{incomingRequest.customerName}</h3>
+                      <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold mt-0.5 whitespace-nowrap">
+                        <span className="flex items-center gap-1 text-amber-300 shrink-0">
+                          <Star className="w-3.5 h-3.5 fill-[#fcd502] text-[#fcd502] shrink-0" />
                           {incomingRequest.customerRating}
                         </span>
                         <span>•</span>
-                        <span>{incomingRequest.serviceType}</span>
+                        <span className="truncate">{incomingRequest.serviceType}</span>
                       </div>
                     </div>
 
-                    <div className="text-right">
-                      <span className="text-2xl font-black text-white tabular-nums block">
+                    <div className="text-right shrink-0">
+                      <span className="text-2xl font-black text-white tabular-nums block whitespace-nowrap">
                         {formatRupees(incomingRequest.driverPayout)}
                       </span>
-                      <span className="text-[9px] font-extrabold text-emerald-300 bg-emerald-950/80 border border-emerald-500/30 px-2 py-0.5 rounded-full inline-block">
+                      <span className="text-[9px] font-extrabold text-emerald-300 bg-emerald-950/80 border border-emerald-500/30 px-2 py-0.5 rounded-full inline-block whitespace-nowrap">
                         Net Driver Payout
                       </span>
                     </div>
@@ -1006,19 +1004,19 @@ export function DriverApp() {
                   {/* Route Overview */}
                   <div className="p-3 rounded-2xl bg-[#121824] border border-white/10 space-y-2 text-xs">
                     <div className="flex items-start gap-2.5">
-                      <div className="flex flex-col items-center pt-1">
+                      <div className="flex flex-col items-center pt-1 shrink-0">
                         <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
                         <div className="w-0.5 h-6 bg-white/20 my-0.5" />
                         <div className="w-2.5 h-2.5 rounded-full bg-[#fcd502]" />
                       </div>
-                      <div className="flex-1 space-y-2">
-                        <div>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase block">Pickup ({incomingRequest.distance})</span>
-                          <span className="font-bold text-white block truncate">{incomingRequest.pickup}</span>
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <div className="min-w-0">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase block whitespace-nowrap">Pickup ({incomingRequest.distance})</span>
+                          <span className="font-bold text-white block truncate whitespace-nowrap">{incomingRequest.pickup}</span>
                         </div>
-                        <div>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase block">Dropoff</span>
-                          <span className="font-bold text-white block truncate">{incomingRequest.destination}</span>
+                        <div className="min-w-0">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase block whitespace-nowrap">Dropoff</span>
+                          <span className="font-bold text-white block truncate whitespace-nowrap">{incomingRequest.destination}</span>
                         </div>
                       </div>
                     </div>
@@ -1029,17 +1027,17 @@ export function DriverApp() {
                     <button
                       type="button"
                       onClick={handleDeclineRequest}
-                      className="py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-xs cursor-pointer active:scale-95 transition-all"
+                      className="py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-xs cursor-pointer active:scale-95 transition-all whitespace-nowrap"
                     >
                       Decline
                     </button>
                     <button
                       type="button"
                       onClick={handleAcceptRequest}
-                      className="col-span-2 py-3.5 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider shadow-xl shadow-[#fcd502]/30 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+                      className="col-span-2 py-3.5 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider shadow-xl shadow-[#fcd502]/30 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
                     >
-                      <span>Accept Ride</span>
-                      <ArrowRight className="w-4 h-4 stroke-[3]" />
+                      <span className="whitespace-nowrap">Accept Ride</span>
+                      <ArrowRight className="w-4 h-4 stroke-[3] shrink-0" />
                     </button>
                   </div>
                 </div>
@@ -1047,32 +1045,32 @@ export function DriverApp() {
 
               {/* ── STATE D: ACTIVE TRIP PROGRESSION COCKPIT SHEET ── */}
               {activeTrip && (
-                <div className="cockpit-glass-elevated rounded-3xl p-4 space-y-3 shadow-2xl border border-white/15 animate-slide-up-smooth">
+                <div className="cockpit-glass-elevated rounded-3xl p-4 space-y-3 shadow-2xl border border-white/15 animate-slide-up-smooth select-none">
                   {/* Status Banner, Payout & X Cancel/Close Icon */}
-                  <div className="flex items-start justify-between border-b border-white/10 pb-2.5">
-                    <div>
-                      <span className="text-[9px] font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded-md border border-emerald-500/40 inline-block mb-1">
+                  <div className="flex items-start justify-between border-b border-white/10 pb-2.5 gap-2">
+                    <div className="min-w-0 flex-1 pr-2">
+                      <span className="text-[9px] font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded-md border border-emerald-500/40 inline-block mb-1 whitespace-nowrap">
                         {tripStep === 'en_route' && 'En Route to Pickup'}
                         {tripStep === 'arrived' && 'Waiting for Passenger'}
                         {tripStep === 'trip_started' && 'Ride in Progress'}
                         {tripStep === 'completed' && 'Trip Completed'}
                       </span>
-                      <h3 className="font-black text-sm text-white">{activeTrip.customerName}</h3>
+                      <h3 className="font-black text-sm text-white whitespace-nowrap truncate">{activeTrip.customerName}</h3>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       <div className="text-right">
-                        <span className="text-lg font-black text-white tabular-nums block">
+                        <span className="text-lg font-black text-white tabular-nums block whitespace-nowrap">
                           {formatRupees(activeTrip.driverPayout)}
                         </span>
-                        <span className="text-[9px] font-bold text-slate-400">Guaranteed</span>
+                        <span className="text-[9px] font-bold text-slate-400 whitespace-nowrap">Guaranteed</span>
                       </div>
 
                       {/* X Icon on Top Right Corner to cancel / move to incomplete in history */}
                       <button
                         type="button"
                         onClick={handlePauseOrCancelActiveTrip}
-                        className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer active:scale-90 transition-all ml-1 border border-white/10"
+                        className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer active:scale-90 transition-all ml-1 border border-white/10 shrink-0"
                         title="Close & Move to Incomplete in Trips History"
                       >
                         <X className="w-4 h-4" />
@@ -1085,32 +1083,32 @@ export function DriverApp() {
                     <button
                       type="button"
                       onClick={() => alert(`Calling passenger ${activeTrip.customerName}...`)}
-                      className="py-2.5 px-3 rounded-xl bg-[#141C2C] border border-white/10 hover:bg-[#1A2438] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all"
+                      className="py-2.5 px-3 rounded-xl bg-[#141C2C] border border-white/10 hover:bg-[#1A2438] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all whitespace-nowrap"
                     >
-                      <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Call Passenger</span>
+                      <Phone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <span className="whitespace-nowrap">Call Passenger</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => alert(`Opening chat with ${activeTrip.customerName}...`)}
-                      className="py-2.5 px-3 rounded-xl bg-[#141C2C] border border-white/10 hover:bg-[#1A2438] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all"
+                      className="py-2.5 px-3 rounded-xl bg-[#141C2C] border border-white/10 hover:bg-[#1A2438] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all whitespace-nowrap"
                     >
-                      <MessageSquare className="w-3.5 h-3.5 text-[#fcd502]" />
-                      <span>Chat Message</span>
+                      <MessageSquare className="w-3.5 h-3.5 text-[#fcd502] shrink-0" />
+                      <span className="whitespace-nowrap">Chat Message</span>
                     </button>
                   </div>
 
                   {/* Route Pickup / Dropoff Capsule */}
                   <div className="p-2.5 rounded-2xl bg-[#101622] border border-white/5 space-y-1 text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                      <span className="text-[10px] text-slate-400">Pickup:</span>
-                      <span className="font-bold text-white truncate text-[11px]">{activeTrip.pickup}</span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+                      <span className="text-[10px] text-slate-400 whitespace-nowrap shrink-0">Pickup:</span>
+                      <span className="font-bold text-white truncate text-[11px] whitespace-nowrap flex-1 min-w-0">{activeTrip.pickup}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-[#fcd502]" />
-                      <span className="text-[10px] text-slate-400">Dropoff:</span>
-                      <span className="font-bold text-white truncate text-[11px]">{activeTrip.destination}</span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-2 h-2 rounded-full bg-[#fcd502] shrink-0" />
+                      <span className="text-[10px] text-slate-400 whitespace-nowrap shrink-0">Dropoff:</span>
+                      <span className="font-bold text-white truncate text-[11px] whitespace-nowrap flex-1 min-w-0">{activeTrip.destination}</span>
                     </div>
                   </div>
 
@@ -1120,7 +1118,7 @@ export function DriverApp() {
                       <button
                         type="button"
                         onClick={() => setTripStep('arrived')}
-                        className="w-full py-4 px-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider text-center shadow-xl shadow-[#fcd502]/30 cursor-pointer transition-all active:scale-[0.98]"
+                        className="w-full py-4 px-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider text-center shadow-xl shadow-[#fcd502]/30 cursor-pointer transition-all active:scale-[0.98] whitespace-nowrap truncate"
                       >
                         I Have Arrived at Pickup
                       </button>
@@ -1140,35 +1138,35 @@ export function DriverApp() {
                       return (
                         <div className="space-y-2">
                           {isInspectionDone ? (
-                            <div className="p-2.5 rounded-2xl bg-emerald-950/50 border border-emerald-500/40 flex items-center justify-between text-xs">
-                              <div className="flex items-center gap-2">
+                            <div className="p-2.5 rounded-2xl bg-emerald-950/50 border border-emerald-500/40 flex items-center justify-between text-xs gap-2">
+                              <div className="flex items-center gap-2 min-w-0 flex-1">
                                 <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                                <div>
-                                  <span className="font-extrabold text-emerald-300 block text-[11px]">Condition Verified ✓</span>
-                                  <span className="text-[9px] text-emerald-400/80">4 angles &amp; {vehicleInspectionData?.defects.length || 0} defects documented</span>
+                                <div className="min-w-0 flex-1">
+                                  <span className="font-extrabold text-emerald-300 block text-[11px] whitespace-nowrap truncate">Condition Verified ✓</span>
+                                  <span className="text-[9px] text-emerald-400/80 block whitespace-nowrap truncate">4 angles &amp; {vehicleInspectionData?.defects.length || 0} defects documented</span>
                                 </div>
                               </div>
                               <button
                                 type="button"
                                 onClick={() => setShowInspectionModal(true)}
-                                className="text-[10px] font-bold text-emerald-300 bg-[#182032] px-2 py-0.5 rounded-xl border border-emerald-500/40 cursor-pointer"
+                                className="text-[10px] font-bold text-emerald-300 bg-[#182032] px-2.5 py-1 rounded-xl border border-emerald-500/40 cursor-pointer whitespace-nowrap shrink-0"
                               >
                                 Review
                               </button>
                             </div>
                           ) : (
-                            <div className="p-2.5 rounded-2xl bg-rose-950/50 border border-rose-800/50 flex items-center justify-between text-xs">
-                              <div className="flex items-center gap-2">
-                                <Lock className="w-4 h-4 text-rose-400" />
-                                <div>
-                                  <span className="font-extrabold text-rose-200 text-[11px] block">Vehicle Inspection Required</span>
-                                  <span className="text-[9px] text-rose-300/80">{countTaken}/4 live camera photos taken</span>
+                            <div className="p-2.5 rounded-2xl bg-rose-950/50 border border-rose-800/50 flex items-center justify-between text-xs gap-2">
+                              <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <Lock className="w-4 h-4 text-rose-400 shrink-0" />
+                                <div className="min-w-0 flex-1">
+                                  <span className="font-extrabold text-rose-200 text-[11px] block whitespace-nowrap truncate">Vehicle Inspection Required</span>
+                                  <span className="text-[9px] text-rose-300/80 block whitespace-nowrap truncate">{countTaken}/4 live camera photos taken</span>
                                 </div>
                               </div>
                               <button
                                 type="button"
                                 onClick={() => setShowInspectionModal(true)}
-                                className="px-2.5 py-1 rounded-xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-[10px] uppercase shadow-md shadow-[#fcd502]/20 cursor-pointer active:scale-95 transition-all"
+                                className="px-2.5 py-1 rounded-xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-[10px] uppercase shadow-md shadow-[#fcd502]/20 cursor-pointer active:scale-95 transition-all whitespace-nowrap shrink-0"
                               >
                                 Take Photos
                               </button>
@@ -1179,19 +1177,19 @@ export function DriverApp() {
                             <button
                               type="button"
                               onClick={() => handleConfirmStartTrip(vehicleInspectionData!)}
-                              className="w-full py-4 px-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider text-center shadow-xl shadow-[#fcd502]/30 cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                              className="w-full py-4 px-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider text-center shadow-xl shadow-[#fcd502]/30 cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-2 whitespace-nowrap truncate"
                             >
-                              <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-                              <span>Start the Trip</span>
+                              <CheckCircle2 className="w-4 h-4 stroke-[2.5] shrink-0" />
+                              <span className="whitespace-nowrap">Start the Trip</span>
                             </button>
                           ) : (
                             <button
                               type="button"
                               onClick={() => setShowInspectionModal(true)}
-                              className="w-full py-4 px-4 rounded-2xl bg-white/10 hover:bg-white/15 text-slate-300 font-black text-xs uppercase tracking-wider text-center cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-2 border border-white/10"
+                              className="w-full py-4 px-4 rounded-2xl bg-white/10 hover:bg-white/15 text-slate-300 font-black text-xs uppercase tracking-wider text-center cursor-pointer transition-all active:scale-[0.98] flex items-center justify-center gap-2 border border-white/10 whitespace-nowrap truncate"
                             >
-                              <Lock className="w-4 h-4 text-[#fcd502]" />
-                              <span>Take All 4 Photos to Start ({countTaken}/4)</span>
+                              <Lock className="w-4 h-4 text-[#fcd502] shrink-0" />
+                              <span className="whitespace-nowrap">Take All 4 Photos to Start ({countTaken}/4)</span>
                             </button>
                           )}
                         </div>
@@ -1201,14 +1199,14 @@ export function DriverApp() {
                     {tripStep === 'trip_started' && (
                       <div className="space-y-2">
                         {vehicleInspectionData && (
-                          <div className="p-2 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex items-center justify-between text-xs">
-                            <span className="text-[10px] text-emerald-300 font-bold flex items-center gap-1">
-                              <ShieldCheck className="w-3.5 h-3.5" /> Condition Proof Locked
+                          <div className="p-2 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex items-center justify-between text-xs gap-2">
+                            <span className="text-[10px] text-emerald-300 font-bold flex items-center gap-1 whitespace-nowrap truncate min-w-0">
+                              <ShieldCheck className="w-3.5 h-3.5 shrink-0" /> Condition Proof Locked
                             </span>
                             <button
                               type="button"
                               onClick={() => setShowInspectionModal(true)}
-                              className="text-[9px] font-bold text-emerald-300 underline"
+                              className="text-[9px] font-bold text-emerald-300 underline whitespace-nowrap shrink-0"
                             >
                               View
                             </button>
@@ -1218,7 +1216,7 @@ export function DriverApp() {
                         <button
                           type="button"
                           onClick={handleCompleteTrip}
-                          className="w-full py-4 px-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider text-center shadow-xl shadow-[#fcd502]/30 cursor-pointer transition-all active:scale-[0.98]"
+                          className="w-full py-4 px-4 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider text-center shadow-xl shadow-[#fcd502]/30 cursor-pointer transition-all active:scale-[0.98] whitespace-nowrap truncate"
                         >
                           Complete Ride &amp; Collect {formatRupees(activeTrip.driverPayout)}
                         </button>
@@ -1226,16 +1224,16 @@ export function DriverApp() {
                     )}
 
                     {tripStep === 'completed' && (
-                      <div className="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-center space-y-2">
+                      <div className="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-center space-y-2 select-none">
                         <CheckCircle2 className="w-6 h-6 text-emerald-400 mx-auto" />
-                        <h4 className="font-extrabold text-sm text-white">Trip Completed!</h4>
+                        <h4 className="font-extrabold text-sm text-white whitespace-nowrap">Trip Completed!</h4>
                         <button
                           type="button"
                           onClick={() => {
                             setActiveTrip(null);
                             setTripStep('en_route');
                           }}
-                          className="py-2.5 px-5 rounded-xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs cursor-pointer active:scale-95 transition-all shadow-md shadow-[#fcd502]/20"
+                          className="py-2.5 px-5 rounded-xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs cursor-pointer active:scale-95 transition-all shadow-md shadow-[#fcd502]/20 whitespace-nowrap"
                         >
                           Ready for Next Ride
                         </button>
@@ -1251,29 +1249,29 @@ export function DriverApp() {
 
             {/* ── TAB 2: EARNINGS FULL SHEET ── */}
             {activeTab === 'earnings' && (
-              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col pt-3 animate-slide-up-smooth">
+              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col pt-3 animate-slide-up-smooth select-none">
                 <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-2" />
                 <div className="px-4 py-2 flex items-center justify-between border-b border-white/10">
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-[#fcd502]" />
-                    <h3 className="font-black text-base text-white">Earnings &amp; Payouts</h3>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <DollarSign className="w-5 h-5 text-[#fcd502] shrink-0" />
+                    <h3 className="font-black text-base text-white whitespace-nowrap truncate">Earnings &amp; Payouts</h3>
                   </div>
                   <button
                     type="button"
                     onClick={() => setActiveTab('rides')}
-                    className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer active:scale-90"
+                    className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer active:scale-90 shrink-0"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-none pb-24 text-xs">
+                <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-none pb-32 text-xs">
                   {/* Balance Hero Card */}
                   <div className="uber-card p-5 rounded-3xl space-y-3.5">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Available Balance</span>
-                    <div className="flex items-baseline justify-between">
-                      <h3 className="text-3xl font-black text-white tabular-nums">{formatRupees(todayEarnings)}</h3>
-                      <span className="text-xs font-bold text-emerald-300 bg-emerald-950/70 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block whitespace-nowrap">Total Available Balance</span>
+                    <div className="flex items-baseline justify-between gap-2">
+                      <h3 className="text-3xl font-black text-white tabular-nums whitespace-nowrap">{formatRupees(todayEarnings)}</h3>
+                      <span className="text-xs font-bold text-emerald-300 bg-emerald-950/70 px-2 py-0.5 rounded-full border border-emerald-500/30 whitespace-nowrap shrink-0">
                         +14.2% this week
                       </span>
                     </div>
@@ -1281,7 +1279,7 @@ export function DriverApp() {
                     <button
                       type="button"
                       onClick={() => alert(`Instant cashout of ${formatRupees(todayEarnings)} initiated to HDFC Bank ****4921`)}
-                      className="w-full py-3.5 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider shadow-xl shadow-[#fcd502]/25 transition-all active:scale-[0.98] cursor-pointer text-center"
+                      className="w-full py-3.5 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider shadow-xl shadow-[#fcd502]/25 transition-all active:scale-[0.98] cursor-pointer text-center whitespace-nowrap truncate"
                     >
                       Instant Cashout to Bank
                     </button>
@@ -1290,35 +1288,35 @@ export function DriverApp() {
                   {/* Weekly Goal Progress */}
                   <div className="uber-card p-4 rounded-3xl space-y-2.5">
                     <div className="flex justify-between items-center font-bold">
-                      <span className="text-slate-300">Weekly Target</span>
-                      <span className="text-white font-extrabold">₹25,000.00</span>
+                      <span className="text-slate-300 whitespace-nowrap">Weekly Target</span>
+                      <span className="text-white font-extrabold whitespace-nowrap tabular-nums">₹25,000.00</span>
                     </div>
                     <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
                       <div className="h-full bg-[#fcd502] rounded-full" style={{ width: '74%' }} />
                     </div>
                     <div className="flex justify-between text-[11px] text-slate-400 font-medium">
-                      <span>₹18,450.00 earned</span>
-                      <span className="text-emerald-400 font-bold">74% achieved</span>
+                      <span className="whitespace-nowrap">₹18,450.00 earned</span>
+                      <span className="text-emerald-400 font-bold whitespace-nowrap">74% achieved</span>
                     </div>
                   </div>
 
                   {/* Recent Payouts Feed */}
                   <div className="uber-card p-4 rounded-3xl space-y-2.5">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Recent Payouts</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block whitespace-nowrap">Recent Payouts</span>
                     <div className="space-y-2">
-                      <div className="p-3 rounded-2xl bg-[#182032] border border-white/10 flex items-center justify-between">
-                        <div>
-                          <span className="font-bold text-white block">Marine Drive, Kochi ➔ Cochin Airport (COK)</span>
-                          <span className="text-[10px] text-slate-400 font-medium">Today • Executive Sedan</span>
+                      <div className="p-3 rounded-2xl bg-[#182032] border border-white/10 flex items-center justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <span className="font-bold text-white block truncate whitespace-nowrap">Marine Drive ➔ Cochin Airport (COK)</span>
+                          <span className="text-[10px] text-slate-400 font-medium block whitespace-nowrap">Today • Executive Sedan</span>
                         </div>
-                        <span className="font-black text-emerald-400 text-sm tabular-nums">+₹1,250.00</span>
+                        <span className="font-black text-emerald-400 text-sm tabular-nums whitespace-nowrap shrink-0">+₹1,250.00</span>
                       </div>
-                      <div className="p-3 rounded-2xl bg-[#182032] border border-white/10 flex items-center justify-between">
-                        <div>
-                          <span className="font-bold text-white block">Infopark Kakkanad ➔ Lulu Mall, Edappally</span>
-                          <span className="text-[10px] text-slate-400 font-medium">Yesterday • Maybach Chauffeur</span>
+                      <div className="p-3 rounded-2xl bg-[#182032] border border-white/10 flex items-center justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <span className="font-bold text-white block truncate whitespace-nowrap">Infopark Kakkanad ➔ Lulu Mall</span>
+                          <span className="text-[10px] text-slate-400 font-medium block whitespace-nowrap">Yesterday • Maybach Chauffeur</span>
                         </div>
-                        <span className="font-black text-emerald-400 text-sm tabular-nums">+₹950.00</span>
+                        <span className="font-black text-emerald-400 text-sm tabular-nums whitespace-nowrap shrink-0">+₹950.00</span>
                       </div>
                     </div>
                   </div>
@@ -1328,44 +1326,44 @@ export function DriverApp() {
 
             {/* ── TAB 3: TRIP HISTORY FULL SHEET ── */}
             {activeTab === 'history' && (
-              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col pt-3 animate-slide-up-smooth">
+              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col pt-3 animate-slide-up-smooth select-none">
                 <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-2" />
                 <div className="px-4 py-2 flex items-center justify-between border-b border-white/10">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-[#fcd502]" />
-                    <h3 className="font-black text-base text-white">Trip History</h3>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Clock className="w-5 h-5 text-[#fcd502] shrink-0" />
+                    <h3 className="font-black text-base text-white whitespace-nowrap truncate">Trip History</h3>
                   </div>
                   <button
                     type="button"
                     onClick={() => setActiveTab('rides')}
-                    className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer active:scale-90"
+                    className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer active:scale-90 shrink-0"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-none pb-24 text-xs">
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-none pb-32 text-xs">
                   {/* Incomplete / Active Trips Category */}
                   <div className="space-y-2.5 mb-4">
                     <div className="flex items-center justify-between px-1">
-                      <span className="text-[11px] font-black text-[#fcd502] uppercase tracking-wider flex items-center gap-1.5">
-                        <span className={`w-2 h-2 rounded-full ${incompleteTrips.length > 0 ? 'bg-[#fcd502] animate-pulse' : 'bg-slate-600'}`} />
-                        Incomplete Trips Category ({incompleteTrips.length})
+                      <span className="text-[11px] font-black text-[#fcd502] uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap truncate">
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${incompleteTrips.length > 0 ? 'bg-[#fcd502] animate-pulse' : 'bg-slate-600'}`} />
+                        Incomplete Trips ({incompleteTrips.length})
                       </span>
                       {incompleteTrips.length > 0 ? (
-                        <span className="text-[10px] text-amber-300 font-bold bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-500/30">
+                        <span className="text-[10px] text-amber-300 font-bold bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-500/30 whitespace-nowrap shrink-0">
                           Step Pending
                         </span>
                       ) : (
-                        <span className="text-[10px] text-slate-500 font-medium">None pending</span>
+                        <span className="text-[10px] text-slate-500 font-medium whitespace-nowrap shrink-0">None pending</span>
                       )}
                     </div>
 
                     {incompleteTrips.length === 0 ? (
                       <div className="p-4 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] text-center space-y-1">
                         <Clock className="w-5 h-5 text-slate-500 mx-auto" />
-                        <span className="text-xs font-bold text-slate-400 block">No Incomplete Trips</span>
-                        <span className="text-[10px] text-slate-500 block">Accepted trips with pending steps will appear here automatically.</span>
+                        <span className="text-xs font-bold text-slate-400 block whitespace-nowrap">No Incomplete Trips</span>
+                        <span className="text-[10px] text-slate-500 block whitespace-nowrap truncate">Accepted trips with pending steps appear here</span>
                       </div>
                     ) : (
                       incompleteTrips.map((item) => (
@@ -1373,40 +1371,40 @@ export function DriverApp() {
                           key={item.id}
                           className="p-4 rounded-2xl border border-amber-400/50 bg-[#141C2C] space-y-3 shadow-xl shadow-amber-500/10 relative overflow-hidden"
                         >
-                          <div className="flex items-start justify-between">
+                          <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0 flex-1 pr-2">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <h4 className="font-black text-sm text-white truncate">{item.trip.customerName}</h4>
-                                <span className="text-[9px] font-black text-slate-950 bg-[#fcd502] px-2 py-0.5 rounded-full uppercase whitespace-nowrap shadow-xs">
-                                  {item.tripStep === 'en_route' ? 'Step 1: En Route' : item.tripStep === 'arrived' ? 'Step 2: Arrived' : 'Step 3: In Progress'}
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-black text-sm text-white truncate whitespace-nowrap">{item.trip.customerName}</h4>
+                                <span className="text-[9px] font-black text-slate-950 bg-[#fcd502] px-2 py-0.5 rounded-full uppercase whitespace-nowrap shadow-xs shrink-0">
+                                  {item.tripStep === 'en_route' ? 'Step 1' : item.tripStep === 'arrived' ? 'Step 2' : 'Step 3'}
                                 </span>
                               </div>
-                              <span className="text-[11px] text-slate-300 block truncate mt-1 font-medium">
+                              <span className="text-[11px] text-slate-300 block truncate mt-1 font-medium whitespace-nowrap">
                                 {item.trip.pickup} ➔ {item.trip.destination}
                               </span>
-                              <span className="text-[10px] text-slate-400 font-medium mt-0.5 block">
+                              <span className="text-[10px] text-slate-400 font-medium mt-0.5 block whitespace-nowrap truncate">
                                 Accepted {item.pausedAt} • {item.trip.serviceType}
                               </span>
                             </div>
 
                             <div className="text-right flex-shrink-0">
-                              <span className="font-black text-[#fcd502] text-sm tabular-nums block">
+                              <span className="font-black text-[#fcd502] text-sm tabular-nums block whitespace-nowrap">
                                 {formatRupees(item.trip.driverPayout)}
                               </span>
-                              <span className="text-[9px] font-bold text-emerald-400">Guaranteed</span>
+                              <span className="text-[9px] font-bold text-emerald-400 whitespace-nowrap">Guaranteed</span>
                             </div>
                           </div>
 
                           {/* Step Progression Visualizer */}
                           <div className="p-2 rounded-xl bg-[#0D131F] border border-white/5 grid grid-cols-3 gap-1.5 text-center text-[9px] font-bold">
-                            <div className={`py-1 rounded-lg ${item.tripStep === 'en_route' ? 'bg-[#fcd502]/25 text-[#fcd502] border border-[#fcd502]/50' : 'bg-emerald-950/50 text-emerald-400 border border-emerald-500/20'}`}>
+                            <div className={`py-1 rounded-lg whitespace-nowrap truncate ${item.tripStep === 'en_route' ? 'bg-[#fcd502]/25 text-[#fcd502] border border-[#fcd502]/50' : 'bg-emerald-950/50 text-emerald-400 border border-emerald-500/20'}`}>
                               1. En Route {item.tripStep !== 'en_route' && '✓'}
                             </div>
-                            <div className={`py-1 rounded-lg ${item.tripStep === 'arrived' ? 'bg-[#fcd502]/25 text-[#fcd502] border border-[#fcd502]/50' : item.tripStep === 'trip_started' ? 'bg-emerald-950/50 text-emerald-400 border border-emerald-500/20' : 'text-slate-500'}`}>
+                            <div className={`py-1 rounded-lg whitespace-nowrap truncate ${item.tripStep === 'arrived' ? 'bg-[#fcd502]/25 text-[#fcd502] border border-[#fcd502]/50' : item.tripStep === 'trip_started' ? 'bg-emerald-950/50 text-emerald-400 border border-emerald-500/20' : 'text-slate-500'}`}>
                               2. Arrive &amp; Inspect {item.tripStep === 'trip_started' && '✓'}
                             </div>
-                            <div className={`py-1 rounded-lg ${item.tripStep === 'trip_started' ? 'bg-[#fcd502]/25 text-[#fcd502] border border-[#fcd502]/50' : 'text-slate-500'}`}>
-                              3. Ride to Dest.
+                            <div className={`py-1 rounded-lg whitespace-nowrap truncate ${item.tripStep === 'trip_started' ? 'bg-[#fcd502]/25 text-[#fcd502] border border-[#fcd502]/50' : 'text-slate-500'}`}>
+                              3. In Transit
                             </div>
                           </div>
 
@@ -1415,21 +1413,21 @@ export function DriverApp() {
                             <button
                               type="button"
                               onClick={() => handleResumeTrip(item)}
-                              className="flex-1 py-3 px-3 rounded-xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-[#fcd502]/25 cursor-pointer active:scale-95 transition-all"
+                              className="flex-1 py-3 px-3 rounded-xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-[#fcd502]/25 cursor-pointer active:scale-95 transition-all whitespace-nowrap truncate min-w-0"
                             >
-                              <Play className="w-3.5 h-3.5 fill-slate-950 stroke-none" />
-                              <span>
+                              <Play className="w-3.5 h-3.5 fill-slate-950 stroke-none shrink-0" />
+                              <span className="whitespace-nowrap truncate">
                                 {item.tripStep === 'en_route' && 'Complete Step: Arrive at Pickup'}
                                 {item.tripStep === 'arrived' && 'Complete Step: Inspect & Start'}
                                 {item.tripStep === 'trip_started' && 'Complete Step: Finish & Collect'}
                               </span>
-                              <ArrowRight className="w-3.5 h-3.5 stroke-[3]" />
+                              <ArrowRight className="w-3.5 h-3.5 stroke-[3] shrink-0" />
                             </button>
 
                             <button
                               type="button"
                               onClick={() => handleDiscardIncompleteTrip(item.id)}
-                              className="py-3 px-3 rounded-xl bg-white/10 hover:bg-rose-950/40 text-slate-400 hover:text-rose-300 font-bold text-xs transition-colors cursor-pointer"
+                              className="py-3 px-3 rounded-xl bg-white/10 hover:bg-rose-950/40 text-slate-400 hover:text-rose-300 font-bold text-xs transition-colors cursor-pointer whitespace-nowrap shrink-0"
                               title="Discard this trip"
                             >
                               Discard
@@ -1440,17 +1438,17 @@ export function DriverApp() {
                     )}
                   </div>
 
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 block">Completed Trips (Kerala)</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 block whitespace-nowrap">Completed Trips</span>
                   {completedTripsList.map((item) => (
-                    <div key={item.id} className="uber-card p-3.5 rounded-2xl flex items-center justify-between">
-                      <div>
-                        <span className="font-bold text-white block">{item.customer}</span>
-                        <span className="text-[11px] text-slate-300 block truncate">{item.route}</span>
-                        <span className="text-[10px] text-slate-400 font-medium mt-0.5 block">{item.date} • {item.rating}</span>
+                    <div key={item.id} className="uber-card p-3.5 rounded-2xl flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <span className="font-bold text-white block truncate whitespace-nowrap">{item.customer}</span>
+                        <span className="text-[11px] text-slate-300 block truncate whitespace-nowrap">{item.route}</span>
+                        <span className="text-[10px] text-slate-400 font-medium mt-0.5 block whitespace-nowrap">{item.date} • {item.rating}</span>
                       </div>
-                      <div className="text-right">
-                        <span className="font-black text-white text-sm tabular-nums block">{item.fare}</span>
-                        <span className="text-[9px] font-extrabold text-emerald-300 bg-emerald-950/70 border border-emerald-500/30 px-1.5 py-0.5 rounded-md uppercase">
+                      <div className="text-right shrink-0">
+                        <span className="font-black text-white text-sm tabular-nums block whitespace-nowrap">{item.fare}</span>
+                        <span className="text-[9px] font-extrabold text-emerald-300 bg-emerald-950/70 border border-emerald-500/30 px-1.5 py-0.5 rounded-md uppercase whitespace-nowrap">
                           Completed
                         </span>
                       </div>
@@ -1462,67 +1460,67 @@ export function DriverApp() {
 
             {/* ── TAB 4: ACCOUNT / PROFILE FULL SHEET ── */}
             {activeTab === 'profile' && (
-              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col pt-3 animate-slide-up-smooth">
+              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col pt-3 animate-slide-up-smooth select-none">
                 <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-2" />
                 <div className="px-4 py-2 flex items-center justify-between border-b border-white/10">
-                  <div className="flex items-center gap-2">
-                    <User className="w-5 h-5 text-[#fcd502]" />
-                    <h3 className="font-black text-base text-white">Driver Partner Profile</h3>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <User className="w-5 h-5 text-[#fcd502] shrink-0" />
+                    <h3 className="font-black text-base text-white whitespace-nowrap truncate">Driver Partner Profile</h3>
                   </div>
                   <button
                     type="button"
                     onClick={() => setActiveTab('rides')}
-                    className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer active:scale-90"
+                    className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer active:scale-90 shrink-0"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-none pb-24 text-xs">
+                <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-none pb-32 text-xs">
                   {/* Driver Card */}
                   <div className="uber-card p-4.5 rounded-3xl space-y-3">
                     <div className="flex items-center gap-3.5">
                       <img
                         src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80"
                         alt={driverName}
-                        className="w-14 h-14 rounded-2xl object-cover border border-white/10"
+                        className="w-14 h-14 rounded-2xl object-cover border border-white/10 shrink-0"
                       />
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-black text-base text-white">{driverName}</h3>
-                        <p className="text-xs text-slate-400 font-medium">Executive Partner Driver</p>
-                        <div className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold mt-0.5">
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Verified Commercial Chauffeur</span>
+                        <h3 className="font-black text-base text-white whitespace-nowrap truncate">{driverName}</h3>
+                        <p className="text-xs text-slate-400 font-medium whitespace-nowrap truncate">Executive Partner Driver</p>
+                        <div className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold mt-0.5 whitespace-nowrap truncate">
+                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          <span className="whitespace-nowrap">Verified Commercial Chauffeur</span>
                         </div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-slate-300">
                       <div className="flex items-center gap-1.5 truncate">
-                        <Phone className="w-3.5 h-3.5 text-slate-400" />
-                        <span>+1 (555) 234-5678</span>
+                        <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span className="whitespace-nowrap truncate">+1 (555) 234-5678</span>
                       </div>
                       <div className="flex items-center gap-1.5 truncate">
-                        <Mail className="w-3.5 h-3.5 text-slate-400" />
-                        <span>marcus.v@ridingo.com</span>
+                        <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span className="whitespace-nowrap truncate">marcus.v@ridingo.com</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Assigned Fleet Vehicle */}
                   <div className="uber-card p-4 rounded-3xl space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assigned Vehicle</span>
-                      <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950/70 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Assigned Vehicle</span>
+                      <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950/70 px-2 py-0.5 rounded-full border border-emerald-500/30 whitespace-nowrap shrink-0">
                         Active &amp; Insured
                       </span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-extrabold text-sm text-white">2024 Mercedes-Maybach S-Class</h4>
-                        <p className="text-xs text-slate-400 font-medium">Obsidian Black • First Class</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-extrabold text-sm text-white whitespace-nowrap truncate">2024 Mercedes-Maybach S-Class</h4>
+                        <p className="text-xs text-slate-400 font-medium whitespace-nowrap truncate">Obsidian Black • First Class</p>
                       </div>
-                      <span className="px-2.5 py-1 rounded-xl bg-[#182032] text-[#fcd502] font-mono font-black text-xs border border-white/10">
+                      <span className="px-2.5 py-1 rounded-xl bg-[#182032] text-[#fcd502] font-mono font-black text-xs border border-white/10 whitespace-nowrap shrink-0">
                         CA 7XYZ99
                       </span>
                     </div>
@@ -1530,14 +1528,14 @@ export function DriverApp() {
 
                   {/* Navigation Engine Preference */}
                   <div className="uber-card p-4 rounded-3xl space-y-2.5">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Navigation App</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block whitespace-nowrap">Navigation App</span>
                     <div className="grid grid-cols-3 gap-2">
                       {(['google_maps', 'waze', 'apple_maps'] as const).map((eng) => (
                         <button
                           key={eng}
                           type="button"
                           onClick={() => setPreferredNav(eng)}
-                          className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center ${
+                          className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap ${
                             preferredNav === eng
                               ? 'bg-[#fcd502] text-slate-950 border-[#fcd502] font-black shadow-xs'
                               : 'bg-[#182032] text-slate-300 border-white/10 hover:bg-[#202A3E]'
@@ -1551,15 +1549,15 @@ export function DriverApp() {
 
                   {/* Auto-Accept Toggle & Pickup Radius */}
                   <div className="uber-card p-4 rounded-3xl space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="font-bold text-white block">Auto-Accept Rides</span>
-                        <span className="text-[10px] text-slate-400">Instantly confirm back-to-back requests</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <span className="font-bold text-white block whitespace-nowrap truncate">Auto-Accept Rides</span>
+                        <span className="text-[10px] text-slate-400 whitespace-nowrap truncate block">Instantly confirm back-to-back requests</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => setAutoAccept(!autoAccept)}
-                        className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${
+                        className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer shrink-0 ${
                           autoAccept ? 'bg-[#fcd502]' : 'bg-white/20'
                         }`}
                       >
@@ -1571,8 +1569,8 @@ export function DriverApp() {
 
                     <div className="pt-2 border-t border-white/10 space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-white">Pickup Radius</span>
-                        <span className="font-bold text-slate-950 bg-[#fcd502] px-2 py-0.5 rounded-full text-xs">
+                        <span className="font-bold text-white whitespace-nowrap">Pickup Radius</span>
+                        <span className="font-bold text-slate-950 bg-[#fcd502] px-2 py-0.5 rounded-full text-xs whitespace-nowrap">
                           {pickupRadius} miles
                         </span>
                       </div>
@@ -1592,7 +1590,7 @@ export function DriverApp() {
                   <button
                     type="button"
                     onClick={() => setIsAuthenticated(false)}
-                    className="w-full py-3.5 rounded-2xl bg-[#182032] hover:bg-rose-950/40 text-rose-300 hover:text-rose-200 font-bold text-xs text-center cursor-pointer transition-colors border border-white/10"
+                    className="w-full py-3.5 rounded-2xl bg-[#182032] hover:bg-rose-950/40 text-rose-300 hover:text-rose-200 font-bold text-xs text-center cursor-pointer transition-colors border border-white/10 whitespace-nowrap"
                   >
                     Log Out of Driver Console
                   </button>
@@ -1600,9 +1598,9 @@ export function DriverApp() {
               </div>
             )}
 
-            {/* ═════════ LAYER 5: FLOATING MINIMAL BOTTOM COMMAND DOCK ═════════ */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm pointer-events-auto">
-              <nav className="cockpit-glass rounded-full p-1.5 flex items-center justify-between shadow-2xl border border-white/10">
+            {/* ═════════ LAYER 5: FLOATING MINIMAL BOTTOM COMMAND DOCK (LARGER & ELEVATED) ═════════ */}
+            <div className="absolute bottom-6 sm:bottom-7 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.75rem)] max-w-[360px] pointer-events-auto">
+              <nav className="cockpit-glass-elevated rounded-full p-2 flex items-center justify-between shadow-[0_16px_40px_rgba(0,0,0,0.85),0_0_24px_rgba(252,213,2,0.12)] border border-white/15 backdrop-blur-2xl">
                 {navTabs.map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
@@ -1612,16 +1610,16 @@ export function DriverApp() {
                       key={tab.id}
                       type="button"
                       onClick={() => setActiveTab(tab.id)}
-                      className={`relative flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full transition-all duration-200 cursor-pointer ${
+                      className={`relative flex items-center justify-center gap-2 py-3 px-3.5 rounded-full transition-all duration-200 cursor-pointer select-none ${
                         isActive
-                          ? 'bg-[#fcd502] text-slate-950 font-black shadow-lg shadow-[#fcd502]/25 flex-1'
-                          : 'text-slate-400 hover:text-white font-semibold'
+                          ? 'bg-[#fcd502] text-slate-950 font-black shadow-lg shadow-[#fcd502]/30 flex-1 min-w-0'
+                          : 'text-slate-400 hover:text-white hover:bg-white/5 font-semibold px-3'
                       }`}
                       aria-label={tab.label}
                     >
-                      <Icon className={`w-4 h-4 ${isActive ? 'stroke-[2.5]' : 'stroke-[2]'}`} />
+                      <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'stroke-[2.5]' : 'stroke-[2]'}`} />
                       {isActive && (
-                        <span className="text-xs font-black tracking-tight whitespace-nowrap">
+                        <span className="text-[13px] font-black tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
                           {tab.label}
                         </span>
                       )}
@@ -1638,31 +1636,31 @@ export function DriverApp() {
               }`}>
                 <div className="bg-[#121824] rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-white/10 text-white space-y-4 animate-slide-up-smooth">
                   {/* Slip Header */}
-                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                    <div>
-                      <span className="text-[10px] font-black tracking-wider text-[#fcd502] uppercase block">Ridingo Digital Receipt</span>
-                      <h3 className="font-extrabold text-base text-white">Payment Collection Slip</h3>
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3 gap-2">
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[10px] font-black tracking-wider text-[#fcd502] uppercase block whitespace-nowrap">Ridingo Digital Receipt</span>
+                      <h3 className="font-extrabold text-base text-white whitespace-nowrap truncate">Payment Collection Slip</h3>
                     </div>
-                    <span className="px-2 py-0.5 rounded-full bg-[#182032] text-slate-300 font-mono text-[10px] font-bold border border-white/10">
+                    <span className="px-2 py-0.5 rounded-full bg-[#182032] text-slate-300 font-mono text-[10px] font-bold border border-white/10 whitespace-nowrap shrink-0">
                       #SLIP-8841
                     </span>
                   </div>
 
                   {/* Summary */}
                   <div className="bg-[#182032] p-3 rounded-2xl border border-white/10 space-y-1.5 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400 font-medium">Passenger</span>
-                      <span className="font-bold text-white">{(activeTrip || completedTripData)?.customerName}</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-slate-400 font-medium whitespace-nowrap">Passenger</span>
+                      <span className="font-bold text-white whitespace-nowrap truncate">{(activeTrip || completedTripData)?.customerName}</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400 font-medium">Service</span>
-                      <span className="font-bold text-white">{(activeTrip || completedTripData)?.serviceType}</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-slate-400 font-medium whitespace-nowrap">Service</span>
+                      <span className="font-bold text-white whitespace-nowrap truncate">{(activeTrip || completedTripData)?.serviceType}</span>
                     </div>
                     {vehicleInspectionData && (
-                      <div className="flex items-center justify-between pt-1 border-t border-white/10">
-                        <span className="text-slate-400 font-medium">Vehicle Condition</span>
-                        <span className="font-bold text-emerald-400 flex items-center gap-1 text-[11px]">
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                      <div className="flex items-center justify-between pt-1 border-t border-white/10 gap-2">
+                        <span className="text-slate-400 font-medium whitespace-nowrap">Vehicle Condition</span>
+                        <span className="font-bold text-emerald-400 flex items-center gap-1 text-[11px] whitespace-nowrap shrink-0">
+                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                           Documented (No dispute)
                         </span>
                       </div>
@@ -1672,28 +1670,28 @@ export function DriverApp() {
                   {/* Breakdown */}
                   <div className="space-y-1.5 text-xs">
                     <div className="flex justify-between text-slate-300">
-                      <span>Base Ride Fare</span>
-                      <span className="font-semibold text-white">{formatRupees((((activeTrip || completedTripData)?.totalFare || 1450) * 0.75))}</span>
+                      <span className="whitespace-nowrap">Base Ride Fare</span>
+                      <span className="font-semibold text-white tabular-nums whitespace-nowrap">{formatRupees((((activeTrip || completedTripData)?.totalFare || 1450) * 0.75))}</span>
                     </div>
                     <div className="flex justify-between text-slate-300">
-                      <span>Distance &amp; Toll</span>
-                      <span className="font-semibold text-white">{formatRupees((((activeTrip || completedTripData)?.totalFare || 1450) * 0.25))}</span>
+                      <span className="whitespace-nowrap">Distance &amp; Toll</span>
+                      <span className="font-semibold text-white tabular-nums whitespace-nowrap">{formatRupees((((activeTrip || completedTripData)?.totalFare || 1450) * 0.25))}</span>
                     </div>
                     <div className="flex justify-between items-center pt-2 border-t border-white/10 font-bold text-sm">
-                      <span>Total Due</span>
-                      <span className="text-xl font-black text-white tabular-nums">
+                      <span className="whitespace-nowrap">Total Due</span>
+                      <span className="text-xl font-black text-white tabular-nums whitespace-nowrap">
                         {formatRupees((activeTrip || completedTripData)?.totalFare || 1450)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center text-[11px] text-emerald-300 bg-emerald-950/70 px-2.5 py-1 rounded-xl font-bold border border-emerald-500/30">
-                      <span>Net Driver Payout</span>
-                      <span className="tabular-nums">{formatRupees((activeTrip || completedTripData)?.driverPayout || 1160)}</span>
+                      <span className="whitespace-nowrap">Net Driver Payout</span>
+                      <span className="tabular-nums whitespace-nowrap">{formatRupees((activeTrip || completedTripData)?.driverPayout || 1160)}</span>
                     </div>
                   </div>
 
                   {/* QR Code Container */}
                   <div className="bg-[#182032] border border-amber-400/20 text-white p-3.5 rounded-2xl text-center space-y-2.5">
-                    <span className="text-[10px] font-bold text-[#fcd502] uppercase tracking-wider block">Scan to Pay via UPI (PhonePe / GPay / Paytm / BHIM)</span>
+                    <span className="text-[10px] font-bold text-[#fcd502] uppercase tracking-wider block whitespace-nowrap truncate">Scan to Pay via UPI (PhonePe / GPay / Paytm / BHIM)</span>
                     <div className="bg-white p-2.5 rounded-2xl inline-block shadow-sm border border-amber-300">
                       <img
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=ridingo@upi%26pn=RidingoChauffeur%26am=${(activeTrip || completedTripData)?.totalFare || 1450}%26cu=INR`}
@@ -1714,21 +1712,21 @@ export function DriverApp() {
                             handleClosePaymentSlipModal();
                           }, 900);
                         }}
-                        className="w-full py-3.5 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider shadow-xl shadow-[#fcd502]/25 transition-all active:scale-[0.98] cursor-pointer text-center"
+                        className="w-full py-3.5 rounded-2xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-xs uppercase tracking-wider shadow-xl shadow-[#fcd502]/25 transition-all active:scale-[0.98] cursor-pointer text-center whitespace-nowrap truncate"
                       >
                         Mark Payment Collected ({formatRupees((activeTrip || completedTripData)?.totalFare || 1450)})
                       </button>
                     ) : (
-                      <div className="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 text-center font-bold text-xs flex items-center justify-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                        <span>Payment Verified! Closing...</span>
+                      <div className="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 text-center font-bold text-xs flex items-center justify-center gap-2 whitespace-nowrap">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span className="whitespace-nowrap">Payment Verified! Closing...</span>
                       </div>
                     )}
 
                     <button
                       type="button"
                       onClick={handleClosePaymentSlipModal}
-                      className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-xs transition-colors cursor-pointer"
+                      className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-xs transition-colors cursor-pointer whitespace-nowrap"
                     >
                       Done &amp; Close
                     </button>
@@ -1739,16 +1737,16 @@ export function DriverApp() {
 
             {/* ═════════ NOTIFICATIONS DRAWER ═════════ */}
             {showNotificationsModal && (
-              <div className="absolute inset-0 z-50 flex justify-end bg-slate-950/75 backdrop-blur-xs transition-opacity duration-200">
+              <div className="absolute inset-0 z-50 flex justify-end bg-slate-950/75 backdrop-blur-xs transition-opacity duration-200 select-none">
                 <div className="absolute inset-0" onClick={() => setShowNotificationsModal(false)} />
 
                 <div className="relative w-[320px] max-w-full h-full bg-[#0E1420] text-white shadow-2xl flex flex-col z-10 animate-slide-up-smooth border-l border-white/10 font-sans">
                   {/* Header */}
                   <div className="px-4 pt-6 pb-3 bg-[#121824] border-b border-white/10 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-extrabold text-sm text-white">Notifications</h3>
+                      <h3 className="font-extrabold text-sm text-white whitespace-nowrap">Notifications</h3>
                       {notificationsList.filter(n => n.unread).length > 0 && (
-                        <span className="px-2 py-0.5 rounded-full bg-[#fcd502] text-slate-950 text-[10px] font-black">
+                        <span className="px-2 py-0.5 rounded-full bg-[#fcd502] text-slate-950 text-[10px] font-black whitespace-nowrap">
                           {notificationsList.filter(n => n.unread).length}
                         </span>
                       )}
@@ -1760,7 +1758,7 @@ export function DriverApp() {
                         setNotificationsList(notificationsList.map(n => ({ ...n, unread: false })));
                         setUnreadNotificationsCount(0);
                       }}
-                      className="text-[11px] font-bold text-[#fcd502] hover:underline cursor-pointer"
+                      className="text-[11px] font-bold text-[#fcd502] hover:underline cursor-pointer whitespace-nowrap"
                     >
                       Mark all read
                     </button>
@@ -1786,11 +1784,11 @@ export function DriverApp() {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <h4 className="font-bold text-xs text-white truncate">{item.title}</h4>
-                              <span className="text-[10px] text-slate-400 font-medium">{item.time}</span>
+                            <div className="flex items-center justify-between gap-2">
+                              <h4 className="font-bold text-xs text-white truncate whitespace-nowrap">{item.title}</h4>
+                              <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap shrink-0">{item.time}</span>
                             </div>
-                            <p className="text-[11px] text-slate-300 mt-0.5 leading-relaxed font-medium">
+                            <p className="text-[11px] text-slate-300 mt-0.5 leading-relaxed font-medium truncate whitespace-nowrap">
                               {item.desc}
                             </p>
                           </div>

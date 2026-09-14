@@ -92,11 +92,11 @@ export const NavigationPanel: React.FC<NavigationPanelProps> = ({
           </div>
 
           <div className="flex-1 min-w-0">
-            <p className="text-white font-black text-sm leading-tight truncate">
+            <p className="text-white font-black text-sm leading-tight truncate whitespace-nowrap">
               {currentStep?.instruction ?? 'Follow the route'}
             </p>
             {nextStep && (
-              <p className="text-slate-400 text-[11px] font-medium mt-0.5 truncate">
+              <p className="text-slate-400 text-[11px] font-medium mt-0.5 truncate whitespace-nowrap">
                 Then: {nextStep.instruction}
               </p>
             )}
@@ -121,8 +121,8 @@ export const NavigationPanel: React.FC<NavigationPanelProps> = ({
           />
         </div>
         <div className="flex items-center justify-between mt-1.5 text-[10px] text-slate-500 font-medium">
-          <span>Step {currentStepIndex + 1} of {route.steps.length}</span>
-          <span>{progress}% complete</span>
+          <span className="whitespace-nowrap">Step {currentStepIndex + 1} of {route.steps.length}</span>
+          <span className="whitespace-nowrap">{progress}% complete</span>
         </div>
       </div>
 
@@ -130,12 +130,12 @@ export const NavigationPanel: React.FC<NavigationPanelProps> = ({
       <div className="px-4 py-3 flex items-center justify-between border-b border-slate-800/60">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5 text-white">
-            <Clock className="w-3.5 h-3.5 text-[#fcd502]" />
-            <span className="text-sm font-black">{formatDuration(route.duration)}</span>
+            <Clock className="w-3.5 h-3.5 text-[#fcd502] shrink-0" />
+            <span className="text-sm font-black whitespace-nowrap tabular-nums">{formatDuration(route.duration)}</span>
           </div>
           <div className="flex items-center gap-1.5 text-slate-400">
-            <Ruler className="w-3.5 h-3.5" />
-            <span className="text-xs font-bold">{formatDistance(route.distance)}</span>
+            <Ruler className="w-3.5 h-3.5 shrink-0" />
+            <span className="text-xs font-bold whitespace-nowrap tabular-nums">{formatDistance(route.distance)}</span>
           </div>
         </div>
 
@@ -143,22 +143,22 @@ export const NavigationPanel: React.FC<NavigationPanelProps> = ({
           <button
             type="button"
             onClick={onNextStep}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#fcd502] text-[#121212] font-black text-[11px] cursor-pointer hover:bg-amber-400 active:scale-95 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#fcd502] text-[#121212] font-black text-[11px] cursor-pointer hover:bg-amber-400 active:scale-95 transition-all whitespace-nowrap"
           >
-            Next <ChevronRight className="w-3.5 h-3.5" />
+            Next <ChevronRight className="w-3.5 h-3.5 shrink-0" />
           </button>
         )}
       </div>
 
       {/* ── BOTTOM: Route endpoints + expand ── */}
       <div className="px-4 py-3 space-y-2">
-        <div className="flex items-center gap-2 text-xs">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0" />
-          <span className="text-slate-300 font-medium truncate">{pickup}</span>
+        <div className="flex items-center gap-2 text-xs min-w-0">
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+          <span className="text-slate-300 font-medium truncate whitespace-nowrap flex-1 min-w-0">{pickup}</span>
         </div>
-        <div className="flex items-center gap-2 text-xs">
-          <div className="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0" />
-          <span className="text-slate-300 font-medium truncate">{destination}</span>
+        <div className="flex items-center gap-2 text-xs min-w-0">
+          <div className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0" />
+          <span className="text-slate-300 font-medium truncate whitespace-nowrap flex-1 min-w-0">{destination}</span>
         </div>
 
         {/* All steps toggle */}
