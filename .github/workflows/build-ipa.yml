@@ -1,0 +1,78 @@
+name: Build iOS IPA – Ridingo Driver App
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    name: Build Unsigned IPA
+    runs-on: macos-latest
+
+    steps:
+      # ── 1. Checkout ────────────────────────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── 2. Node.js setup ───────────────────────────────────────────
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── 3. Install dependencies ────────────────────────────────────
+      - name: Install npm dependencies
+        run: npm ci
+
+      # ── 4. Build web (Vite) ────────────────────────────────────────
+      - name: Build Vite web app
+        run: npm run build
+
+      # ── 5. Capacitor iOS sync ──────────────────────────────────────
+      - name: Capacitor sync iOS
+        run: npx cap sync ios
+
+      # ── 6. Select latest Xcode ────────────────────────────────────
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      # ── 7. Resolve Swift Package Manager deps ─────────────────────
+      - name: Resolve SPM packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -workspace ios/App/App.xcworkspace \
+            -scheme App
+
+      # ── 8. Build .app (no signing) ────────────────────────────────
+      - name: Build .app (CODE_SIGNING_ALLOWED=NO)
+        run: |
+          xcodebuild \
+            -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            ENABLE_BITCODE=NO
+
+      # ── 9. Package into unsigned IPA ──────────────────────────────
+      - name: Package unsigned IPA
+        run: |
+          APP_PATH=$(find DerivedData -name "*.app" -path "*/Release-iphoneos/*" | head -1)
+          echo "Found .app at: $APP_PATH"
+          mkdir -p Payload
+          cp -r "$APP_PATH" Payload/
+          zip -r Ridingo-DriverApp-unsigned.ipa Payload
+          ls -lh Ridingo-DriverApp-unsigned.ipa
+
+      # ── 10. Upload IPA as artifact ────────────────────────────────
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ridingo-DriverApp-IPA
+          path: Ridingo-DriverApp-unsigned.ipa
+          retention-days: 30

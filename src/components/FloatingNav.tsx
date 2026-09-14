@@ -25,8 +25,8 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
   ];
 
   return (
-    <div className="fixed bottom-6 sm:bottom-7 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-md pointer-events-auto transition-all duration-300">
-      <nav className="navbar-transparent rounded-full p-2 flex items-center justify-between shadow-2xl border border-white/15 backdrop-blur-2xl">
+    <div className="fixed bottom-[max(env(safe-area-inset-bottom,12px),12px)] left-1/2 -translate-x-1/2 z-40 w-[calc(100%-3rem)] max-w-[360px] pointer-events-auto transition-all duration-300">
+      <nav className="rounded-full p-2 flex items-center justify-between shadow-2xl border border-slate-800/90 backdrop-blur-2xl bg-[#121212]/95 ring-1 ring-white/10 overflow-hidden">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -36,19 +36,19 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
               key={tab.id}
               type="button"
               onClick={() => onTabChange(tab.id)}
-              className={`relative flex items-center justify-center gap-2 py-3 px-4 rounded-full transition-all duration-300 cursor-pointer ${
+              className={`relative flex items-center justify-center gap-1.5 py-2.5 px-3.5 rounded-full transition-all duration-300 cursor-pointer active:scale-95 ${
                 isActive
-                  ? 'bg-[#fcd502] text-[#121212] shadow-lg shadow-[#fcd502]/20 font-black flex-1'
-                  : 'text-slate-400 hover:text-white font-bold hover:bg-slate-800/60'
+                  ? 'bg-[#fcd502] text-[#121212] shadow-lg shadow-[#fcd502]/25 font-black flex-1 rounded-full'
+                  : 'text-slate-400 hover:text-white font-bold hover:bg-slate-800/60 rounded-full'
               }`}
               aria-label={tab.label}
             >
-              <Icon className={`w-5 h-5 transition-all duration-300 ${
+              <Icon className={`w-4.5 h-4.5 transition-all duration-300 ${
                 isActive ? 'scale-110 text-[#121212] fill-[#121212]/20 stroke-[2.5]' : 'text-slate-400 stroke-[2]'
               }`} />
               
               {isActive && (
-                <span className="text-xs font-black tracking-tight whitespace-nowrap text-[#121212]">
+                <span className="text-[11px] font-black tracking-tight whitespace-nowrap text-[#121212]">
                   {tab.label}
                 </span>
               )}

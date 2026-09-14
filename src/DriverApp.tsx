@@ -57,6 +57,7 @@ import { NavigationPanel } from './components/NavigationPanel';
 import { VehicleInspectionModal } from './components/VehicleInspectionModal';
 import type { VehicleConditionData } from './components/VehicleInspectionModal';
 import { formatRupees } from './data/currencies';
+import { supabase } from './lib/supabase';
 
 export function DriverApp() {
   // Driver Auth State
@@ -105,9 +106,9 @@ export function DriverApp() {
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'rides' | 'earnings' | 'history' | 'profile'>('rides');
   const [selectedCategoryTab, setSelectedCategoryTab] = useState<'Hourly' | 'Airport' | 'Outstation'>('Hourly');
-  const [todayEarnings, setTodayEarnings] = useState<number>(2850.00);
-  const [completedTripsCount, setCompletedTripsCount] = useState<number>(5);
-  const [onlineHours, setOnlineHours] = useState<string>('4h 20m');
+  const [todayEarnings, setTodayEarnings] = useState<number>(0.00);
+  const [completedTripsCount, setCompletedTripsCount] = useState<number>(0);
+  const [onlineHours, setOnlineHours] = useState<string>('0h 0m');
 
   // Incoming Dispatch Request State
   const [incomingRequest, setIncomingRequest] = useState<any | null>(null);
@@ -138,12 +139,7 @@ export function DriverApp() {
     fare: string;
     rating: string;
     serviceType?: string;
-  }>>([
-    { id: 'HIST-1', customer: 'Priya Sharma', route: 'Marine Drive, Kochi ➔ Cochin Airport (COK)', date: 'Today, 2:15 PM', fare: '₹1,250.00', rating: '5.0 ★', serviceType: 'Executive Sedan' },
-    { id: 'HIST-2', customer: 'Alexander Vance', route: 'Fort Kochi Heritage ➔ Willingdon Island', date: 'Today, 10:45 AM', fare: '₹850.00', rating: '5.0 ★', serviceType: 'Luxury Chauffeur' },
-    { id: 'HIST-3', customer: 'David Miller', route: 'Infopark Phase 1, Kakkanad ➔ MG Road, Kochi', date: 'Yesterday, 6:30 PM', fare: '₹950.00', rating: '4.9 ★', serviceType: 'Business Comfort' },
-    { id: 'HIST-4', customer: 'Neha Kapoor', route: 'Aluva Metro Hub ➔ Thrissur Round East', date: '08/03/2026', fare: '₹1,450.00', rating: '5.0 ★', serviceType: 'Outstation Executive' },
-  ]);
+  }>>([]);
 
   // Driver Transactions Feed State (For Quick Search & Earnings)
   const [driverTransactionsList, setDriverTransactionsList] = useState<Array<{
@@ -154,14 +150,7 @@ export function DriverApp() {
     amount: string;
     type: 'payout' | 'trip_earning' | 'bonus' | 'tip';
     status: string;
-  }>>([
-    { id: 'TXN-9021', title: 'Weekly Earnings Payout (Direct Deposit)', method: 'Federal Bank •••• 4921', date: 'Yesterday, 5:00 PM', amount: '₹24,850.00', type: 'payout', status: 'Settled' },
-    { id: 'TXN-9020', title: 'Trip Payout: Priya Sharma', method: 'Marine Drive ➔ Cochin Airport (COK)', date: 'Today, 2:15 PM', amount: '+₹1,250.00', type: 'trip_earning', status: 'Credited' },
-    { id: 'TXN-9019', title: 'Peak Demand Surge Bonus ⚡', method: 'Marine Drive & Infopark Zone', date: 'Today, 1:30 PM', amount: '+₹250.00', type: 'bonus', status: 'Credited' },
-    { id: 'TXN-9018', title: 'Trip Payout: Alexander Vance', method: 'Fort Kochi Heritage ➔ Willingdon Island', date: 'Today, 10:45 AM', amount: '+₹850.00', type: 'trip_earning', status: 'Credited' },
-    { id: 'TXN-9017', title: 'Trip Payout: David Miller', method: 'Infopark Phase 1 ➔ MG Road', date: 'Yesterday, 6:30 PM', amount: '+₹950.00', type: 'trip_earning', status: 'Credited' },
-    { id: 'TXN-9016', title: 'Passenger Tip (5.0 ★ Rating)', method: 'Digital In-App Tip • Priya Sharma', date: 'Today, 2:18 PM', amount: '+₹150.00', type: 'tip', status: 'Credited' },
-  ]);
+  }>>([]);
 
   // Matching Trips for Quick Search
   const matchingTrips = completedTripsList.filter((t) => {
@@ -209,14 +198,10 @@ export function DriverApp() {
   const [vehicleInspectionData, setVehicleInspectionData] = useState<VehicleConditionData | null>(null);
 
   // Driver Notifications State & Mock Initial Feed
-  const INITIAL_DRIVER_NOTIFICATIONS = [
-    { id: '1', title: 'High Demand Surge Active ⚡', desc: 'Earn +₹250 surge bonus per completed ride in Kochi Marine Drive & Kakkanad Infopark zone until 6:00 PM.', time: '8m ago', unread: true, type: 'offer', icon: Sparkles },
-    { id: '2', title: 'Commercial Permit Verified ✓', desc: 'Kerala Motor Vehicles Department (KMVD) chauffeur permit is active.', time: '1h ago', unread: true, type: 'driver', icon: ShieldCheck },
-    { id: '3', title: 'Direct Deposit Confirmed 💰', desc: 'Weekly earnings payout of ₹24,850.00 transferred to Federal Bank ****4921.', time: '4h ago', unread: false, type: 'booking', icon: CheckCircle2 },
-  ];
+  const INITIAL_DRIVER_NOTIFICATIONS: any[] = [];
 
   const [showNotificationsModal, setShowNotificationsModal] = useState<boolean>(false);
-  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(2);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(0);
   const [notificationsList, setNotificationsList] = useState(INITIAL_DRIVER_NOTIFICATIONS);
   const [isClearingNotifications, setIsClearingNotifications] = useState<boolean>(false);
   const [clearingNotificationIds, setClearingNotificationIds] = useState<string[]>([]);
@@ -291,9 +276,10 @@ export function DriverApp() {
     }
   }, []);
 
-  // ── BroadcastChannel: Listen for booking requests from User App ──
+  // ── Listen for booking requests from User App (BroadcastChannel + Supabase Cloud Realtime) ──
   useEffect(() => {
-    const cleanup = bridgeListen((msg) => {
+    // 1. BroadcastChannel / LocalStorage (local browser tab bridge)
+    const cleanupBridge = bridgeListen((msg) => {
       if (msg.sentFrom !== 'user-app') return;
 
       if (msg.type === 'BOOKING_REQUEST') {
@@ -341,7 +327,61 @@ export function DriverApp() {
         setPendingRequestId(null);
       }
     });
-    return cleanup;
+
+    // 2. Supabase Cloud Realtime (For separate devices & separate project folders)
+    const supabaseChannel = supabase
+      .channel('driver-job-alerts')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'rides',
+          filter: 'status=eq.pending',
+        },
+        (payload) => {
+          if (!isOnline) return;
+          const ride = payload.new as any;
+          console.log('🚨 [DriverApp Remote] New Ride from Supabase:', ride);
+
+          const payout = Math.round((Number(ride.fare) || 50) * 0.80 * 100) / 100;
+          setPendingRequestId(ride.id || ride.booking_number);
+          setRequestTimer(30);
+          setIncomingRequest({
+            id: ride.id || ride.booking_number,
+            bookingNumber: ride.booking_number,
+            customerName: ride.customer_name || 'Executive Guest',
+            customerRating: 4.98,
+            pickup: ride.pickup,
+            destination: ride.destination,
+            serviceType: ride.service_type || 'Hourly Dedicated Chauffeur',
+            duration: ride.duration || '4 Hours',
+            totalFare: Number(ride.fare) || 50,
+            driverPayout: payout,
+            paymentMethod: 'CARD',
+            distance: '1.2 mi away',
+            timeRemaining: 30,
+            fromUserApp: true,
+          });
+
+          setUnreadNotificationsCount(prev => prev + 1);
+          setNotificationsList(prev => [{
+            id: ride.id || ride.booking_number,
+            title: '🚗 New Ride Dispatch (Cloud)!',
+            desc: `${ride.customer_name} requested pickup from ${ride.pickup?.substring(0, 30)}...`,
+            time: 'just now',
+            unread: true,
+            type: 'booking',
+            icon: Radio,
+          }, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      cleanupBridge();
+      supabase.removeChannel(supabaseChannel);
+    };
   }, [isOnline]);
 
   // ── Request timer countdown ──
@@ -411,8 +451,10 @@ export function DriverApp() {
     setIsAuthenticated(true);
   };
 
-  const handleAcceptRequest = () => {
+  const handleAcceptRequest = async () => {
     if (!incomingRequest) return;
+
+    // 1. Local BroadcastChannel Bridge acceptance
     if (incomingRequest.fromUserApp) {
       const response: BookingResponsePayload = {
         requestId: incomingRequest.id,
@@ -424,6 +466,24 @@ export function DriverApp() {
         status: 'accepted',
       };
       bridgeSend('BOOKING_ACCEPTED', response, 'driver-app');
+    }
+
+    // 2. Supabase Cloud Realtime update
+    try {
+      const matchCondition = incomingRequest.bookingNumber 
+        ? `booking_number.eq.${incomingRequest.bookingNumber}` 
+        : `id.eq.${incomingRequest.id}`;
+      await supabase
+        .from('rides')
+        .update({
+          status: 'accepted',
+          driver_name: driverName,
+          driver_phone: '+1 (555) 382-9102',
+        })
+        .or(matchCondition);
+      console.log('✅ [DriverApp Remote] Updated ride status to accepted in Supabase!');
+    } catch (err) {
+      console.warn('[DriverApp Remote Supabase accept error]:', err);
     }
 
     // Immediately record newly accepted trip in incompleteTrips
@@ -559,6 +619,18 @@ export function DriverApp() {
 
       setTodayEarnings((prev) => prev + activeTrip.driverPayout);
       setCompletedTripsCount((prev) => prev + 1);
+      setDriverTransactionsList((prev) => [
+        {
+          id: `TXN-${Date.now()}`,
+          title: `Trip Payout: ${activeTrip.customerName || 'Passenger'}`,
+          method: `${activeTrip.pickup || 'Pickup'} ➔ ${activeTrip.destination || 'Destination'}`,
+          date: `Today, ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+          amount: `+${formatRupees(activeTrip.driverPayout)}`,
+          type: 'trip_earning',
+          status: 'Credited',
+        },
+        ...prev,
+      ]);
       setCompletedTripData(activeTrip);
       setTripStep('completed');
       setIsPaymentCollected(false);
@@ -1667,22 +1739,25 @@ export function DriverApp() {
                   {/* Recent Payouts Feed */}
                   <div className="bg-[#12141A] border border-white/[0.07] p-4 rounded-2xl space-y-2.5">
                     <span className="text-xs font-medium text-white/50 block whitespace-nowrap">Recent Payouts</span>
-                    <div className="space-y-2">
-                      <div className="p-3 rounded-xl bg-[#171A22] border border-white/[0.05] flex items-center justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <span className="font-medium text-white text-xs block truncate whitespace-nowrap">Marine Drive ➔ Cochin Airport (COK)</span>
-                          <span className="text-[11px] text-white/40 font-normal block whitespace-nowrap">Today • Executive Sedan</span>
-                        </div>
-                        <span className="font-semibold text-emerald-400 text-xs tabular-nums whitespace-nowrap shrink-0">+₹1,250.00</span>
+                    {driverTransactionsList.length === 0 ? (
+                      <div className="p-4 rounded-xl border border-white/[0.06] bg-[#171A22]/60 text-center space-y-1">
+                        <Clock className="w-4 h-4 text-white/30 mx-auto" />
+                        <span className="text-xs font-medium text-white/50 block whitespace-nowrap">No Payout Records</span>
+                        <span className="text-[11px] text-white/30 block whitespace-nowrap truncate">Ride payouts and earnings will appear here</span>
                       </div>
-                      <div className="p-3 rounded-xl bg-[#171A22] border border-white/[0.05] flex items-center justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <span className="font-medium text-white text-xs block truncate whitespace-nowrap">Infopark Kakkanad ➔ Lulu Mall</span>
-                          <span className="text-[11px] text-white/40 font-normal block whitespace-nowrap">Yesterday • Maybach Chauffeur</span>
-                        </div>
-                        <span className="font-semibold text-emerald-400 text-xs tabular-nums whitespace-nowrap shrink-0">+₹950.00</span>
+                    ) : (
+                      <div className="space-y-2">
+                        {driverTransactionsList.map((txn) => (
+                          <div key={txn.id} className="p-3 rounded-xl bg-[#171A22] border border-white/[0.05] flex items-center justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <span className="font-medium text-white text-xs block truncate whitespace-nowrap">{txn.title}</span>
+                              <span className="text-[11px] text-white/40 font-normal block whitespace-nowrap">{txn.date} • {txn.method}</span>
+                            </div>
+                            <span className="font-semibold text-emerald-400 text-xs tabular-nums whitespace-nowrap shrink-0">{txn.amount}</span>
+                          </div>
+                        ))}
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1796,22 +1871,31 @@ export function DriverApp() {
                   </div>
 
                   <span className="text-xs font-medium text-white/50 px-1 block whitespace-nowrap">Completed Trips</span>
-                  {completedTripsList.map((item) => (
-                    <div key={item.id} className="bg-[#12141A] border border-white/[0.07] p-3.5 rounded-2xl flex items-center justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <span className="font-medium text-white text-xs block truncate whitespace-nowrap">{item.customer}</span>
-                        <span className="text-[11px] text-white/50 block truncate whitespace-nowrap">{item.route}</span>
-                        <span className="text-[10px] text-white/40 font-normal mt-0.5 block whitespace-nowrap">{item.date} • {item.rating}</span>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <span className="font-semibold text-white text-xs tabular-nums block whitespace-nowrap">{item.fare}</span>
-                        <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md whitespace-nowrap">
-                          Completed
-                        </span>
-                      </div>
+                  {completedTripsList.length === 0 ? (
+                    <div className="p-4 rounded-2xl border border-white/[0.06] bg-[#12141A]/60 text-center space-y-1">
+                      <CheckCircle2 className="w-4 h-4 text-white/30 mx-auto" />
+                      <span className="text-xs font-medium text-white/50 block whitespace-nowrap">No Completed Trips Yet</span>
+                      <span className="text-[11px] text-white/30 block whitespace-nowrap truncate">Your finished rides will appear here</span>
                     </div>
-                  ))}
+                  ) : (
+                    completedTripsList.map((item) => (
+                      <div key={item.id} className="bg-[#12141A] border border-white/[0.07] p-3.5 rounded-2xl flex items-center justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <span className="font-medium text-white text-xs block truncate whitespace-nowrap">{item.customer}</span>
+                          <span className="text-[11px] text-white/50 block truncate whitespace-nowrap">{item.route}</span>
+                          <span className="text-[10px] text-white/40 font-normal mt-0.5 block whitespace-nowrap">{item.date} • {item.rating}</span>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="font-semibold text-white text-xs tabular-nums block whitespace-nowrap">{item.fare}</span>
+                          <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md whitespace-nowrap">
+                            Completed
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
+
               </div>
             )}
 
