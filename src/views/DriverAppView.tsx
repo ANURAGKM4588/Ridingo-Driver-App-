@@ -10,6 +10,7 @@ import {
   Phone, 
   MessageSquare, 
   CheckCircle2, 
+  CheckCheck,
   XCircle, 
   Power, 
   Award, 
@@ -68,13 +69,43 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
   const [destinationFilterEnabled, setDestinationFilterEnabled] = useState<boolean>(false);
 
   // Driver Notifications State
-  const [showNotificationsModal, setShowNotificationsModal] = useState<boolean>(false);
-  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(2);
-  const [notificationsList, setNotificationsList] = useState([
+  const INITIAL_DRIVER_NOTIFICATIONS = [
     { id: '1', title: 'High Demand Surge Bonus ⚡', desc: 'Earn +₹250 extra per completed trip in Connaught Place zone until 6:00 PM.', time: '10m ago', unread: true, type: 'offer', icon: Sparkles },
     { id: '2', title: 'Vehicle Inspection Verified ✓', desc: 'Your 2024 Mercedes-Maybach commercial permit was approved for 2026.', time: '1h ago', unread: true, type: 'driver', icon: ShieldCheck },
     { id: '3', title: 'Weekly Payout Ready 💰', desc: 'Direct deposit of ₹24,850.00 initiated to HDFC Bank ****4921.', time: '5h ago', unread: false, type: 'booking', icon: CheckCircle2 },
-  ]);
+  ];
+
+  const [showNotificationsModal, setShowNotificationsModal] = useState<boolean>(false);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(2);
+  const [notificationsList, setNotificationsList] = useState(INITIAL_DRIVER_NOTIFICATIONS);
+  const [isClearingNotifications, setIsClearingNotifications] = useState<boolean>(false);
+  const [clearingNotificationIds, setClearingNotificationIds] = useState<string[]>([]);
+
+  const handleMarkAllReadAndClear = () => {
+    if (isClearingNotifications || notificationsList.length === 0) return;
+    setIsClearingNotifications(true);
+    setUnreadNotificationsCount(0);
+
+    const totalDuration = 340 + (notificationsList.length * 60);
+    setTimeout(() => {
+      setNotificationsList([]);
+      setIsClearingNotifications(false);
+      setClearingNotificationIds([]);
+    }, totalDuration);
+  };
+
+  const handleDismissNotification = (id: string) => {
+    if (clearingNotificationIds.includes(id)) return;
+    setClearingNotificationIds((prev) => [...prev, id]);
+    setTimeout(() => {
+      setNotificationsList((prev) => {
+        const next = prev.filter((item) => item.id !== id);
+        if (next.length === 0) setUnreadNotificationsCount(0);
+        return next;
+      });
+      setClearingNotificationIds((prev) => prev.filter((itemKey) => itemKey !== id));
+    }, 340);
+  };
 
   // Real-Time Cross-Tab Dispatch Listener (Connects User App to Driver App)
   useEffect(() => {
@@ -959,57 +990,106 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
                 )}
               </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setNotificationsList(notificationsList.map(n => ({ ...n, unread: false })));
-                  setUnreadNotificationsCount(0);
-                }}
-                className="text-[11px] font-extrabold text-[#a18200] hover:underline whitespace-nowrap cursor-pointer"
-              >
-                Mark all read
-              </button>
+              {notificationsList.length === 0 ? (
+                <span className="text-[11px] font-bold text-slate-400 whitespace-nowrap">All clear</span>
+              ) : (
+                <button
+                  type="button"
+                  disabled={isClearingNotifications}
+                  onClick={handleMarkAllReadAndClear}
+                  className={`text-[11px] font-extrabold text-[#a18200] hover:underline whitespace-nowrap cursor-pointer transition-opacity ${
+                    isClearingNotifications ? 'opacity-50 pointer-events-none' : ''
+                  }`}
+                >
+                  {isClearingNotifications ? 'Clearing...' : 'Mark all read'}
+                </button>
+              )}
             </div>
 
-            {/* Scrollable Notification Cards List matching NotificationsView.tsx */}
-            <div className="flex-1 overflow-y-auto p-3.5 space-y-3 scrollbar-none relative">
-              {notificationsList.map((item) => {
-                const Icon = item.icon || Bell;
-
-                return (
-                  <div
-                    key={item.id}
-                    className={`glass-card rounded-3xl p-4 border transition-all flex items-start gap-3.5 ${
-                      !item.unread
-                        ? 'bg-white/80 border-slate-200/70 text-slate-700 opacity-90'
-                        : 'bg-white border-[#fcd502] text-slate-900 shadow-md ring-1 ring-[#fcd502]/30'
-                    }`}
-                  >
-                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 ${
-                      item.type === 'driver' ? 'bg-[#121212] text-[#fcd502]' :
-                      item.type === 'booking' ? 'bg-emerald-500/10 text-emerald-600' :
-                      item.type === 'offer' ? 'bg-amber-500/10 text-amber-600' :
-                      'bg-blue-500/10 text-blue-600'
-                    }`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-extrabold text-sm text-slate-900 truncate">{item.title}</h4>
-                        <span className="text-[10px] text-slate-400 font-medium ml-2 flex-shrink-0">{item.time}</span>
-                      </div>
-                      <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
-                        {item.desc}
-                      </p>
-                    </div>
-
-                    {item.unread && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#fcd502] flex-shrink-0 mt-2 animate-pulse" />
-                    )}
+            {/* Scrollable Notification Cards List with Drop-Right Animation */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 space-y-3 scrollbar-none relative flex flex-col">
+              {notificationsList.length === 0 ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 my-auto animate-fade-in">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-[#a18200] mb-3 shadow-sm">
+                    <CheckCheck className="w-6 h-6 text-[#a18200]" />
                   </div>
-                );
-              })}
+                  <h4 className="font-bold text-sm text-slate-900">All caught up</h4>
+                  <p className="text-xs text-slate-500 max-w-[200px] leading-relaxed mt-1">
+                    All notifications marked as read and cleared.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotificationsList(INITIAL_DRIVER_NOTIFICATIONS);
+                      setUnreadNotificationsCount(2);
+                    }}
+                    className="mt-4 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[11px] font-bold text-slate-700 transition-colors cursor-pointer"
+                  >
+                    Restore sample alerts
+                  </button>
+                </div>
+              ) : (
+                notificationsList.map((item, index) => {
+                  const Icon = item.icon || Bell;
+                  const isExiting = isClearingNotifications || clearingNotificationIds.includes(item.id);
+
+                  return (
+                    <div
+                      key={item.id}
+                      style={{
+                        transitionProperty: 'transform, opacity',
+                        transitionDuration: '340ms',
+                        transitionTimingFunction: 'cubic-bezier(0.2, 0.9, 0.3, 1)',
+                        transitionDelay: isClearingNotifications ? `${index * 60}ms` : '0ms',
+                      }}
+                      className={`group relative glass-card rounded-3xl p-4 border transition-all flex items-start gap-3.5 transform-gpu will-change-transform ${
+                        isExiting
+                          ? 'translate-x-[120%] translate-y-4 rotate-3 opacity-0 pointer-events-none'
+                          : 'translate-x-0 translate-y-0 rotate-0 opacity-100'
+                      } ${
+                        !item.unread
+                          ? 'bg-white/80 border-slate-200/70 text-slate-700 opacity-90'
+                          : 'bg-white border-[#fcd502] text-slate-900 shadow-md ring-1 ring-[#fcd502]/30'
+                      }`}
+                    >
+                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 ${
+                        item.type === 'driver' ? 'bg-[#121212] text-[#fcd502]' :
+                        item.type === 'booking' ? 'bg-emerald-500/10 text-emerald-600' :
+                        item.type === 'offer' ? 'bg-amber-500/10 text-amber-600' :
+                        'bg-blue-500/10 text-blue-600'
+                      }`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+
+                      <div className="flex-1 min-w-0 pr-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-extrabold text-sm text-slate-900 truncate">{item.title}</h4>
+                          <span className="text-[10px] text-slate-400 font-medium ml-2 flex-shrink-0">{item.time}</span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
+                          {item.desc}
+                        </p>
+                      </div>
+
+                      {item.unread && (
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#fcd502] flex-shrink-0 mt-2 animate-pulse" />
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDismissNotification(item.id);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100 p-1 text-slate-400 hover:text-slate-800 transition-opacity shrink-0 cursor-pointer"
+                        title="Dismiss"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  );
+                })
+              )}
             </div>
 
             {/* Thumb-Friendly Bottom Round Transparent Close Icon Button matching App.tsx */}

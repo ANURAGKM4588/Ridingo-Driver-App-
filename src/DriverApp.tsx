@@ -4,6 +4,7 @@ import {
   Edit3,
   FileText,
   Check,
+  CheckCheck,
   Navigation,
   DollarSign,
   Clock,
@@ -40,7 +41,10 @@ import {
   SlidersHorizontal,
   ChevronUp,
   Play,
-  AlertCircle
+  AlertCircle,
+  Plane,
+  Briefcase,
+  Building2
 } from 'lucide-react';
 import ridingoLogo from './assets/ridingo-logo.png';
 import { MobileControlCenterStatusBar } from './components/MobileControlCenterStatusBar';
@@ -79,6 +83,92 @@ export function DriverApp() {
   const [demoOtp, setDemoOtp] = useState<string>('492018');
   const [destinationFilterEnabled, setDestinationFilterEnabled] = useState<boolean>(false);
   const [autoAccept, setAutoAccept] = useState<boolean>(false);
+
+  // Home Section Destination Search & Filter State
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
+  const [activeDestinationFilter, setActiveDestinationFilter] = useState<string | null>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Close search suggestions on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const HOT_DESTINATIONS = [
+    {
+      id: 'airport',
+      name: 'Cochin Int. Airport (COK)',
+      area: 'Nedumbassery T3 Departures',
+      distance: '24 km',
+      surge: '+₹250 Surge',
+      lat: 10.1518,
+      lng: 76.3930,
+      icon: Plane,
+    },
+    {
+      id: 'infopark',
+      name: 'Infopark Kakkanad Campus',
+      area: 'Phase 1 & 2 IT Express Way',
+      distance: '12 km',
+      surge: '+₹150 Surge',
+      lat: 10.0105,
+      lng: 76.3630,
+      icon: Briefcase,
+    },
+    {
+      id: 'marinedrive',
+      name: 'Marine Drive & High Court',
+      area: 'Rainbow Bridge, Menaka',
+      distance: '4.2 km',
+      surge: '+₹100 Surge',
+      lat: 9.9790,
+      lng: 76.2760,
+      icon: MapPin,
+    },
+    {
+      id: 'lulumall',
+      name: 'Lulu Mall & Metro Station',
+      area: 'Edappally Toll Junction',
+      distance: '8.5 km',
+      surge: 'High Demand',
+      lat: 10.0275,
+      lng: 76.3080,
+      icon: Building2,
+    },
+    {
+      id: 'railway',
+      name: 'Ernakulam South Junction (ERS)',
+      area: 'Railway Station Rd, Karikkamuri',
+      distance: '3.1 km',
+      surge: null,
+      lat: 9.9710,
+      lng: 76.2890,
+      icon: Navigation,
+    },
+  ];
+
+  const filteredDestinations = searchQuery.trim() === ''
+    ? HOT_DESTINATIONS
+    : HOT_DESTINATIONS.filter(
+        (p) =>
+          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.area.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+  const handleSelectDestination = (place: typeof HOT_DESTINATIONS[0]) => {
+    setSearchQuery(place.name);
+    setActiveDestinationFilter(place.name);
+    setDestinationFilterEnabled(true);
+    setDestLatLng({ lat: place.lat, lng: place.lng });
+    setIsSearchFocused(false);
+  };
 
   // Main Driver State
   const [isOnline, setIsOnline] = useState<boolean>(true);
@@ -143,14 +233,48 @@ export function DriverApp() {
   const [showInspectionModal, setShowInspectionModal] = useState<boolean>(false);
   const [vehicleInspectionData, setVehicleInspectionData] = useState<VehicleConditionData | null>(null);
 
-  // Driver Notifications State
-  const [showNotificationsModal, setShowNotificationsModal] = useState<boolean>(false);
-  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(2);
-  const [notificationsList, setNotificationsList] = useState([
+  // Driver Notifications State & Mock Initial Feed
+  const INITIAL_DRIVER_NOTIFICATIONS = [
     { id: '1', title: 'High Demand Surge Active ⚡', desc: 'Earn +₹250 surge bonus per completed ride in Kochi Marine Drive & Kakkanad Infopark zone until 6:00 PM.', time: '8m ago', unread: true, type: 'offer', icon: Sparkles },
     { id: '2', title: 'Commercial Permit Verified ✓', desc: 'Kerala Motor Vehicles Department (KMVD) chauffeur permit is active.', time: '1h ago', unread: true, type: 'driver', icon: ShieldCheck },
     { id: '3', title: 'Direct Deposit Confirmed 💰', desc: 'Weekly earnings payout of ₹24,850.00 transferred to Federal Bank ****4921.', time: '4h ago', unread: false, type: 'booking', icon: CheckCircle2 },
-  ]);
+  ];
+
+  const [showNotificationsModal, setShowNotificationsModal] = useState<boolean>(false);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(2);
+  const [notificationsList, setNotificationsList] = useState(INITIAL_DRIVER_NOTIFICATIONS);
+  const [isClearingNotifications, setIsClearingNotifications] = useState<boolean>(false);
+  const [clearingNotificationIds, setClearingNotificationIds] = useState<string[]>([]);
+
+  // Smooth drop-right cascade clear when clicking "Mark all read"
+  const handleMarkAllReadAndClear = () => {
+    if (isClearingNotifications || notificationsList.length === 0) return;
+    setIsClearingNotifications(true);
+    setUnreadNotificationsCount(0);
+
+    const totalDuration = 340 + (notificationsList.length * 60);
+    setTimeout(() => {
+      setNotificationsList([]);
+      setIsClearingNotifications(false);
+      setClearingNotificationIds([]);
+    }, totalDuration);
+  };
+
+  // Smooth drop-right clear for single notification item
+  const handleDismissNotification = (id: string) => {
+    if (clearingNotificationIds.includes(id)) return;
+    setClearingNotificationIds((prev) => [...prev, id]);
+    setTimeout(() => {
+      setNotificationsList((prev) => {
+        const next = prev.filter((item) => item.id !== id);
+        if (next.length === 0) {
+          setUnreadNotificationsCount(0);
+        }
+        return next;
+      });
+      setClearingNotificationIds((prev) => prev.filter((itemKey) => itemKey !== id));
+    }, 340);
+  };
 
   // Fetch OSRM navigation route on trip step change
   useEffect(() => {
@@ -805,7 +929,6 @@ export function DriverApp() {
                     type="button"
                     onClick={() => {
                       setShowNotificationsModal(true);
-                      setUnreadNotificationsCount(0);
                     }}
                     className="relative p-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 active:scale-90 transition-all cursor-pointer shrink-0"
                     title="Notifications"
@@ -819,10 +942,130 @@ export function DriverApp() {
                   </button>
                 </div>
               </div>
+
+              {/* ── Home Cockpit Destination & Zone Search Bar ── */}
+              <div className="relative mt-2 select-none" ref={searchContainerRef}>
+                <div
+                  className={`group flex items-center gap-2.5 px-3.5 h-10 rounded-2xl transition-all duration-200 ${
+                    isSearchFocused
+                      ? 'bg-[#171A22] border border-[#F5C518]/60 shadow-[0_8px_30px_rgba(0,0,0,0.7)] ring-1 ring-[#F5C518]/30'
+                      : 'bg-[#12141A]/90 hover:bg-[#151821] backdrop-blur-xl border border-white/10 hover:border-white/20 shadow-lg'
+                  }`}
+                >
+                  <Search className={`w-4 h-4 transition-colors shrink-0 ${isSearchFocused ? 'text-[#F5C518]' : 'text-white/40'}`} />
+
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setIsSearchFocused(true)}
+                    placeholder="Where to? Set destination or hot zone..."
+                    className="flex-1 bg-transparent text-xs text-white placeholder:text-white/40 font-normal outline-none min-w-0"
+                  />
+
+                  {searchQuery ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setActiveDestinationFilter(null);
+                        setDestinationFilterEnabled(false);
+                      }}
+                      className="p-1 rounded-full text-white/40 hover:text-white transition-colors cursor-pointer shrink-0"
+                      title="Clear Search"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {destinationFilterEnabled && activeDestinationFilter ? (
+                        <span className="px-2 py-0.5 rounded-full bg-[#F5C518]/20 border border-[#F5C518]/40 text-[#F5C518] text-[10px] font-semibold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#F5C518] animate-pulse" />
+                          Filter On
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-white/30 font-medium tracking-wide">
+                          Filter
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Active Destination Filter Banner (When set) */}
+                {destinationFilterEnabled && activeDestinationFilter && !isSearchFocused && (
+                  <div className="mt-1.5 flex items-center justify-between px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] animate-fade-in shadow-md">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                      <span className="truncate font-medium">Filtering rides towards: <strong className="font-semibold text-white">{activeDestinationFilter}</strong></span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveDestinationFilter(null);
+                        setDestinationFilterEnabled(false);
+                        setSearchQuery('');
+                      }}
+                      className="text-[10px] font-semibold text-emerald-300 hover:underline ml-2 shrink-0 cursor-pointer"
+                    >
+                      Turn off
+                    </button>
+                  </div>
+                )}
+
+                {/* Smooth Search Suggestions Dropdown */}
+                {isSearchFocused && (
+                  <div className="absolute left-0 right-0 top-12 bg-[#12141A]/95 backdrop-blur-2xl border border-white/12 rounded-2xl shadow-2xl overflow-hidden animate-slide-up-smooth z-50">
+                    <div className="px-3.5 py-2 border-b border-white/[0.06] flex items-center justify-between">
+                      <span className="text-[10px] font-semibold text-white/50 uppercase tracking-wider">
+                        {searchQuery ? 'Matching Locations' : 'High-Demand Zones & Hotspots'}
+                      </span>
+                      <span className="text-[10px] text-[#F5C518] font-medium">Auto-filter trips</span>
+                    </div>
+
+                    <div className="max-h-[240px] overflow-y-auto scrollbar-none py-1 divide-y divide-white/[0.04]">
+                      {filteredDestinations.map((place) => {
+                        const Icon = place.icon;
+                        return (
+                          <button
+                            key={place.id}
+                            type="button"
+                            onClick={() => handleSelectDestination(place)}
+                            className="w-full px-3.5 py-2.5 flex items-center justify-between gap-3 text-left hover:bg-white/[0.06] active:bg-white/10 transition-colors cursor-pointer group"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-7 h-7 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-[#F5C518] shrink-0 group-hover:bg-[#F5C518]/20 group-hover:border-[#F5C518]/40 transition-colors">
+                                <Icon className="w-3.5 h-3.5" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-xs font-semibold text-white truncate group-hover:text-[#F5C518] transition-colors">
+                                  {place.name}
+                                </div>
+                                <div className="text-[10px] text-white/40 truncate">
+                                  {place.area} • {place.distance}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {place.surge && (
+                                <span className="px-1.5 py-0.5 rounded-md bg-[#F5C518]/15 border border-[#F5C518]/30 text-[#F5C518] text-[9px] font-bold">
+                                  {place.surge}
+                                </span>
+                              )}
+                              <ChevronRight className="w-3.5 h-3.5 text-white/30 group-hover:text-white/70 transition-colors" />
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* ═════════ LAYER 2: FLOATING RIGHT TACTICAL TOOLBAR ═════════ */}
-            <div className="absolute right-3.5 top-20 z-20 flex flex-col bg-[#12141A]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-1 shadow-2xl gap-1 pointer-events-auto">
+            <div className="absolute right-3.5 top-[118px] z-20 flex flex-col bg-[#12141A]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-1 shadow-2xl gap-1 pointer-events-auto">
               {/* GPS Recenter */}
               <button
                 type="button"
@@ -836,7 +1079,16 @@ export function DriverApp() {
               {/* Destination Filter Quick Pill */}
               <button
                 type="button"
-                onClick={() => setDestinationFilterEnabled(!destinationFilterEnabled)}
+                onClick={() => {
+                  const next = !destinationFilterEnabled;
+                  setDestinationFilterEnabled(next);
+                  if (!next) {
+                    setActiveDestinationFilter(null);
+                    setSearchQuery('');
+                  } else if (!activeDestinationFilter) {
+                    setIsSearchFocused(true);
+                  }
+                }}
                 className={`w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors ${
                   destinationFilterEnabled
                     ? 'bg-[#F5C518] text-black shadow-sm'
@@ -2003,49 +2255,100 @@ export function DriverApp() {
                       )}
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setNotificationsList(notificationsList.map(n => ({ ...n, unread: false })));
-                        setUnreadNotificationsCount(0);
-                      }}
-                      className="text-xs font-medium text-[#F5C518] hover:underline cursor-pointer whitespace-nowrap"
-                    >
-                      Mark all read
-                    </button>
+                    {notificationsList.length === 0 ? (
+                      <span className="text-[11px] font-normal text-white/30 whitespace-nowrap">All clear</span>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={isClearingNotifications}
+                        onClick={handleMarkAllReadAndClear}
+                        className={`text-xs font-medium text-[#F5C518] hover:underline cursor-pointer whitespace-nowrap transition-opacity ${
+                          isClearingNotifications ? 'opacity-50 pointer-events-none' : ''
+                        }`}
+                      >
+                        {isClearingNotifications ? 'Clearing...' : 'Mark all read'}
+                      </button>
+                    )}
                   </div>
 
-                  {/* List */}
-                  <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-none">
-                    {notificationsList.map((item) => {
-                      const Icon = item.icon || Bell;
-                      return (
-                        <div
-                          key={item.id}
-                          className={`rounded-xl p-3 flex items-start gap-2.5 transition-all ${
-                            item.unread ? 'border border-white/15 bg-[#171A22]' : 'bg-[#171A22]/50 border border-white/[0.04]'
-                          }`}
-                        >
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                            item.type === 'driver' ? 'bg-[#F5C518]/15 text-[#F5C518]' :
-                            item.type === 'booking' ? 'bg-emerald-500/15 text-emerald-400' :
-                            'bg-amber-500/15 text-[#F5C518]'
-                          }`}>
-                            <Icon className="w-3.5 h-3.5" />
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                              <h4 className="font-medium text-xs text-white truncate whitespace-nowrap">{item.title}</h4>
-                              <span className="text-[10px] text-white/40 font-normal whitespace-nowrap shrink-0">{item.time}</span>
-                            </div>
-                            <p className="text-[11px] text-white/50 mt-0.5 leading-relaxed font-normal truncate whitespace-nowrap">
-                              {item.desc}
-                            </p>
-                          </div>
+                  {/* List Container with Drop-Right Animation & Clean Empty State */}
+                  <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-2 scrollbar-none relative flex flex-col">
+                    {notificationsList.length === 0 ? (
+                      <div className="flex-1 flex flex-col items-center justify-center text-center p-6 my-auto animate-fade-in">
+                        <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-[#F5C518] mb-3 shadow-inner">
+                          <CheckCheck className="w-6 h-6 text-[#F5C518]" />
                         </div>
-                      );
-                    })}
+                        <h4 className="font-semibold text-sm text-white">All caught up</h4>
+                        <p className="text-xs text-white/40 max-w-[200px] leading-relaxed mt-1">
+                          All notifications marked as read and cleared.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNotificationsList(INITIAL_DRIVER_NOTIFICATIONS);
+                            setUnreadNotificationsCount(2);
+                          }}
+                          className="mt-4 px-3 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/10 border border-white/10 text-[11px] font-medium text-white/70 hover:text-white transition-colors cursor-pointer"
+                        >
+                          Restore sample alerts
+                        </button>
+                      </div>
+                    ) : (
+                      notificationsList.map((item, index) => {
+                        const Icon = item.icon || Bell;
+                        const isExiting = isClearingNotifications || clearingNotificationIds.includes(item.id);
+
+                        return (
+                          <div
+                            key={item.id}
+                            style={{
+                              transitionProperty: 'transform, opacity',
+                              transitionDuration: '340ms',
+                              transitionTimingFunction: 'cubic-bezier(0.2, 0.9, 0.3, 1)',
+                              transitionDelay: isClearingNotifications ? `${index * 60}ms` : '0ms',
+                            }}
+                            className={`group relative rounded-xl p-3 flex items-start gap-2.5 transition-all transform-gpu will-change-transform ${
+                              isExiting
+                                ? 'translate-x-[120%] translate-y-4 rotate-3 opacity-0 pointer-events-none'
+                                : 'translate-x-0 translate-y-0 rotate-0 opacity-100'
+                            } ${
+                              item.unread ? 'border border-white/15 bg-[#171A22]' : 'bg-[#171A22]/50 border border-white/[0.04]'
+                            }`}
+                          >
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                              item.type === 'driver' ? 'bg-[#F5C518]/15 text-[#F5C518]' :
+                              item.type === 'booking' ? 'bg-emerald-500/15 text-emerald-400' :
+                              'bg-amber-500/15 text-[#F5C518]'
+                            }`}>
+                              <Icon className="w-3.5 h-3.5" />
+                            </div>
+
+                            <div className="flex-1 min-w-0 pr-2">
+                              <div className="flex items-center justify-between gap-2">
+                                <h4 className="font-medium text-xs text-white truncate whitespace-nowrap">{item.title}</h4>
+                                <span className="text-[10px] text-white/40 font-normal whitespace-nowrap shrink-0">{item.time}</span>
+                              </div>
+                              <p className="text-[11px] text-white/50 mt-0.5 leading-relaxed font-normal truncate whitespace-nowrap">
+                                {item.desc}
+                              </p>
+                            </div>
+
+                            {/* Dismiss single notification button */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDismissNotification(item.id);
+                              }}
+                              className="opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100 p-1 text-white/30 hover:text-white transition-opacity shrink-0 cursor-pointer"
+                              title="Dismiss"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
 
                   {/* Close button */}
