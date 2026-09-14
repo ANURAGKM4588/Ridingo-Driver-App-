@@ -44,7 +44,8 @@ import {
   AlertCircle,
   Plane,
   Briefcase,
-  Building2
+  Building2,
+  Car
 } from 'lucide-react';
 import ridingoLogo from './assets/ridingo-logo.png';
 import { MobileControlCenterStatusBar } from './components/MobileControlCenterStatusBar';
@@ -84,10 +85,10 @@ export function DriverApp() {
   const [destinationFilterEnabled, setDestinationFilterEnabled] = useState<boolean>(false);
   const [autoAccept, setAutoAccept] = useState<boolean>(false);
 
-  // Home Section Destination Search & Filter State
+  // Home Section Search State: Easy Access to Trip History & Transactions
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
-  const [activeDestinationFilter, setActiveDestinationFilter] = useState<string | null>(null);
+  const [searchFilterTab, setSearchFilterTab] = useState<'all' | 'trips' | 'transactions'>('all');
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   // Close search suggestions on click outside
@@ -100,75 +101,6 @@ export function DriverApp() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const HOT_DESTINATIONS = [
-    {
-      id: 'airport',
-      name: 'Cochin Int. Airport (COK)',
-      area: 'Nedumbassery T3 Departures',
-      distance: '24 km',
-      surge: '+₹250 Surge',
-      lat: 10.1518,
-      lng: 76.3930,
-      icon: Plane,
-    },
-    {
-      id: 'infopark',
-      name: 'Infopark Kakkanad Campus',
-      area: 'Phase 1 & 2 IT Express Way',
-      distance: '12 km',
-      surge: '+₹150 Surge',
-      lat: 10.0105,
-      lng: 76.3630,
-      icon: Briefcase,
-    },
-    {
-      id: 'marinedrive',
-      name: 'Marine Drive & High Court',
-      area: 'Rainbow Bridge, Menaka',
-      distance: '4.2 km',
-      surge: '+₹100 Surge',
-      lat: 9.9790,
-      lng: 76.2760,
-      icon: MapPin,
-    },
-    {
-      id: 'lulumall',
-      name: 'Lulu Mall & Metro Station',
-      area: 'Edappally Toll Junction',
-      distance: '8.5 km',
-      surge: 'High Demand',
-      lat: 10.0275,
-      lng: 76.3080,
-      icon: Building2,
-    },
-    {
-      id: 'railway',
-      name: 'Ernakulam South Junction (ERS)',
-      area: 'Railway Station Rd, Karikkamuri',
-      distance: '3.1 km',
-      surge: null,
-      lat: 9.9710,
-      lng: 76.2890,
-      icon: Navigation,
-    },
-  ];
-
-  const filteredDestinations = searchQuery.trim() === ''
-    ? HOT_DESTINATIONS
-    : HOT_DESTINATIONS.filter(
-        (p) =>
-          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.area.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-
-  const handleSelectDestination = (place: typeof HOT_DESTINATIONS[0]) => {
-    setSearchQuery(place.name);
-    setActiveDestinationFilter(place.name);
-    setDestinationFilterEnabled(true);
-    setDestLatLng({ lat: place.lat, lng: place.lng });
-    setIsSearchFocused(false);
-  };
 
   // Main Driver State
   const [isOnline, setIsOnline] = useState<boolean>(true);
@@ -213,6 +145,50 @@ export function DriverApp() {
     { id: 'HIST-3', customer: 'David Miller', route: 'Infopark Phase 1, Kakkanad ➔ MG Road, Kochi', date: 'Yesterday, 6:30 PM', fare: '₹950.00', rating: '4.9 ★', serviceType: 'Business Comfort' },
     { id: 'HIST-4', customer: 'Neha Kapoor', route: 'Aluva Metro Hub ➔ Thrissur Round East', date: '08/03/2026', fare: '₹1,450.00', rating: '5.0 ★', serviceType: 'Outstation Executive' },
   ]);
+
+  // Driver Transactions Feed State (For Quick Search & Earnings)
+  const [driverTransactionsList, setDriverTransactionsList] = useState<Array<{
+    id: string;
+    title: string;
+    method: string;
+    date: string;
+    amount: string;
+    type: 'payout' | 'trip_earning' | 'bonus' | 'tip';
+    status: string;
+  }>>([
+    { id: 'TXN-9021', title: 'Weekly Earnings Payout (Direct Deposit)', method: 'Federal Bank •••• 4921', date: 'Yesterday, 5:00 PM', amount: '₹24,850.00', type: 'payout', status: 'Settled' },
+    { id: 'TXN-9020', title: 'Trip Payout: Priya Sharma', method: 'Marine Drive ➔ Cochin Airport (COK)', date: 'Today, 2:15 PM', amount: '+₹1,250.00', type: 'trip_earning', status: 'Credited' },
+    { id: 'TXN-9019', title: 'Peak Demand Surge Bonus ⚡', method: 'Marine Drive & Infopark Zone', date: 'Today, 1:30 PM', amount: '+₹250.00', type: 'bonus', status: 'Credited' },
+    { id: 'TXN-9018', title: 'Trip Payout: Alexander Vance', method: 'Fort Kochi Heritage ➔ Willingdon Island', date: 'Today, 10:45 AM', amount: '+₹850.00', type: 'trip_earning', status: 'Credited' },
+    { id: 'TXN-9017', title: 'Trip Payout: David Miller', method: 'Infopark Phase 1 ➔ MG Road', date: 'Yesterday, 6:30 PM', amount: '+₹950.00', type: 'trip_earning', status: 'Credited' },
+    { id: 'TXN-9016', title: 'Passenger Tip (5.0 ★ Rating)', method: 'Digital In-App Tip • Priya Sharma', date: 'Today, 2:18 PM', amount: '+₹150.00', type: 'tip', status: 'Credited' },
+  ]);
+
+  // Matching Trips for Quick Search
+  const matchingTrips = completedTripsList.filter((t) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      t.customer.toLowerCase().includes(q) ||
+      t.route.toLowerCase().includes(q) ||
+      t.fare.toLowerCase().includes(q) ||
+      (t.serviceType && t.serviceType.toLowerCase().includes(q)) ||
+      t.id.toLowerCase().includes(q)
+    );
+  });
+
+  // Matching Transactions for Quick Search
+  const matchingTransactions = driverTransactionsList.filter((txn) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      txn.title.toLowerCase().includes(q) ||
+      txn.method.toLowerCase().includes(q) ||
+      txn.amount.toLowerCase().includes(q) ||
+      txn.id.toLowerCase().includes(q) ||
+      txn.status.toLowerCase().includes(q)
+    );
+  });
 
   // Geospatial, Navigation & Traccar State (Kerala, India)
   const [driverCurrentLocation, setDriverCurrentLocation] = useState<{ lat: number; lng: number }>({ lat: 9.9816, lng: 76.2999 }); // Marine Drive / MG Road, Kochi, Kerala
@@ -483,8 +459,9 @@ export function DriverApp() {
     setIsOnline(true);
     setActiveTab('rides');
     setRequestTimer(30);
-    setIncomingRequest({
-      id: `REQ-${Math.floor(1000 + Math.random() * 9000)}`,
+    const newReqId = `REQ-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newRequest = {
+      id: newReqId,
       customerName: 'Priya Sharma',
       customerRating: 4.96,
       pickup: 'Marine Drive Walkway, Ernakulam, Kochi, Kerala',
@@ -496,7 +473,23 @@ export function DriverApp() {
       distance: '2.5 km away (6 min pickup)',
       timeRemaining: 30,
       fromUserApp: false,
-    });
+    };
+    setIncomingRequest(newRequest);
+
+    // Push new ride dispatch notification into Notifications slide drawer
+    setNotificationsList((prev) => [
+      {
+        id: `dispatch-${newReqId}`,
+        title: '🚗 New Ride Dispatch Request!',
+        desc: `${newRequest.customerName} requested pickup at Marine Drive ➔ Airport (COK). Payout: ₹1,160.00.`,
+        time: 'just now',
+        unread: true,
+        type: 'booking',
+        icon: Radio,
+      },
+      ...prev,
+    ]);
+    setUnreadNotificationsCount((prev) => prev + 1);
   };
 
   const handleConfirmStartTrip = (data: VehicleConditionData) => {
@@ -943,7 +936,7 @@ export function DriverApp() {
                 </div>
               </div>
 
-              {/* ── Home Cockpit Destination & Zone Search Bar ── */}
+              {/* ── Home Section: Quick Search for Trip History & Transactions ── */}
               <div className="relative mt-2 select-none" ref={searchContainerRef}>
                 <div
                   className={`group flex items-center gap-2.5 px-3.5 h-10 rounded-2xl transition-all duration-200 ${
@@ -959,105 +952,201 @@ export function DriverApp() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => setIsSearchFocused(true)}
-                    placeholder="Where to? Set destination or hot zone..."
+                    placeholder="Search trip history, passenger, or transactions..."
                     className="flex-1 bg-transparent text-xs text-white placeholder:text-white/40 font-normal outline-none min-w-0"
                   />
 
                   {searchQuery ? (
                     <button
                       type="button"
-                      onClick={() => {
-                        setSearchQuery('');
-                        setActiveDestinationFilter(null);
-                        setDestinationFilterEnabled(false);
-                      }}
+                      onClick={() => setSearchQuery('')}
                       className="p-1 rounded-full text-white/40 hover:text-white transition-colors cursor-pointer shrink-0"
                       title="Clear Search"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
                   ) : (
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      {destinationFilterEnabled && activeDestinationFilter ? (
-                        <span className="px-2 py-0.5 rounded-full bg-[#F5C518]/20 border border-[#F5C518]/40 text-[#F5C518] text-[10px] font-semibold flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#F5C518] animate-pulse" />
-                          Filter On
-                        </span>
-                      ) : (
-                        <span className="text-[10px] text-white/30 font-medium tracking-wide">
-                          Filter
-                        </span>
-                      )}
+                    <div className="flex items-center gap-1 shrink-0">
+                      <span className="text-[10px] text-white/30 font-medium tracking-wide">
+                        History &amp; Payouts
+                      </span>
                     </div>
                   )}
                 </div>
 
-                {/* Active Destination Filter Banner (When set) */}
-                {destinationFilterEnabled && activeDestinationFilter && !isSearchFocused && (
-                  <div className="mt-1.5 flex items-center justify-between px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] animate-fade-in shadow-md">
-                    <div className="flex items-center gap-1.5 truncate">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-                      <span className="truncate font-medium">Filtering rides towards: <strong className="font-semibold text-white">{activeDestinationFilter}</strong></span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveDestinationFilter(null);
-                        setDestinationFilterEnabled(false);
-                        setSearchQuery('');
-                      }}
-                      className="text-[10px] font-semibold text-emerald-300 hover:underline ml-2 shrink-0 cursor-pointer"
-                    >
-                      Turn off
-                    </button>
-                  </div>
-                )}
-
-                {/* Smooth Search Suggestions Dropdown */}
+                {/* Smooth Search Results Dropdown */}
                 {isSearchFocused && (
-                  <div className="absolute left-0 right-0 top-12 bg-[#12141A]/95 backdrop-blur-2xl border border-white/12 rounded-2xl shadow-2xl overflow-hidden animate-slide-up-smooth z-50">
-                    <div className="px-3.5 py-2 border-b border-white/[0.06] flex items-center justify-between">
-                      <span className="text-[10px] font-semibold text-white/50 uppercase tracking-wider">
-                        {searchQuery ? 'Matching Locations' : 'High-Demand Zones & Hotspots'}
-                      </span>
-                      <span className="text-[10px] text-[#F5C518] font-medium">Auto-filter trips</span>
+                  <div className="absolute left-0 right-0 top-12 bg-[#12141A]/98 backdrop-blur-2xl border border-white/12 rounded-2xl shadow-2xl overflow-hidden animate-slide-up-smooth z-50">
+                    {/* Category Filter Tabs */}
+                    <div className="px-3.5 py-2.5 border-b border-white/[0.06] flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setSearchFilterTab('all')}
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-colors cursor-pointer ${
+                            searchFilterTab === 'all'
+                              ? 'bg-[#F5C518] text-black shadow-xs'
+                              : 'bg-white/[0.06] text-white/60 hover:text-white hover:bg-white/10'
+                          }`}
+                        >
+                          All ({matchingTrips.length + matchingTransactions.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSearchFilterTab('trips')}
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-colors cursor-pointer ${
+                            searchFilterTab === 'trips'
+                              ? 'bg-[#F5C518] text-black shadow-xs'
+                              : 'bg-white/[0.06] text-white/60 hover:text-white hover:bg-white/10'
+                          }`}
+                        >
+                          Trips ({matchingTrips.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSearchFilterTab('transactions')}
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-colors cursor-pointer ${
+                            searchFilterTab === 'transactions'
+                              ? 'bg-[#F5C518] text-black shadow-xs'
+                              : 'bg-white/[0.06] text-white/60 hover:text-white hover:bg-white/10'
+                          }`}
+                        >
+                          Payouts ({matchingTransactions.length})
+                        </button>
+                      </div>
+
+                      <span className="text-[10px] text-white/40 font-medium">Quick Access</span>
                     </div>
 
-                    <div className="max-h-[240px] overflow-y-auto scrollbar-none py-1 divide-y divide-white/[0.04]">
-                      {filteredDestinations.map((place) => {
-                        const Icon = place.icon;
-                        return (
-                          <button
-                            key={place.id}
-                            type="button"
-                            onClick={() => handleSelectDestination(place)}
-                            className="w-full px-3.5 py-2.5 flex items-center justify-between gap-3 text-left hover:bg-white/[0.06] active:bg-white/10 transition-colors cursor-pointer group"
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <div className="w-7 h-7 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-[#F5C518] shrink-0 group-hover:bg-[#F5C518]/20 group-hover:border-[#F5C518]/40 transition-colors">
-                                <Icon className="w-3.5 h-3.5" />
+                    {/* Results Body */}
+                    <div className="max-h-[280px] overflow-y-auto scrollbar-none py-1 divide-y divide-white/[0.04]">
+                      {matchingTrips.length === 0 && matchingTransactions.length === 0 ? (
+                        <div className="p-6 text-center space-y-1">
+                          <FileText className="w-5 h-5 text-white/30 mx-auto mb-1.5" />
+                          <span className="text-xs font-semibold text-white/60 block">No matching history or payout</span>
+                          <span className="text-[10px] text-white/30 block">Try searching by passenger name, destination, or amount</span>
+                        </div>
+                      ) : (
+                        <>
+                          {/* Trips Section */}
+                          {(searchFilterTab === 'all' || searchFilterTab === 'trips') && matchingTrips.length > 0 && (
+                            <div className="py-1">
+                              <div className="px-3.5 py-1 text-[9px] font-bold text-white/40 uppercase tracking-wider">
+                                Previous Trips
                               </div>
-                              <div className="min-w-0">
-                                <div className="text-xs font-semibold text-white truncate group-hover:text-[#F5C518] transition-colors">
-                                  {place.name}
-                                </div>
-                                <div className="text-[10px] text-white/40 truncate">
-                                  {place.area} • {place.distance}
-                                </div>
-                              </div>
-                            </div>
+                              {matchingTrips.map((item) => (
+                                <button
+                                  key={item.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setIsSearchFocused(false);
+                                    setActiveTab('history');
+                                  }}
+                                  className="w-full px-3.5 py-2 flex items-center justify-between gap-3 text-left hover:bg-white/[0.06] active:bg-white/10 transition-colors cursor-pointer group"
+                                >
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <div className="w-7 h-7 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-white/60 shrink-0 group-hover:text-[#F5C518] group-hover:border-[#F5C518]/40 transition-colors">
+                                      <Car className="w-3.5 h-3.5" />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-xs font-semibold text-white truncate group-hover:text-[#F5C518] transition-colors">
+                                          {item.customer}
+                                        </span>
+                                        <span className="text-[9px] text-[#F5C518] font-bold">
+                                          {item.rating}
+                                        </span>
+                                      </div>
+                                      <div className="text-[10px] text-white/40 truncate">
+                                        {item.route}
+                                      </div>
+                                    </div>
+                                  </div>
 
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              {place.surge && (
-                                <span className="px-1.5 py-0.5 rounded-md bg-[#F5C518]/15 border border-[#F5C518]/30 text-[#F5C518] text-[9px] font-bold">
-                                  {place.surge}
-                                </span>
-                              )}
-                              <ChevronRight className="w-3.5 h-3.5 text-white/30 group-hover:text-white/70 transition-colors" />
+                                  <div className="text-right shrink-0">
+                                    <div className="text-xs font-bold text-white tabular-nums">
+                                      {item.fare}
+                                    </div>
+                                    <div className="text-[9px] text-white/40">
+                                      {item.date}
+                                    </div>
+                                  </div>
+                                </button>
+                              ))}
                             </div>
-                          </button>
-                        );
-                      })}
+                          )}
+
+                          {/* Transactions Section */}
+                          {(searchFilterTab === 'all' || searchFilterTab === 'transactions') && matchingTransactions.length > 0 && (
+                            <div className="py-1">
+                              <div className="px-3.5 py-1 text-[9px] font-bold text-white/40 uppercase tracking-wider">
+                                Earnings &amp; Payout Transactions
+                              </div>
+                              {matchingTransactions.map((txn) => (
+                                <button
+                                  key={txn.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setIsSearchFocused(false);
+                                    setActiveTab('earnings');
+                                  }}
+                                  className="w-full px-3.5 py-2 flex items-center justify-between gap-3 text-left hover:bg-white/[0.06] active:bg-white/10 transition-colors cursor-pointer group"
+                                >
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <div className="w-7 h-7 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 group-hover:border-emerald-500/40 transition-colors">
+                                      <DollarSign className="w-3.5 h-3.5" />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <div className="text-xs font-semibold text-white truncate group-hover:text-emerald-300 transition-colors">
+                                        {txn.title}
+                                      </div>
+                                      <div className="text-[10px] text-white/40 truncate">
+                                        {txn.method} • {txn.date}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="text-right shrink-0">
+                                    <div className="text-xs font-bold text-emerald-400 tabular-nums">
+                                      {txn.amount}
+                                    </div>
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.06] text-white/50 font-medium">
+                                      {txn.status}
+                                    </span>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+
+                    {/* Quick Access Footer */}
+                    <div className="px-3.5 py-2 border-t border-white/[0.06] bg-black/30 flex items-center justify-between text-[10px]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsSearchFocused(false);
+                          setActiveTab('history');
+                        }}
+                        className="text-white/60 hover:text-[#F5C518] font-medium transition-colors cursor-pointer flex items-center gap-1"
+                      >
+                        <span>Open Trip History</span>
+                        <ChevronRight className="w-3 h-3" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsSearchFocused(false);
+                          setActiveTab('earnings');
+                        }}
+                        className="text-white/60 hover:text-emerald-400 font-medium transition-colors cursor-pointer flex items-center gap-1"
+                      >
+                        <span>Open Earnings &amp; Payouts</span>
+                        <ChevronRight className="w-3 h-3" />
+                      </button>
                     </div>
                   </div>
                 )}
@@ -1079,16 +1168,7 @@ export function DriverApp() {
               {/* Destination Filter Quick Pill */}
               <button
                 type="button"
-                onClick={() => {
-                  const next = !destinationFilterEnabled;
-                  setDestinationFilterEnabled(next);
-                  if (!next) {
-                    setActiveDestinationFilter(null);
-                    setSearchQuery('');
-                  } else if (!activeDestinationFilter) {
-                    setIsSearchFocused(true);
-                  }
-                }}
+                onClick={() => setDestinationFilterEnabled(!destinationFilterEnabled)}
                 className={`w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors ${
                   destinationFilterEnabled
                     ? 'bg-[#F5C518] text-black shadow-sm'
@@ -2282,16 +2362,6 @@ export function DriverApp() {
                         <p className="text-xs text-white/40 max-w-[200px] leading-relaxed mt-1">
                           All notifications marked as read and cleared.
                         </p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setNotificationsList(INITIAL_DRIVER_NOTIFICATIONS);
-                            setUnreadNotificationsCount(2);
-                          }}
-                          className="mt-4 px-3 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/10 border border-white/10 text-[11px] font-medium text-white/70 hover:text-white transition-colors cursor-pointer"
-                        >
-                          Restore sample alerts
-                        </button>
                       </div>
                     ) : (
                       notificationsList.map((item, index) => {
@@ -2301,6 +2371,12 @@ export function DriverApp() {
                         return (
                           <div
                             key={item.id}
+                            onClick={() => {
+                              if (item.type === 'booking') {
+                                setShowNotificationsModal(false);
+                                setActiveTab('rides');
+                              }
+                            }}
                             style={{
                               transitionProperty: 'transform, opacity',
                               transitionDuration: '340ms',
@@ -2308,6 +2384,8 @@ export function DriverApp() {
                               transitionDelay: isClearingNotifications ? `${index * 60}ms` : '0ms',
                             }}
                             className={`group relative rounded-xl p-3 flex items-start gap-2.5 transition-all transform-gpu will-change-transform ${
+                              item.type === 'booking' ? 'cursor-pointer hover:border-[#F5C518]/40 active:scale-[0.99]' : ''
+                            } ${
                               isExiting
                                 ? 'translate-x-[120%] translate-y-4 rotate-3 opacity-0 pointer-events-none'
                                 : 'translate-x-0 translate-y-0 rotate-0 opacity-100'

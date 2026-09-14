@@ -1017,16 +1017,6 @@ export const DriverAppView: React.FC<DriverAppViewProps> = ({ onSwitchToCustomer
                   <p className="text-xs text-slate-500 max-w-[200px] leading-relaxed mt-1">
                     All notifications marked as read and cleared.
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setNotificationsList(INITIAL_DRIVER_NOTIFICATIONS);
-                      setUnreadNotificationsCount(2);
-                    }}
-                    className="mt-4 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[11px] font-bold text-slate-700 transition-colors cursor-pointer"
-                  >
-                    Restore sample alerts
-                  </button>
                 </div>
               ) : (
                 notificationsList.map((item, index) => {
