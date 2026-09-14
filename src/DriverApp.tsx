@@ -1247,22 +1247,23 @@ export function DriverApp() {
 
             {/* ═════════ LAYER 4: SLIDE-UP FULL SHEETS (EARNINGS, HISTORY, ACCOUNT) ═════════ */}
 
-            {/* ── TAB 2: EARNINGS FULL SHEET ── */}
+            {/* ── TAB 2: EARNINGS FULL SEPARATE PAGE POPUP ── */}
             {activeTab === 'earnings' && (
-              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col pt-3 animate-slide-up-smooth select-none">
-                <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-2" />
-                <div className="px-4 py-2 flex items-center justify-between border-b border-white/10">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <DollarSign className="w-5 h-5 text-[#fcd502] shrink-0" />
-                    <h3 className="font-black text-base text-white whitespace-nowrap truncate">Earnings &amp; Payouts</h3>
+              <div className="absolute inset-x-2 sm:inset-x-3 top-3 bottom-0 z-40 bg-[#0A0E17]/98 text-white flex flex-col rounded-t-[32px] border-t border-x border-white/12 shadow-[0_-12px_45px_rgba(0,0,0,0.95)] animate-slide-up-smooth select-none overflow-hidden">
+                {/* Dedicated Page Header (No Cross Icon - Navigate via bottom navbar) */}
+                <div className="px-4 py-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420]/80 backdrop-blur-md shrink-0">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-[#fcd502]/15 text-[#fcd502] flex items-center justify-center font-black shrink-0">
+                      <DollarSign className="w-4.5 h-4.5 text-[#fcd502] stroke-[2.5]" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-black text-base text-white whitespace-nowrap truncate">Earnings &amp; Payouts</h3>
+                      <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">Live revenue &amp; deposits</p>
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('rides')}
-                    className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer active:scale-90 shrink-0"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+                  <span className="px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 text-[10px] font-black uppercase tracking-wider whitespace-nowrap shrink-0">
+                    Live Sync ⚡
+                  </span>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-none pb-32 text-xs">
@@ -1324,22 +1325,23 @@ export function DriverApp() {
               </div>
             )}
 
-            {/* ── TAB 3: TRIP HISTORY FULL SHEET ── */}
+            {/* ── TAB 3: TRIP HISTORY FULL SEPARATE PAGE POPUP ── */}
             {activeTab === 'history' && (
-              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col pt-3 animate-slide-up-smooth select-none">
-                <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-2" />
-                <div className="px-4 py-2 flex items-center justify-between border-b border-white/10">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Clock className="w-5 h-5 text-[#fcd502] shrink-0" />
-                    <h3 className="font-black text-base text-white whitespace-nowrap truncate">Trip History</h3>
+              <div className="absolute inset-x-2 sm:inset-x-3 top-3 bottom-0 z-40 bg-[#0A0E17]/98 text-white flex flex-col rounded-t-[32px] border-t border-x border-white/12 shadow-[0_-12px_45px_rgba(0,0,0,0.95)] animate-slide-up-smooth select-none overflow-hidden">
+                {/* Dedicated Page Header (No Cross Icon - Navigate via bottom navbar) */}
+                <div className="px-4 py-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420]/80 backdrop-blur-md shrink-0">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-[#fcd502]/15 text-[#fcd502] flex items-center justify-center font-black shrink-0">
+                      <Clock className="w-4.5 h-4.5 text-[#fcd502] stroke-[2.5]" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-black text-base text-white whitespace-nowrap truncate">Trip History</h3>
+                      <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">Completed &amp; pending rides</p>
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('rides')}
-                    className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer active:scale-90 shrink-0"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+                  <span className="px-2.5 py-1 rounded-full bg-white/10 border border-white/10 text-slate-300 text-[10px] font-bold whitespace-nowrap shrink-0">
+                    {completedTripsList.length} Total
+                  </span>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-none pb-32 text-xs">
@@ -1458,22 +1460,23 @@ export function DriverApp() {
               </div>
             )}
 
-            {/* ── TAB 4: ACCOUNT / PROFILE FULL SHEET ── */}
+            {/* ── TAB 4: ACCOUNT / PROFILE FULL SEPARATE PAGE POPUP ── */}
             {activeTab === 'profile' && (
-              <div className="absolute inset-0 z-40 bg-[#0A0E17] text-white flex flex-col pt-3 animate-slide-up-smooth select-none">
-                <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-2" />
-                <div className="px-4 py-2 flex items-center justify-between border-b border-white/10">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <User className="w-5 h-5 text-[#fcd502] shrink-0" />
-                    <h3 className="font-black text-base text-white whitespace-nowrap truncate">Driver Partner Profile</h3>
+              <div className="absolute inset-x-2 sm:inset-x-3 top-3 bottom-0 z-40 bg-[#0A0E17]/98 text-white flex flex-col rounded-t-[32px] border-t border-x border-white/12 shadow-[0_-12px_45px_rgba(0,0,0,0.95)] animate-slide-up-smooth select-none overflow-hidden">
+                {/* Dedicated Page Header (No Cross Icon - Navigate via bottom navbar) */}
+                <div className="px-4 py-3 flex items-center justify-between border-b border-white/10 bg-[#0E1420]/80 backdrop-blur-md shrink-0">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-[#fcd502]/15 text-[#fcd502] flex items-center justify-center font-black shrink-0">
+                      <User className="w-4.5 h-4.5 text-[#fcd502] stroke-[2.5]" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-black text-base text-white whitespace-nowrap truncate">Driver Account</h3>
+                      <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">Profile &amp; fleet preferences</p>
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('rides')}
-                    className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer active:scale-90 shrink-0"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+                  <span className="px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 text-[10px] font-black uppercase tracking-wider whitespace-nowrap shrink-0">
+                    Verified ✓
+                  </span>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-none pb-32 text-xs">
@@ -1598,9 +1601,9 @@ export function DriverApp() {
               </div>
             )}
 
-            {/* ═════════ LAYER 5: FLOATING MINIMAL BOTTOM COMMAND DOCK (LARGER & ELEVATED) ═════════ */}
+            {/* ═════════ LAYER 5: FLOATING MINIMAL BOTTOM COMMAND DOCK (TRANSPARENT BACKGROUND & ELEVATED) ═════════ */}
             <div className="absolute bottom-6 sm:bottom-7 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.75rem)] max-w-[360px] pointer-events-auto">
-              <nav className="cockpit-glass-elevated rounded-full p-2 flex items-center justify-between shadow-[0_16px_40px_rgba(0,0,0,0.85),0_0_24px_rgba(252,213,2,0.12)] border border-white/15 backdrop-blur-2xl">
+              <nav className="navbar-transparent rounded-full p-1.5 flex items-center justify-between">
                 {navTabs.map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
@@ -1613,7 +1616,7 @@ export function DriverApp() {
                       className={`relative flex items-center justify-center gap-2 py-3 px-3.5 rounded-full transition-all duration-200 cursor-pointer select-none ${
                         isActive
                           ? 'bg-[#fcd502] text-slate-950 font-black shadow-lg shadow-[#fcd502]/30 flex-1 min-w-0'
-                          : 'text-slate-400 hover:text-white hover:bg-white/5 font-semibold px-3'
+                          : 'text-slate-300 hover:text-white hover:bg-white/10 font-semibold px-3'
                       }`}
                       aria-label={tab.label}
                     >

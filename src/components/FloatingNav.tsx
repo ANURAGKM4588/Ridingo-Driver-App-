@@ -25,8 +25,8 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
   ];
 
   return (
-    <div className="fixed bottom-[max(env(safe-area-inset-bottom,8px),8px)] left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-md pointer-events-auto transition-all duration-300">
-      <nav className="glass-floating-dark rounded-full p-2 flex items-center justify-between shadow-2xl border border-slate-800/90 backdrop-blur-2xl bg-[#121212]/95 ring-1 ring-white/10">
+    <div className="fixed bottom-6 sm:bottom-7 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-md pointer-events-auto transition-all duration-300">
+      <nav className="navbar-transparent rounded-full p-2 flex items-center justify-between shadow-2xl border border-white/15 backdrop-blur-2xl">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
