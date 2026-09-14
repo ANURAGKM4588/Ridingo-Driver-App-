@@ -1,41 +1,36 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Outfit', 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
 }
 
 @layer base {
   :root {
-    --bg-main: #0A0E17;
-    --bg-card: #121824;
-    --primary-yellow: #FCD502;
-    --primary-amber: #F59E0B;
+    --bg-main: #090A0D;
+    --bg-surface: #12141A;
+    --bg-surface-elevated: #171A22;
+    --primary-accent: #F5C518;
     --accent-emerald: #10B981;
-    --dark-carbon: #0A0E17;
-    --dark-card: #182030;
-    --text-primary: #FFFFFF;
-    --text-secondary: #94A3B8;
-    --text-tertiary: #64748B;
-    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-subtle: rgba(255, 255, 255, 0.07);
+    --border-highlight: rgba(255, 255, 255, 0.12);
   }
 
   body {
-    background-color: #0A0E17;
-    color: var(--text-primary);
-    font-family: 'Outfit', 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    background-color: #090A0D;
+    color: #FFFFFF;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
-    letter-spacing: -0.015em;
+    letter-spacing: -0.012em;
     overflow-x: hidden;
   }
 
-  /* Ultra-clean modern minimal typography */
+  /* Refined, quiet typography scale */
   h1, h2, h3, h4, h5, h6 {
-    letter-spacing: -0.03em;
-    font-weight: 700;
+    letter-spacing: -0.025em;
+    font-weight: 600;
   }
 }
 
@@ -48,63 +43,62 @@
 
 /* Modern Minimal Cab & Driver App Design Utilities - Cockpit Dark Theme */
 .uber-card {
-  background: #121824;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #12141A;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   color: #FFFFFF;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .uber-card:hover {
-  border-color: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 6px 24px -2px rgba(0, 0, 0, 0.6);
 }
 
 .uber-card-elevated {
-  background: #151D2C;
-  border: 1px solid rgba(252, 213, 2, 0.28);
+  background: #171A22;
+  border: 1px solid rgba(245, 197, 24, 0.2);
   color: #FFFFFF;
-  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.75), 0 0 20px -4px rgba(252, 213, 2, 0.12);
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.7);
 }
 
 .cockpit-glass {
-  background: rgba(10, 14, 23, 0.88);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.7);
+  background: rgba(15, 17, 23, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 .cockpit-glass-elevated {
-  background: rgba(12, 17, 28, 0.94);
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.75), 0 20px 45px rgba(0, 0, 0, 0.8);
+  background: rgba(14, 16, 22, 0.95);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.7);
 }
 
 .navbar-transparent {
-  background: rgba(10, 14, 23, 0.25);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 20px rgba(252, 213, 2, 0.08);
+  background: rgba(10, 12, 16, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
 }
 
 .cockpit-tactical-btn {
-  background: rgba(16, 22, 34, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(18, 20, 26, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: #FFFFFF;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .cockpit-tactical-btn:hover {
-  background: rgba(24, 33, 50, 0.95);
-  border-color: rgba(252, 213, 2, 0.5);
-  transform: translateY(-1px);
+  background: rgba(26, 30, 40, 0.95);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .cockpit-tactical-btn:active {

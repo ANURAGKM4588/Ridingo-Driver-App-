@@ -186,75 +186,75 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
       )}
 
       {/* ── MAIN INSPECTION CONTAINER ── */}
-      <div className="bg-[#0E1420] rounded-t-[36px] sm:rounded-3xl max-w-sm w-full h-[88vh] sm:h-auto sm:max-h-[85vh] flex flex-col shadow-2xl border border-white/10 text-white overflow-hidden font-sans animate-slide-up-smooth">
+      <div className="bg-[#12141A] rounded-t-3xl sm:rounded-2xl max-w-sm w-full h-[88vh] sm:h-auto sm:max-h-[85vh] flex flex-col shadow-2xl border border-white/[0.08] text-white overflow-hidden font-sans animate-slide-up-smooth">
 
         {/* Modal Header */}
-        <div className="px-4.5 pt-4 pb-3 bg-[#121824] border-b border-white/10 shrink-0 flex items-center justify-between gap-2">
+        <div className="px-5 py-3.5 bg-[#090A0D] border-b border-white/[0.06] shrink-0 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
-              <Camera className="w-4 h-4 text-emerald-400" />
+            <div className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center flex-shrink-0">
+              <Camera className="w-3.5 h-3.5 text-emerald-400" />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="font-extrabold text-sm text-white tracking-tight whitespace-nowrap truncate">Vehicle Inspection</h3>
-              <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">Real-time camera snaps • GPS verified</p>
+              <h3 className="font-semibold text-sm text-white tracking-tight whitespace-nowrap truncate">Vehicle Inspection</h3>
+              <p className="text-[11px] text-white/40 font-normal whitespace-nowrap truncate">Pre-ride live camera verification</p>
             </div>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer transition-all active:scale-90 shrink-0"
+            className="w-7 h-7 rounded-full bg-white/[0.06] hover:bg-white/10 text-white/60 flex items-center justify-center cursor-pointer transition-all active:scale-90 shrink-0"
           >
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {/* Scrollable Body */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-none">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-none">
 
           {/* Security & Verification Banner */}
-          <div className="p-3 rounded-2xl bg-[#151D2C] border border-amber-400/20 flex items-center justify-between gap-2">
+          <div className="p-3 rounded-xl bg-[#171A22] border border-white/[0.06] flex items-center justify-between gap-2">
             <div className="min-w-0 flex-1 pr-1">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300 whitespace-nowrap truncate">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-amber-300 whitespace-nowrap truncate">
                 <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span className="whitespace-nowrap truncate">Dispute Proof • Live Camera Only</span>
+                <span className="whitespace-nowrap truncate">Damage Protection Record</span>
               </div>
-              <p className="text-[10px] text-slate-300 font-medium whitespace-nowrap truncate mt-0.5">
-                GPS time-stamped photos to protect from damage claims
+              <p className="text-[11px] text-white/40 font-normal whitespace-nowrap truncate mt-0.5">
+                Time-stamped photos protect driver from claims
               </p>
             </div>
 
             <button
               type="button"
               onClick={handleAutoFillDemo}
-              className="px-2.5 py-1.5 rounded-xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-xs cursor-pointer active:scale-95 transition-all whitespace-nowrap shrink-0"
+              className="px-2.5 py-1 rounded-lg bg-white/[0.06] hover:bg-white/10 text-white/80 font-medium text-[11px] flex items-center gap-1 border border-white/10 cursor-pointer active:scale-95 transition-all whitespace-nowrap shrink-0"
               title="Fast fill for testing"
             >
-              <Sparkles className="w-3 h-3 text-slate-950 shrink-0" />
+              <Sparkles className="w-3 h-3 text-[#F5C518] shrink-0" />
               <span className="whitespace-nowrap">Demo Fill</span>
             </button>
           </div>
 
           {/* Inspection Progress Tracker */}
-          <div className="flex items-center justify-between text-xs px-1">
-            <span className="font-bold text-slate-300 flex items-center gap-1.5">
-              <Car className="w-3.5 h-3.5 text-slate-400" />
+          <div className="flex items-center justify-between text-xs px-0.5">
+            <span className="font-medium text-white/60 flex items-center gap-1.5">
+              <Car className="w-3.5 h-3.5 text-white/40" />
               4 Mandatory Angles
             </span>
-            <span className={`text-[11px] font-black ${completedCount === 4 ? 'text-emerald-400' : 'text-slate-400'}`}>
-              {completedCount} of 4 Live Snaps
+            <span className={`text-[11px] font-medium ${completedCount === 4 ? 'text-emerald-400' : 'text-white/40'}`}>
+              {completedCount} of 4 Documented
             </span>
           </div>
 
           {/* 4 Car Angles Grid (Front, Right Side, Back, Left Side) */}
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-2">
             {/* 1. FRONT */}
             <div
               onClick={() => setActiveCameraSlot('front')}
-              className={`group relative rounded-2xl border p-2 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 overflow-hidden ${
+              className={`group relative rounded-xl border p-2 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 overflow-hidden ${
                 frontImage
-                  ? 'border-emerald-500/50 bg-[#121824]'
-                  : 'border-white/10 bg-[#121824] hover:border-[#fcd502] hover:bg-[#182032]'
+                  ? 'border-emerald-500/30 bg-emerald-500/5'
+                  : 'border-white/[0.08] bg-[#171A22] hover:border-[#F5C518]/50 hover:bg-[#1C202A]'
               }`}
             >
               {frontImage ? (
@@ -262,24 +262,24 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
                   <img
                     src={frontImage}
                     alt="Car Front"
-                    className="w-full h-24 object-cover rounded-xl border border-white/10"
+                    className="w-full h-24 object-cover rounded-lg border border-white/10"
                   />
-                  <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[9px] font-bold flex items-center gap-0.5 shadow-xs">
-                    <CheckCircle2 className="w-2.5 h-2.5" /> Live
+                  <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[9px] font-medium flex items-center gap-0.5 shadow-xs">
+                    <CheckCircle2 className="w-2.5 h-2.5" /> Saved
                   </span>
                   <div className="flex items-center justify-between mt-1.5 px-0.5">
-                    <span className="text-[11px] font-black text-white truncate">1. Front</span>
-                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-950/60 px-1 rounded border border-emerald-500/30">Retake ↺</span>
+                    <span className="text-xs font-medium text-white truncate">1. Front</span>
+                    <span className="text-[10px] font-normal text-emerald-400">Retake ↺</span>
                   </div>
                 </div>
               ) : (
                 <div className="py-5 px-2 flex flex-col items-center justify-center space-y-1.5">
-                  <div className="w-10 h-10 rounded-2xl bg-white/5 group-hover:bg-[#fcd502]/20 flex items-center justify-center transition-colors">
-                    <Camera className="w-5 h-5 text-[#fcd502]" />
+                  <div className="w-9 h-9 rounded-xl bg-white/[0.05] group-hover:bg-[#F5C518]/15 flex items-center justify-center transition-colors">
+                    <Camera className="w-4 h-4 text-[#F5C518]" />
                   </div>
-                  <span className="text-xs font-bold text-white">1. Car Front</span>
-                  <span className="text-[9px] font-extrabold text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full">
-                    Tap to Open Camera
+                  <span className="text-xs font-medium text-white">1. Front</span>
+                  <span className="text-[10px] text-white/40 font-normal">
+                    Tap to capture
                   </span>
                 </div>
               )}
@@ -288,10 +288,10 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
             {/* 2. RIGHT SIDE */}
             <div
               onClick={() => setActiveCameraSlot('rightSide')}
-              className={`group relative rounded-2xl border p-2 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 overflow-hidden ${
+              className={`group relative rounded-xl border p-2 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 overflow-hidden ${
                 rightSideImage
-                  ? 'border-emerald-500/50 bg-[#121824]'
-                  : 'border-white/10 bg-[#121824] hover:border-[#fcd502] hover:bg-[#182032]'
+                  ? 'border-emerald-500/30 bg-emerald-500/5'
+                  : 'border-white/[0.08] bg-[#171A22] hover:border-[#F5C518]/50 hover:bg-[#1C202A]'
               }`}
             >
               {rightSideImage ? (
@@ -299,24 +299,24 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
                   <img
                     src={rightSideImage}
                     alt="Right Side"
-                    className="w-full h-24 object-cover rounded-xl border border-white/10"
+                    className="w-full h-24 object-cover rounded-lg border border-white/10"
                   />
-                  <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[9px] font-bold flex items-center gap-0.5 shadow-xs">
-                    <CheckCircle2 className="w-2.5 h-2.5" /> Live
+                  <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[9px] font-medium flex items-center gap-0.5 shadow-xs">
+                    <CheckCircle2 className="w-2.5 h-2.5" /> Saved
                   </span>
                   <div className="flex items-center justify-between mt-1.5 px-0.5">
-                    <span className="text-[11px] font-black text-white truncate">2. Right Side</span>
-                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-950/60 px-1 rounded border border-emerald-500/30">Retake ↺</span>
+                    <span className="text-xs font-medium text-white truncate">2. Right Side</span>
+                    <span className="text-[10px] font-normal text-emerald-400">Retake ↺</span>
                   </div>
                 </div>
               ) : (
                 <div className="py-5 px-2 flex flex-col items-center justify-center space-y-1.5">
-                  <div className="w-10 h-10 rounded-2xl bg-white/5 group-hover:bg-[#fcd502]/20 flex items-center justify-center transition-colors">
-                    <Camera className="w-5 h-5 text-[#fcd502]" />
+                  <div className="w-9 h-9 rounded-xl bg-white/[0.05] group-hover:bg-[#F5C518]/15 flex items-center justify-center transition-colors">
+                    <Camera className="w-4 h-4 text-[#F5C518]" />
                   </div>
-                  <span className="text-xs font-bold text-white">2. Right Side</span>
-                  <span className="text-[9px] font-extrabold text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full">
-                    Tap to Open Camera
+                  <span className="text-xs font-medium text-white">2. Right Side</span>
+                  <span className="text-[10px] text-white/40 font-normal">
+                    Tap to capture
                   </span>
                 </div>
               )}
@@ -325,10 +325,10 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
             {/* 3. BACK / REAR */}
             <div
               onClick={() => setActiveCameraSlot('back')}
-              className={`group relative rounded-2xl border p-2 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 overflow-hidden ${
+              className={`group relative rounded-xl border p-2 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 overflow-hidden ${
                 backImage
-                  ? 'border-emerald-500/50 bg-[#121824]'
-                  : 'border-white/10 bg-[#121824] hover:border-[#fcd502] hover:bg-[#182032]'
+                  ? 'border-emerald-500/30 bg-emerald-500/5'
+                  : 'border-white/[0.08] bg-[#171A22] hover:border-[#F5C518]/50 hover:bg-[#1C202A]'
               }`}
             >
               {backImage ? (
@@ -336,24 +336,24 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
                   <img
                     src={backImage}
                     alt="Back"
-                    className="w-full h-24 object-cover rounded-xl border border-white/10"
+                    className="w-full h-24 object-cover rounded-lg border border-white/10"
                   />
-                  <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[9px] font-bold flex items-center gap-0.5 shadow-xs">
-                    <CheckCircle2 className="w-2.5 h-2.5" /> Live
+                  <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[9px] font-medium flex items-center gap-0.5 shadow-xs">
+                    <CheckCircle2 className="w-2.5 h-2.5" /> Saved
                   </span>
                   <div className="flex items-center justify-between mt-1.5 px-0.5">
-                    <span className="text-[11px] font-black text-white truncate">3. Car Back</span>
-                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-950/60 px-1 rounded border border-emerald-500/30">Retake ↺</span>
+                    <span className="text-xs font-medium text-white truncate">3. Rear</span>
+                    <span className="text-[10px] font-normal text-emerald-400">Retake ↺</span>
                   </div>
                 </div>
               ) : (
                 <div className="py-5 px-2 flex flex-col items-center justify-center space-y-1.5">
-                  <div className="w-10 h-10 rounded-2xl bg-white/5 group-hover:bg-[#fcd502]/20 flex items-center justify-center transition-colors">
-                    <Camera className="w-5 h-5 text-[#fcd502]" />
+                  <div className="w-9 h-9 rounded-xl bg-white/[0.05] group-hover:bg-[#F5C518]/15 flex items-center justify-center transition-colors">
+                    <Camera className="w-4 h-4 text-[#F5C518]" />
                   </div>
-                  <span className="text-xs font-bold text-white">3. Car Back</span>
-                  <span className="text-[9px] font-extrabold text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full">
-                    Tap to Open Camera
+                  <span className="text-xs font-medium text-white">3. Rear</span>
+                  <span className="text-[10px] text-white/40 font-normal">
+                    Tap to capture
                   </span>
                 </div>
               )}
@@ -362,10 +362,10 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
             {/* 4. LEFT SIDE (OTHER SIDE) */}
             <div
               onClick={() => setActiveCameraSlot('leftSide')}
-              className={`group relative rounded-2xl border p-2 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 overflow-hidden ${
+              className={`group relative rounded-xl border p-2 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 overflow-hidden ${
                 leftSideImage
-                  ? 'border-emerald-500/50 bg-[#121824]'
-                  : 'border-white/10 bg-[#121824] hover:border-[#fcd502] hover:bg-[#182032]'
+                  ? 'border-emerald-500/30 bg-emerald-500/5'
+                  : 'border-white/[0.08] bg-[#171A22] hover:border-[#F5C518]/50 hover:bg-[#1C202A]'
               }`}
             >
               {leftSideImage ? (
@@ -373,24 +373,24 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
                   <img
                     src={leftSideImage}
                     alt="Left Side"
-                    className="w-full h-24 object-cover rounded-xl border border-white/10"
+                    className="w-full h-24 object-cover rounded-lg border border-white/10"
                   />
-                  <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[9px] font-bold flex items-center gap-0.5 shadow-xs">
-                    <CheckCircle2 className="w-2.5 h-2.5" /> Live
+                  <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[9px] font-medium flex items-center gap-0.5 shadow-xs">
+                    <CheckCircle2 className="w-2.5 h-2.5" /> Saved
                   </span>
                   <div className="flex items-center justify-between mt-1.5 px-0.5">
-                    <span className="text-[11px] font-black text-white truncate">4. Left Side</span>
-                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-950/60 px-1 rounded border border-emerald-500/30">Retake ↺</span>
+                    <span className="text-xs font-medium text-white truncate">4. Left Side</span>
+                    <span className="text-[10px] font-normal text-emerald-400">Retake ↺</span>
                   </div>
                 </div>
               ) : (
                 <div className="py-5 px-2 flex flex-col items-center justify-center space-y-1.5">
-                  <div className="w-10 h-10 rounded-2xl bg-white/5 group-hover:bg-[#fcd502]/20 flex items-center justify-center transition-colors">
-                    <Camera className="w-5 h-5 text-[#fcd502]" />
+                  <div className="w-9 h-9 rounded-xl bg-white/[0.05] group-hover:bg-[#F5C518]/15 flex items-center justify-center transition-colors">
+                    <Camera className="w-4 h-4 text-[#F5C518]" />
                   </div>
-                  <span className="text-xs font-bold text-white">4. Left Side</span>
-                  <span className="text-[9px] font-extrabold text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full">
-                    Tap to Open Camera
+                  <span className="text-xs font-medium text-white">4. Left Side</span>
+                  <span className="text-[10px] text-white/40 font-normal">
+                    Tap to capture
                   </span>
                 </div>
               )}
@@ -398,23 +398,23 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
           </div>
 
           {/* 5. SCRATCHES, DENTS & DEFECTS CAMERA SECTION */}
-          <div className="uber-card p-3.5 rounded-2xl space-y-3">
+          <div className="bg-[#171A22] border border-white/[0.06] p-3.5 rounded-xl space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5 text-[#fcd502]" />
-                  Scratches & Dents Camera
+                <span className="text-xs font-medium text-white flex items-center gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 text-[#F5C518]" />
+                  Scratches &amp; Pre-existing Defects
                 </span>
-                <p className="text-[10px] text-slate-400">Take real close-up camera photos of defects</p>
+                <p className="text-[11px] text-white/40 font-normal">Optional close-up photos for documentation</p>
               </div>
 
               <button
                 type="button"
                 onClick={() => setActiveCameraSlot('defect')}
-                className="px-2.5 py-1.5 rounded-xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 text-[10px] font-black flex items-center gap-1 active:scale-95 transition-all cursor-pointer shadow-xs"
+                className="px-2.5 py-1 rounded-lg bg-white/[0.06] hover:bg-white/10 text-white text-xs font-medium flex items-center gap-1 active:scale-95 transition-all cursor-pointer border border-white/10"
               >
-                <Camera className="w-3 h-3 text-slate-950" />
-                <span>Snap Defect</span>
+                <Camera className="w-3 h-3 text-[#F5C518]" />
+                <span>Snap Photo</span>
               </button>
             </div>
 
@@ -422,7 +422,7 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
             {defectImages.length > 0 ? (
               <div className="grid grid-cols-3 gap-2">
                 {defectImages.map((img, idx) => (
-                  <div key={idx} className="relative group rounded-xl overflow-hidden border border-amber-400/50">
+                  <div key={idx} className="relative group rounded-lg overflow-hidden border border-white/10">
                     <img
                       src={img}
                       alt={`Defect ${idx + 1}`}
@@ -432,8 +432,8 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
                     <button
                       type="button"
                       onClick={() => handleRemoveDefect(idx)}
-                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-xs cursor-pointer"
-                      title="Remove defect photo"
+                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 hover:bg-rose-500 text-white flex items-center justify-center shadow-xs cursor-pointer"
+                      title="Remove photo"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -444,16 +444,16 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveCameraSlot('defect')}
-                className="w-full py-3 px-3 rounded-xl border border-dashed border-amber-400/40 bg-amber-500/10 hover:bg-amber-500/20 text-center cursor-pointer transition-colors flex items-center justify-center gap-2 text-amber-300 font-bold text-xs"
+                className="w-full py-2.5 px-3 rounded-lg border border-dashed border-white/10 bg-white/[0.02] hover:bg-white/[0.04] text-center cursor-pointer transition-colors flex items-center justify-center gap-2 text-white/50 text-xs font-normal"
               >
-                <Camera className="w-4 h-4 text-[#fcd502]" />
-                <span>Open Camera to Photograph Scratches / Dents</span>
+                <Camera className="w-3.5 h-3.5 text-[#F5C518]" />
+                <span>Photograph minor scratches or dents</span>
               </button>
             )}
 
             {/* Common Damage Tag Chips */}
-            <div className="space-y-1.5 pt-1 border-t border-white/10">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Quick Defect Tags</span>
+            <div className="space-y-1.5 pt-1 border-t border-white/[0.06]">
+              <span className="text-[11px] font-medium text-white/40 block">Common Damage Tags</span>
               <div className="flex flex-wrap gap-1.5">
                 {COMMON_DEFECT_TAGS.map((tag) => {
                   const isSelected = selectedTags.includes(tag);
@@ -462,10 +462,10 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
                       key={tag}
                       type="button"
                       onClick={() => toggleTag(tag)}
-                      className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
+                      className={`text-[11px] font-normal px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-[#fcd502] border-[#fcd502] text-slate-950 font-black'
-                          : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+                          ? 'bg-[#F5C518] border-[#F5C518] text-black font-medium shadow-xs'
+                          : 'bg-white/[0.04] border-white/[0.06] text-white/60 hover:bg-white/[0.08]'
                       }`}
                     >
                       {isSelected ? '✓ ' : '+ '} {tag}
@@ -481,55 +481,32 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
                 type="text"
                 value={defectNotes}
                 onChange={(e) => setDefectNotes(e.target.value)}
-                placeholder="Optional notes: e.g. 2-inch scratch on lower rear passenger door"
-                className="w-full py-2 px-3 rounded-xl bg-[#182032] border border-white/10 text-xs font-medium text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#fcd502]"
+                placeholder="Optional notes (e.g. 2-inch scratch on rear bumper)"
+                className="w-full py-2 px-3 rounded-lg bg-[#12141A] border border-white/[0.08] text-xs font-normal text-white placeholder:text-white/30 focus:outline-none focus:border-[#F5C518]/50"
               />
             </div>
           </div>
 
         </div>
 
-        {/* Modal Footer with "Start the trip" Button (Strict Validation) */}
-        <div className="p-4 bg-[#121824] border-t border-white/10 shrink-0 space-y-2.5">
+        {/* Modal Footer with "Start Trip" Button */}
+        <div className="p-4 bg-[#090A0D] border-t border-white/[0.06] shrink-0 space-y-2.5">
           {!isReady ? (
-            <div className="p-3 rounded-2xl bg-rose-950/40 border border-rose-800/50 text-center space-y-1.5">
-              <div className="flex items-center justify-center gap-1.5 text-xs font-black text-rose-300 whitespace-nowrap">
-                <Lock className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-                <span className="whitespace-nowrap truncate">Trip Start Locked ({completedCount}/4 Photos Taken)</span>
+            <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center space-y-1">
+              <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-amber-300 whitespace-nowrap">
+                <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span className="whitespace-nowrap truncate">{completedCount} of 4 Photos Completed</span>
               </div>
-              <p className="text-[10px] text-rose-300/80 font-medium whitespace-nowrap truncate">
-                All 4 angles mandatory before starting ride meter:
+              <p className="text-[11px] text-white/40 font-normal whitespace-nowrap truncate">
+                Capture all 4 angles to unlock trip meter
               </p>
-              <div className="flex flex-wrap justify-center gap-1 pt-0.5">
-                {[
-                  { name: '1. Front', done: Boolean(frontImage) },
-                  { name: '2. Right Side', done: Boolean(rightSideImage) },
-                  { name: '3. Back', done: Boolean(backImage) },
-                  { name: '4. Left Side', done: Boolean(leftSideImage) },
-                ].map((item) => (
-                  <span
-                    key={item.name}
-                    className={`text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${
-                      item.done
-                        ? 'bg-emerald-950/70 text-emerald-300 border border-emerald-500/40'
-                        : 'bg-rose-900/60 text-rose-200 border border-rose-600/40'
-                    }`}
-                  >
-                    {item.done ? '✓ ' : '✕ '}
-                    {item.name}
-                  </span>
-                ))}
-              </div>
             </div>
           ) : (
-            <div className="p-2.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-center space-y-0.5">
-              <span className="text-[11px] font-black text-emerald-300 flex items-center justify-center gap-1.5 whitespace-nowrap">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="whitespace-nowrap truncate">All 4 Car Angles Documented! Ready to Start</span>
+            <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center space-y-0.5">
+              <span className="text-xs font-medium text-emerald-400 flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="whitespace-nowrap truncate">All 4 Angles Verified. Ready to Start</span>
               </span>
-              <p className="text-[10px] text-emerald-400/80 font-medium whitespace-nowrap truncate">
-                Damage protection proof saved. Tap below to start ride.
-              </p>
             </div>
           )}
 
@@ -537,21 +514,21 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
             type="button"
             disabled={!isReady}
             onClick={handleStartTrip}
-            className={`w-full py-4 px-4 rounded-2xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 select-none ${
+            className={`w-full h-12 px-4 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 select-none ${
               isReady
-                ? 'bg-[#fcd502] hover:bg-[#eac500] text-slate-950 shadow-lg shadow-[#fcd502]/20 cursor-pointer active:scale-[0.98]'
-                : 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/10 shadow-none pointer-events-none'
+                ? 'bg-[#F5C518] hover:bg-[#E5B510] text-black shadow-md shadow-[#F5C518]/15 cursor-pointer active:scale-[0.98]'
+                : 'bg-white/[0.06] text-white/30 cursor-not-allowed border border-white/[0.06] shadow-none pointer-events-none'
             }`}
           >
             {isReady ? (
               <>
-                <CheckCircle2 className="w-4 h-4 text-slate-950 stroke-[2.5]" />
-                <span>Start the trip</span>
+                <CheckCircle2 className="w-4 h-4 text-black stroke-[2.2]" />
+                <span>Start Trip</span>
               </>
             ) : (
               <>
-                <Lock className="w-4 h-4 text-slate-500" />
-                <span>Take All 4 Photos to Start Trip ({completedCount}/4)</span>
+                <Lock className="w-4 h-4 text-white/30" />
+                <span>Take All 4 Photos to Start ({completedCount}/4)</span>
               </>
             )}
           </button>
