@@ -79,6 +79,7 @@ export function DriverApp() {
   const [editPhonePrimary, setEditPhonePrimary] = useState<string>('+91 98470 12345');
   const [editPhoneEmergency, setEditPhoneEmergency] = useState<string>('+91 98470 54321');
   const [editEmail, setEditEmail] = useState<string>('marcus.vance@ridingo.com');
+  const [demoOtp, setDemoOtp] = useState<string>('492018');
   // Tactical Toolbar & Map Location State
   const [isLocating, setIsLocating] = useState<boolean>(false);
   const mapInstanceRef = useRef<any>(null);
