@@ -1,4 +1,4 @@
-name: Build iOS IPA – Ridingo Driver App
+name: Build iOS IPA – RIDINGO DRIVER
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-ios:
-    name: Build Unsigned IPA (Latest UI)
+    name: Build Unsigned IPA (RIDINGO DRIVER)
     runs-on: macos-latest
 
     steps:
@@ -40,17 +40,16 @@ jobs:
           echo "🧹 Wiping stale iOS web assets..."
           rm -rf ios/App/App/public
           npx cap sync ios --deployment
-          echo "✅ Capacitor sync done. New web assets:"
-          ls -la ios/App/App/public/
+          echo "✅ Capacitor sync done."
 
-      # ── 6. Force Bundle ID & Display Name in Info.plist ───────────
-      - name: Set Bundle ID & Display Name (Driver App)
+      # ── 6. Force unique Bundle ID & Display Name in Info.plist ─────
+      - name: Set Bundle ID & Display Name → RIDINGO DRIVER
         run: |
           PLIST="ios/App/App/Info.plist"
           /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier com.ridingo.driver"   "$PLIST"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Ridingo Driver"      "$PLIST"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleName Ridingo Driver"             "$PLIST"
-          echo "--- ✅ Info.plist verified ---"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName RIDINGO DRIVER"      "$PLIST"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleName RIDINGO DRIVER"             "$PLIST"
+          echo "--- ✅ Verified Info.plist ---"
           /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier"  "$PLIST"
           /usr/libexec/PlistBuddy -c "Print :CFBundleDisplayName" "$PLIST"
 
@@ -65,7 +64,7 @@ jobs:
             -workspace ios/App/App.xcworkspace \
             -scheme App
 
-      # ── 9. Build .app (no signing) ────────────────────────────────
+      # ── 9. Build .app — unique Bundle ID, no signing ──────────────
       - name: Build .app (CODE_SIGNING_ALLOWED=NO)
         run: |
           xcodebuild \
@@ -75,7 +74,7 @@ jobs:
             -sdk iphoneos \
             -derivedDataPath DerivedData \
             PRODUCT_BUNDLE_IDENTIFIER="com.ridingo.driver" \
-            PRODUCT_NAME="Ridingo Driver" \
+            PRODUCT_NAME="RIDINGO DRIVER" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
@@ -88,13 +87,13 @@ jobs:
           echo "Found .app at: $APP_PATH"
           mkdir -p Payload
           cp -r "$APP_PATH" Payload/
-          zip -r Ridingo-DriverApp-unsigned.ipa Payload
-          ls -lh Ridingo-DriverApp-unsigned.ipa
+          zip -r RIDINGO-DRIVER-unsigned.ipa Payload
+          ls -lh RIDINGO-DRIVER-unsigned.ipa
 
       # ── 11. Upload IPA as artifact ────────────────────────────────
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Ridingo-DriverApp-IPA
-          path: Ridingo-DriverApp-unsigned.ipa
+          name: RIDINGO-DRIVER-IPA
+          path: RIDINGO-DRIVER-unsigned.ipa
           retention-days: 30
