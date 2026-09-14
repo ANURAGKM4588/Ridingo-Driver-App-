@@ -1717,27 +1717,74 @@ export function DriverApp() {
                       </div>
 
                       {/* Safety & Emergency Support */}
-                      <div className="bg-[#12141A] border border-white/[0.07] p-4 rounded-2xl space-y-2">
-                        <span className="text-xs font-medium text-white/50 block">Safety &amp; Emergency Support</span>
+                      <div className="bg-[#12141A] border border-white/[0.07] p-4 rounded-2xl space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-white/50">Safety &amp; Support</span>
+                          <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                            24/7 Active
+                          </span>
+                        </div>
+
+                        {/* Quick Action SOS & Helpline Grid */}
                         <div className="grid grid-cols-2 gap-2">
-                          <button
-                            type="button"
-                            onClick={() => alert(`Calling Ridingo 24/7 Driver Support Desk...`)}
-                            className="p-2.5 rounded-xl bg-[#171A22] hover:bg-white/[0.06] border border-white/[0.05] text-left transition-colors cursor-pointer"
+                          <a
+                            href="tel:+918000123456"
+                            className="p-2.5 rounded-xl bg-[#171A22] hover:bg-white/[0.06] border border-white/[0.05] text-left transition-colors cursor-pointer block"
                           >
                             <Phone className="w-3.5 h-3.5 text-[#F5C518] mb-1" />
-                            <span className="font-medium text-white text-xs block">Chauffeur Support</span>
-                            <span className="text-[10px] text-white/40">24/7 Dedicated Line</span>
-                          </button>
+                            <span className="font-medium text-white text-xs block whitespace-nowrap truncate">Chauffeur Support</span>
+                            <span className="text-[10px] text-white/40 block whitespace-nowrap truncate">Toll-Free Helpline</span>
+                          </a>
                           <button
                             type="button"
-                            onClick={() => alert(`Emergency SOS:\nAlerting Police (112) & Emergency Contacts:\n• Primary Contact: ${driverPhonePrimary}\n• Emergency Contact: ${driverPhoneEmergency}`)}
+                            onClick={() => alert(`Emergency SOS Triggered:\nAlerting Police (112) & Emergency Contacts:\n• Primary Contact: ${driverPhonePrimary}\n• Emergency Contact: ${driverPhoneEmergency}`)}
                             className="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/15 border border-rose-500/20 text-left transition-colors cursor-pointer"
                           >
                             <Shield className="w-3.5 h-3.5 text-rose-400 mb-1" />
-                            <span className="font-medium text-rose-300 text-xs block">Emergency SOS</span>
-                            <span className="text-[10px] text-rose-400/80">Police &amp; Contacts</span>
+                            <span className="font-medium text-rose-300 text-xs block whitespace-nowrap truncate">Emergency SOS</span>
+                            <span className="text-[10px] text-rose-400/80 block whitespace-nowrap truncate">Police &amp; Contacts</span>
                           </button>
+                        </div>
+
+                        {/* Official Ridingo Support Contact & Email */}
+                        <div className="pt-2 border-t border-white/[0.05] space-y-2">
+                          {/* Ridingo Contact Phone */}
+                          <a
+                            href="tel:+918000123456"
+                            className="p-2.5 rounded-xl bg-[#171A22] hover:bg-white/[0.06] border border-white/[0.04] flex items-center justify-between gap-2 transition-colors cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                              <div className="w-7 h-7 rounded-lg bg-[#F5C518]/15 text-[#F5C518] flex items-center justify-center shrink-0">
+                                <Phone className="w-3.5 h-3.5" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <span className="text-[10px] text-white/50 block font-normal whitespace-nowrap truncate">Ridingo Support Contact No</span>
+                                <span className="text-xs font-medium text-white block font-mono whitespace-nowrap truncate">+91 800 012 3456</span>
+                              </div>
+                            </div>
+                            <span className="text-[10px] font-medium text-[#F5C518] bg-[#F5C518]/10 px-2 py-0.5 rounded-md border border-[#F5C518]/20 shrink-0">
+                              Call
+                            </span>
+                          </a>
+
+                          {/* Ridingo Support Email */}
+                          <a
+                            href="mailto:support@ridingo.com"
+                            className="p-2.5 rounded-xl bg-[#171A22] hover:bg-white/[0.06] border border-white/[0.04] flex items-center justify-between gap-2 transition-colors cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                              <div className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                                <Mail className="w-3.5 h-3.5" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <span className="text-[10px] text-white/50 block font-normal whitespace-nowrap truncate">Ridingo Support Email</span>
+                                <span className="text-xs font-medium text-white block whitespace-nowrap truncate">support@ridingo.com</span>
+                              </div>
+                            </div>
+                            <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20 shrink-0">
+                              Email
+                            </span>
+                          </a>
                         </div>
                       </div>
 
