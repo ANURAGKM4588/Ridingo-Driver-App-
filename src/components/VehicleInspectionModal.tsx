@@ -189,21 +189,21 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
       <div className="bg-[#0E1420] rounded-t-[36px] sm:rounded-3xl max-w-sm w-full h-[88vh] sm:h-auto sm:max-h-[85vh] flex flex-col shadow-2xl border border-white/10 text-white overflow-hidden font-sans animate-slide-up-smooth">
 
         {/* Modal Header */}
-        <div className="px-4.5 pt-4 pb-3 bg-[#121824] border-b border-white/10 shrink-0 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+        <div className="px-4.5 pt-4 pb-3 bg-[#121824] border-b border-white/10 shrink-0 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
               <Camera className="w-4 h-4 text-emerald-400" />
             </div>
-            <div>
-              <h3 className="font-extrabold text-sm text-white tracking-tight">Live Camera Vehicle Inspection</h3>
-              <p className="text-[10px] text-slate-400 font-medium">Real-time photos only (No gallery uploads allowed)</p>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-extrabold text-sm text-white tracking-tight whitespace-nowrap truncate">Vehicle Inspection</h3>
+              <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">Real-time camera snaps • GPS verified</p>
             </div>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer transition-all active:scale-90"
+            className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center cursor-pointer transition-all active:scale-90 shrink-0"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -214,24 +214,24 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
 
           {/* Security & Verification Banner */}
           <div className="p-3 rounded-2xl bg-[#151D2C] border border-amber-400/20 flex items-center justify-between gap-2">
-            <div className="space-y-0.5">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                <span>Dispute Proof • Live Camera Only</span>
+            <div className="min-w-0 flex-1 pr-1">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300 whitespace-nowrap truncate">
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span className="whitespace-nowrap truncate">Dispute Proof • Live Camera Only</span>
               </div>
-              <p className="text-[10px] text-slate-300 leading-tight">
-                Photos are time-stamped with your current GPS location to prevent post-ride damage claims.
+              <p className="text-[10px] text-slate-300 font-medium whitespace-nowrap truncate mt-0.5">
+                GPS time-stamped photos to protect from damage claims
               </p>
             </div>
 
             <button
               type="button"
               onClick={handleAutoFillDemo}
-              className="px-2.5 py-1.5 rounded-xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-xs cursor-pointer active:scale-95 transition-all whitespace-nowrap"
-              title="Fast fill for desktop testing without physical vehicle"
+              className="px-2.5 py-1.5 rounded-xl bg-[#fcd502] hover:bg-[#eac500] text-slate-950 font-black text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-xs cursor-pointer active:scale-95 transition-all whitespace-nowrap shrink-0"
+              title="Fast fill for testing"
             >
-              <Sparkles className="w-3 h-3 text-slate-950" />
-              <span>Demo Fill</span>
+              <Sparkles className="w-3 h-3 text-slate-950 shrink-0" />
+              <span className="whitespace-nowrap">Demo Fill</span>
             </button>
           </div>
 
@@ -493,12 +493,12 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
         <div className="p-4 bg-[#121824] border-t border-white/10 shrink-0 space-y-2.5">
           {!isReady ? (
             <div className="p-3 rounded-2xl bg-rose-950/40 border border-rose-800/50 text-center space-y-1.5">
-              <div className="flex items-center justify-center gap-1.5 text-xs font-black text-rose-300">
-                <Lock className="w-3.5 h-3.5 text-rose-400" />
-                <span>Trip Start Locked ({completedCount}/4 Photos Taken)</span>
+              <div className="flex items-center justify-center gap-1.5 text-xs font-black text-rose-300 whitespace-nowrap">
+                <Lock className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                <span className="whitespace-nowrap truncate">Trip Start Locked ({completedCount}/4 Photos Taken)</span>
               </div>
-              <p className="text-[10px] text-rose-300/80 font-medium">
-                You cannot start the trip yet. All 4 vehicle photos are mandatory:
+              <p className="text-[10px] text-rose-300/80 font-medium whitespace-nowrap truncate">
+                All 4 angles mandatory before starting ride meter:
               </p>
               <div className="flex flex-wrap justify-center gap-1 pt-0.5">
                 {[
@@ -509,7 +509,7 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
                 ].map((item) => (
                   <span
                     key={item.name}
-                    className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                    className={`text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${
                       item.done
                         ? 'bg-emerald-950/70 text-emerald-300 border border-emerald-500/40'
                         : 'bg-rose-900/60 text-rose-200 border border-rose-600/40'
@@ -523,12 +523,12 @@ export const VehicleInspectionModal: React.FC<VehicleInspectionModalProps> = ({
             </div>
           ) : (
             <div className="p-2.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-center space-y-0.5">
-              <span className="text-[11px] font-black text-emerald-300 flex items-center justify-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>All 4 Car Angles Documented! Ready to Start</span>
+              <span className="text-[11px] font-black text-emerald-300 flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span className="whitespace-nowrap truncate">All 4 Car Angles Documented! Ready to Start</span>
               </span>
-              <p className="text-[10px] text-emerald-400/80 font-medium">
-                Damage protection proof saved. Tap below to start trip meter.
+              <p className="text-[10px] text-emerald-400/80 font-medium whitespace-nowrap truncate">
+                Damage protection proof saved. Tap below to start ride.
               </p>
             </div>
           )}
