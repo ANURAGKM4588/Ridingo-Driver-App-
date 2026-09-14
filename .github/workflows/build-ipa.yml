@@ -34,18 +34,29 @@ jobs:
       - name: Capacitor sync iOS
         run: npx cap sync ios
 
-      # ── 6. Select latest Xcode ────────────────────────────────────
+      # ── 6. Force correct Bundle ID & App Name in Info.plist ────────
+      - name: Set Bundle ID & Display Name (Driver App)
+        run: |
+          PLIST="ios/App/App/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier com.ridingo.driver"   "$PLIST"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Ridingo Driver"      "$PLIST"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleName Ridingo Driver"             "$PLIST"
+          echo "--- Verifying Info.plist ---"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier"  "$PLIST"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleDisplayName" "$PLIST"
+
+      # ── 7. Select latest Xcode ────────────────────────────────────
       - name: Select Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app
 
-      # ── 7. Resolve Swift Package Manager deps ─────────────────────
+      # ── 8. Resolve Swift Package Manager deps ─────────────────────
       - name: Resolve SPM packages
         run: |
           xcodebuild -resolvePackageDependencies \
             -workspace ios/App/App.xcworkspace \
             -scheme App
 
-      # ── 8. Build .app (no signing) ────────────────────────────────
+      # ── 9. Build .app (no signing) ────────────────────────────────
       - name: Build .app (CODE_SIGNING_ALLOWED=NO)
         run: |
           xcodebuild \
@@ -54,12 +65,14 @@ jobs:
             -configuration Release \
             -sdk iphoneos \
             -derivedDataPath DerivedData \
+            PRODUCT_BUNDLE_IDENTIFIER="com.ridingo.driver" \
+            PRODUCT_NAME="Ridingo Driver" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             ENABLE_BITCODE=NO
 
-      # ── 9. Package into unsigned IPA ──────────────────────────────
+      # ── 10. Package into unsigned IPA ─────────────────────────────
       - name: Package unsigned IPA
         run: |
           APP_PATH=$(find DerivedData -name "*.app" -path "*/Release-iphoneos/*" | head -1)
@@ -69,7 +82,7 @@ jobs:
           zip -r Ridingo-DriverApp-unsigned.ipa Payload
           ls -lh Ridingo-DriverApp-unsigned.ipa
 
-      # ── 10. Upload IPA as artifact ────────────────────────────────
+      # ── 11. Upload IPA as artifact ────────────────────────────────
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
