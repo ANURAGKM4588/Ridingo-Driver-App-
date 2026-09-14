@@ -77,6 +77,8 @@ export function DriverApp() {
   const [editPhoneEmergency, setEditPhoneEmergency] = useState<string>('+91 98470 54321');
   const [editEmail, setEditEmail] = useState<string>('marcus.vance@ridingo.com');
   const [demoOtp, setDemoOtp] = useState<string>('492018');
+  const [destinationFilterEnabled, setDestinationFilterEnabled] = useState<boolean>(false);
+  const [autoAccept, setAutoAccept] = useState<boolean>(false);
 
   // Main Driver State
   const [isOnline, setIsOnline] = useState<boolean>(true);
